@@ -56,7 +56,6 @@ migrate_working_dir/
 /android/app/release
 /android/.gradle
 /android/captures/
-/android/gradle/
 **/android/local.properties
 
 # Widget Preview related
