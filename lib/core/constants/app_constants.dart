@@ -51,7 +51,11 @@ class AppConstants {
   static const String colAdmins = 'admins';
   static const String colAppConfig = 'app_config';
 
-  // AdMob Test Unit IDs
+  // AdMob Production Unit IDs (Android)
+  static const String prodAndroidBannerId = 'ca-app-pub-4673754881851008/7036485474';
+  static const String prodAndroidInterstitialId = 'ca-app-pub-4673754881851008/5559666555';
+
+  // AdMob Test Unit IDs (For safe debug/development)
   static const String testAndroidBannerId = 'ca-app-pub-3940256099942544/6300978111';
   static const String testAndroidInterstitialId = 'ca-app-pub-3940256099942544/1033173712';
   static const String testAndroidNativeId = 'ca-app-pub-3940256099942544/2247696110';

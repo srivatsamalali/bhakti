@@ -16,10 +16,10 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- Google AdMob App ID (Test App ID for Dev) -->
+        <!-- Google AdMob App ID (Production) -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-4673754881851008~2926773516"/>
 
         <!-- AudioService Activity / Service config for JustAudioBackground -->
         <activity

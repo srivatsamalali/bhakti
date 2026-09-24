@@ -31,14 +31,22 @@ class AdService {
   // --- Ad Unit IDs ---
   String get bannerAdUnitId {
     if (kIsWeb) return '';
-    if (Platform.isAndroid) return AppConstants.testAndroidBannerId;
+    if (Platform.isAndroid) {
+      return kReleaseMode
+          ? AppConstants.prodAndroidBannerId
+          : AppConstants.testAndroidBannerId;
+    }
     if (Platform.isIOS) return AppConstants.testIosBannerId;
     return '';
   }
 
   String get interstitialAdUnitId {
     if (kIsWeb) return '';
-    if (Platform.isAndroid) return AppConstants.testAndroidInterstitialId;
+    if (Platform.isAndroid) {
+      return kReleaseMode
+          ? AppConstants.prodAndroidInterstitialId
+          : AppConstants.testAndroidInterstitialId;
+    }
     if (Platform.isIOS) return AppConstants.testIosInterstitialId;
     return '';
   }
