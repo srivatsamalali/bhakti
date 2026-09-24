@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "912557353742",
+    "project_id": "com-example-divyastotram-9e6b6",
+    "storage_bucket": "com-example-divyastotram-9e6b6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912557353742:android:325794c2f03b84c3fe055f",
+        "android_client_info": {
+          "package_name": "com.bhakti.devotional"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpyLhWsl03Wo9MpXhq72Twn6P5g8gqRcU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912557353742:android:2550089962a4f495fe055f",
+        "android_client_info": {
+          "package_name": "com.example.divyastotram"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpyLhWsl03Wo9MpXhq72Twn6P5g8gqRcU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

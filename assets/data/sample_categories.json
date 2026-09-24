@@ -1,0 +1,86 @@
+[
+  {
+    "id": "stotras",
+    "name": {
+      "en": "Stotras",
+      "kn": "ಸ್ತೋತ್ರಗಳು",
+      "hi": "स्तोत्र",
+      "ta": "ஸ்தோத்திரங்கள்",
+      "ml": "സ്തോത്രങ്ങൾ"
+    },
+    "icon": "temple",
+    "order": 1
+  },
+  {
+    "id": "sahasranamam",
+    "name": {
+      "en": "Sahasranamam",
+      "kn": "ಸಹಸ್ರನಾಮ",
+      "hi": "सहस्रनाम",
+      "ta": "சஹஸ்ரநாமம்",
+      "ml": "സഹസ്രനാമം"
+    },
+    "icon": "om",
+    "order": 2
+  },
+  {
+    "id": "chalisa",
+    "name": {
+      "en": "Chalisa",
+      "kn": "ಚಾಲೀಸಾ",
+      "hi": "चालीसा",
+      "ta": "சாலிசா",
+      "ml": "ചാലീസ"
+    },
+    "icon": "lotus",
+    "order": 3
+  },
+  {
+    "id": "mantras",
+    "name": {
+      "en": "Mantras",
+      "kn": "ಮಂತ್ರಗಳು",
+      "hi": "मंत्र",
+      "ta": "மந்திரங்கள்",
+      "ml": "മന്ത്രങ്ങൾ"
+    },
+    "icon": "bell",
+    "order": 4
+  },
+  {
+    "id": "bhajans",
+    "name": {
+      "en": "Bhajans",
+      "kn": "ಭಜನೆಗಳು",
+      "hi": "भजन",
+      "ta": "பஜனைகள்",
+      "ml": "ഭജനകൾ"
+    },
+    "icon": "diya",
+    "order": 5
+  },
+  {
+    "id": "aarti",
+    "name": {
+      "en": "Aarti",
+      "kn": "ಆರತಿ",
+      "hi": "आरती",
+      "ta": "ஆரத்தி",
+      "ml": "ആരതി"
+    },
+    "icon": "lamp",
+    "order": 6
+  },
+  {
+    "id": "devotional_songs",
+    "name": {
+      "en": "Devotional Songs",
+      "kn": "ಭಕ್ತಿ ಗೀತೆಗಳು",
+      "hi": "भक्ति गीत",
+      "ta": "பக்தி பாடல்கள்",
+      "ml": "ഭക്തിഗാനങ്ങൾ"
+    },
+    "icon": "music",
+    "order": 7
+  }
+]
