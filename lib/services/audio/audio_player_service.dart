@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import '../../models/song_model.dart';
+import '../../repositories/song_repository.dart';
+import '../firebase/firestore_service.dart';
 import '../preferences/preferences_service.dart';
 
 enum SleepTimerDuration {
