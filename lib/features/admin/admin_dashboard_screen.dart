@@ -313,14 +313,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 );
               } else if (val == 'password') {
                 _showChangePasswordDialog();
-              } else if (val == 'seed') {
-                await _firestoreService.seedInitialContent();
-                await _loadAdminData();
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sample content synced to Firestore!')),
-                  );
-                }
               } else if (val == 'logout') {
                 await auth.logoutAdmin();
                 if (mounted) {
@@ -332,10 +324,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               PopupMenuItem(
                 value: 'categories',
                 child: Text(context.tr('manageCategories')),
-              ),
-              const PopupMenuItem(
-                value: 'seed',
-                child: Text('Seed / Sync Content to Cloud'),
               ),
               const PopupMenuItem(
                 value: 'password',

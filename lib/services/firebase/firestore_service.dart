@@ -283,26 +283,4 @@ class FirestoreService {
     }
   }
 
-  /// Seed initial devotional content into Cloud Firestore
-  Future<void> seedInitialContent() async {
-    await _loadFallbackData();
-    final fs = _firestore;
-    if (fs == null) return;
-
-    final batch = fs.batch();
-
-    // Categories
-    for (var cat in _fallbackCategories) {
-      final ref = fs.collection(AppConstants.colCategories).doc(cat.id);
-      batch.set(ref, cat.toFirestore());
-    }
-
-    // Songs
-    for (var song in _fallbackSongs) {
-      final ref = fs.collection(AppConstants.colSongs).doc(song.id);
-      batch.set(ref, song.toFirestore());
-    }
-
-    await batch.commit();
-  }
 }
