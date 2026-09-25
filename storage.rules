@@ -1,23 +1,16 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Helper function for admin check
-    function isAdmin() {
-      return request.auth != null;
-    }
-
     // Public devotional assets: Audio and images can be read/streamed by all users
     match /songs/{songId}/{allPaths=**} {
       allow read: if true;
-      allow write: if isAdmin() && 
-                   request.resource.size < 50 * 1024 * 1024; // Limit max file size to 50MB
+      allow write: if request.resource.size < 50 * 1024 * 1024; // Limit max file size to 50MB
     }
 
     // Categories & App assets
     match /categories/{allPaths=**} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if true;
     }
   }
 }
