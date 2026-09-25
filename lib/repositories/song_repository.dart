@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '../models/song_model.dart';
 import '../services/firebase/firestore_service.dart';
 import '../services/preferences/preferences_service.dart';
@@ -18,19 +20,63 @@ class SongRepository extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   SongRepository(this._firestoreService, this._prefs) {
+    _loadFromLocalCache();
     _prefs.addListener(_onPrefsChanged);
     _initSongStream();
   }
 
+  void _loadFromLocalCache() {
+    final cached = _prefs.getCachedSongsJson();
+    if (cached != null && cached.isNotEmpty) {
+      try {
+        final List list = jsonDecode(cached);
+        final cachedSongs = list.map((e) => SongModel.fromJson(e as Map<String, dynamic>)).toList();
+        if (cachedSongs.isNotEmpty) {
+          _allSongs = cachedSongs;
+          _isLoading = false;
+        }
+      } catch (e) {
+        debugPrint('Error loading cached songs: $e');
+      }
+    }
+  }
+
+  void _saveToLocalCache(List<SongModel> songs) {
+    try {
+      final jsonString = jsonEncode(songs.map((s) => s.toJson()).toList());
+      _prefs.saveCachedSongsJson(jsonString);
+    } catch (e) {
+      debugPrint('Error saving songs to local cache: $e');
+    }
+  }
+
+  void _precacheAudioFiles(List<SongModel> songs) {
+    if (kIsWeb) return;
+    // Pre-cache audio files in background so clicking play is instantaneous
+    for (final song in songs) {
+      if (song.audioUrl.startsWith('http')) {
+        DefaultCacheManager().getFileFromCache(song.audioUrl).then((cached) {
+          if (cached == null) {
+            DefaultCacheManager().downloadFile(song.audioUrl).catchError((_) => null);
+          }
+        }).catchError((_) => null);
+      }
+    }
+  }
+
   void _initSongStream() {
-    _isLoading = true;
-    notifyListeners();
+    if (_allSongs.isEmpty) {
+      _isLoading = true;
+      notifyListeners();
+    }
 
     _songsSubscription = _firestoreService.streamPublishedSongs().listen(
       (songs) {
         _allSongs = songs;
         _isLoading = false;
         _errorMessage = null;
+        _saveToLocalCache(songs);
+        _precacheAudioFiles(songs);
         notifyListeners();
       },
       onError: (err) {
@@ -58,7 +104,12 @@ class SongRepository extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _allSongs = await _firestoreService.getPublishedSongs();
+      final songs = await _firestoreService.getPublishedSongs();
+      if (songs.isNotEmpty) {
+        _allSongs = songs;
+        _saveToLocalCache(songs);
+        _precacheAudioFiles(songs);
+      }
     } catch (e) {
       _errorMessage = e.toString();
     } finally {

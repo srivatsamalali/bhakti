@@ -2,7 +2,7 @@ name: bhakti
 description: "Bhakti – Divine Music for a Better Life. Devotional audio streaming application with multi-language support, background playback, offline caching, and global content distribution."
 publish_to: 'none'
 
-version: 1.0.7+8
+version: 1.0.8+9
 
 environment:
   sdk: '>=3.2.0 <4.0.0'

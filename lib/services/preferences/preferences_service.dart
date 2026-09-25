@@ -184,5 +184,16 @@ class PreferencesService extends ChangeNotifier {
     notifyListeners();
     return success;
   }
+
+  // --- Offline Song Catalog Cache ---
+  static const String keyCachedSongs = 'bhakti_offline_songs_cache_v2';
+
+  String? getCachedSongsJson() {
+    return _prefs.getString(keyCachedSongs);
+  }
+
+  Future<bool> saveCachedSongsJson(String jsonString) async {
+    return _prefs.setString(keyCachedSongs, jsonString);
+  }
 }
 

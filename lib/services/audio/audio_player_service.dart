@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import '../../models/song_model.dart';
@@ -137,8 +138,8 @@ class AudioPlayerService extends ChangeNotifier {
       _currentSong = song;
       notifyListeners();
 
-      // Record to recently played history
-      await _prefs.addRecentlyPlayed(song.id);
+      // Record to recently played history in background
+      _prefs.addRecentlyPlayed(song.id);
 
       // Create AudioSource with Background MediaItem
       final mediaTag = MediaItem(
@@ -149,15 +150,29 @@ class AudioPlayerService extends ChangeNotifier {
         artUri: song.imageUrl.startsWith('http') ? Uri.parse(song.imageUrl) : null,
       );
 
-      final AudioSource audioSource;
+      AudioSource audioSource;
       if (song.audioUrl.startsWith('assets/')) {
         audioSource = AudioSource.asset(song.audioUrl, tag: mediaTag);
       } else if (!kIsWeb && song.audioUrl.startsWith('file://')) {
-        audioSource = AudioSource.uri(Uri.parse(song.audioUrl), tag: mediaTag);
+        final path = song.audioUrl.replaceFirst('file://', '');
+        audioSource = AudioSource.file(path, tag: mediaTag);
       } else if (!kIsWeb && song.audioUrl.startsWith('/')) {
         audioSource = AudioSource.file(song.audioUrl, tag: mediaTag);
       } else {
-        audioSource = AudioSource.uri(Uri.parse(song.audioUrl), tag: mediaTag);
+        // 1. Instant check: If audio file exists in local disk cache, play directly from disk (0ms delay)
+        FileInfo? cachedAudio;
+        if (!kIsWeb) {
+          try {
+            cachedAudio = await DefaultCacheManager().getFileFromCache(song.audioUrl);
+          } catch (_) {}
+        }
+
+        if (cachedAudio != null && await cachedAudio.file.exists()) {
+          audioSource = AudioSource.file(cachedAudio.file.path, tag: mediaTag);
+        } else {
+          // 2. LockCachingAudioSource: starts streaming instantly on first packet and saves to disk cache
+          audioSource = LockCachingAudioSource(Uri.parse(song.audioUrl), tag: mediaTag);
+        }
       }
 
       await _player.setVolume(1.0);
