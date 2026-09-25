@@ -14,6 +14,8 @@ import '../admin/admin_login_screen.dart';
 import '../language/language_selection_screen.dart';
 import '../player/sleep_timer_dialog.dart';
 
+import 'package:package_info_plus/package_info_plus.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -23,11 +25,24 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   String _cacheSize = '...';
+  String _versionStr = AppConstants.appVersion;
 
   @override
   void initState() {
     super.initState();
     _loadCacheSize();
+    _loadPackageInfo();
+  }
+
+  Future<void> _loadPackageInfo() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _versionStr = info.version;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadCacheSize() async {
@@ -153,7 +168,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 14),
             Text(
-              'Version: ${AppConstants.appVersion}',
+              'Version: $_versionStr',
               style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
             ),
           ],
@@ -360,7 +375,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: [
                 Text(
-                  '${AppConstants.appName} v${AppConstants.appVersion}',
+                  '${AppConstants.appName} v$_versionStr',
                   style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
                 ),
                 const SizedBox(height: 4),

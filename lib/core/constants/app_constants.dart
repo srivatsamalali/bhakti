@@ -6,7 +6,7 @@ class AppConstants {
   static const String appTagline = 'Divine Music for a Better Life';
   static const String appSpiritualTagline = 'Spirituality for Everyone, Everywhere';
   static const String appUniversalPrayer = '॥ लोकाः समस्ताः सुखिनೋ ಭವಂತು ॥';
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '1.0.1';
 
   // Supported language codes
   static const String langKannada = 'kn';
