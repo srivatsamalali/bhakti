@@ -204,7 +204,7 @@ class FirestoreService {
       try {
         final docRef = fs.collection(AppConstants.colSongs).doc(songId);
         await docRef.set(newSong.toFirestore()).timeout(
-          const Duration(seconds: 4),
+          const Duration(seconds: 30),
           onTimeout: () => debugPrint('Firestore set timed out, proceeding locally.'),
         );
       } catch (e) {
@@ -228,7 +228,7 @@ class FirestoreService {
             .doc(song.id)
             .update(song.toFirestore())
             .timeout(
-              const Duration(seconds: 4),
+              const Duration(seconds: 30),
               onTimeout: () => debugPrint('Firestore update timed out, proceeding locally.'),
             );
       } catch (e) {
@@ -250,7 +250,7 @@ class FirestoreService {
     if (fs != null) {
       try {
         await fs.collection(AppConstants.colSongs).doc(songId).delete().timeout(
-          const Duration(seconds: 4),
+          const Duration(seconds: 30),
           onTimeout: () => debugPrint('Firestore delete timed out, proceeding locally.'),
         );
       } catch (e) {

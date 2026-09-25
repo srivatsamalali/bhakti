@@ -39,14 +39,14 @@ class StorageService {
         );
 
         final uploadTask = await ref.putData(bytes, metadata).timeout(
-          const Duration(seconds: 5),
-          onTimeout: () => throw Exception('Storage upload timed out.'),
+          const Duration(minutes: 2),
+          onTimeout: () => throw Exception('Storage image upload timed out.'),
         );
         final downloadUrl = await uploadTask.ref.getDownloadURL();
         return downloadUrl;
       }
     } catch (e) {
-      debugPrint('Cloud Storage Image Upload fallback: $e');
+      debugPrint('Cloud Storage Image Upload exception: $e');
     }
 
     // Fast local / blob URL fallback (instant, lightweight)
@@ -59,7 +59,7 @@ class StorageService {
     if (bytes.lengthInBytes < 64 * 1024) {
       return 'data:$mimeType;base64,${base64Encode(bytes)}';
     }
-    return 'assets/images/lalitha_sahasranamam.jpg';
+    return '';
   }
 
   /// Uploads devotional cover image via File
@@ -118,14 +118,14 @@ class StorageService {
         }
 
         final snapshot = await uploadTask.timeout(
-          const Duration(seconds: 6),
+          const Duration(minutes: 5),
           onTimeout: () => throw Exception('Storage audio upload timed out.'),
         );
         final downloadUrl = await snapshot.ref.getDownloadURL();
         return downloadUrl;
       }
     } catch (e) {
-      debugPrint('Cloud Storage Audio Upload fallback to local/blob URI: $e');
+      debugPrint('Cloud Storage Audio Upload exception: $e');
     }
 
     if (onProgress != null) {
