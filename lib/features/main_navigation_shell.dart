@@ -189,89 +189,73 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             ),
           ),
 
-          const SizedBox(height: 16),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              'SACRED SAHASRANAMAS',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF8B776A),
-                letterSpacing: 1.1,
+          if (allSongs.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'SACRED SAHASRANAMAS',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF8B776A),
+                  letterSpacing: 1.1,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
 
-          // Quick Playlists list
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              children: [
-                ...allSongs.map((song) {
-                  final isCurrentPlaying = player.currentSong?.id == song.id && player.isPlaying;
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 4),
-                    decoration: BoxDecoration(
-                      color: isCurrentPlaying ? AppColors.maroonPrimary.withOpacity(0.08) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(14),
-                      child: ListTile(
-                        dense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                        leading: Icon(
-                          isCurrentPlaying ? Icons.graphic_eq : Icons.play_circle_fill,
-                          color: isCurrentPlaying ? AppColors.maroonPrimary : AppColors.goldPrimary,
-                          size: 22,
-                        ),
-                        title: Text(
-                          song.title,
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: isCurrentPlaying ? FontWeight.bold : FontWeight.w600,
-                            color: isCurrentPlaying ? AppColors.maroonPrimary : AppColors.textDark,
+            // Quick Playlists list
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  ...allSongs.map((song) {
+                    final isCurrentPlaying = player.currentSong?.id == song.id && player.isPlaying;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 4),
+                      decoration: BoxDecoration(
+                        color: isCurrentPlaying ? AppColors.maroonPrimary.withOpacity(0.08) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(14),
+                        child: ListTile(
+                          dense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                          leading: Icon(
+                            isCurrentPlaying ? Icons.graphic_eq : Icons.play_circle_fill,
+                            color: isCurrentPlaying ? AppColors.maroonPrimary : AppColors.goldPrimary,
+                            size: 22,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          title: Text(
+                            song.title,
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: isCurrentPlaying ? FontWeight.bold : FontWeight.w600,
+                              color: isCurrentPlaying ? AppColors.maroonPrimary : AppColors.textDark,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            song.deity,
+                            style: const TextStyle(fontSize: 11.5, color: Color(0xFF7A685D)),
+                            maxLines: 1,
+                          ),
+                          onTap: () {
+                            player.playSong(song, newQueue: allSongs);
+                          },
                         ),
-                        subtitle: Text(
-                          song.deity,
-                          style: const TextStyle(fontSize: 11.5, color: Color(0xFF7A685D)),
-                          maxLines: 1,
-                        ),
-                        onTap: () {
-                          player.playSong(song, newQueue: allSongs);
-                        },
                       ),
-                    ),
-                  );
-                }),
-                Container(
-                  margin: const EdgeInsets.only(top: 4),
-                  child: Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(14),
-                    child: ListTile(
-                      dense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                      leading: const Icon(Icons.favorite, color: AppColors.maroonPrimary, size: 20),
-                      title: const Text(
-                        'Liked Devotionals',
-                        style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.textDark),
-                      ),
-                      onTap: () {
-                        setState(() => _currentIndex = 2);
-                      },
-                    ),
-                  ),
-                ),
-              ],
+                    );
+                  }),
+                ],
+              ),
             ),
-          ),
+          ] else
+            const Spacer(),
         ],
       ),
     ),
