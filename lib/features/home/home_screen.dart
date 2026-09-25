@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
@@ -11,7 +15,6 @@ import '../settings/settings_screen.dart';
 import '../songs/song_details_screen.dart';
 import '../../widgets/deepam_loader.dart';
 import 'widgets/daily_shloka_card.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -46,25 +49,80 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
 
-    if (imageUrl.startsWith('assets/')) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: Image.asset(
-          imageUrl,
+    if (imageUrl.trim().isEmpty) return fallback;
+
+    Widget imageWidget;
+    if (imageUrl.startsWith('data:image')) {
+      try {
+        final base64String = imageUrl.split(',').last;
+        final bytes = base64Decode(base64String);
+        imageWidget = Image.memory(
+          bytes,
           width: size,
           height: size,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Image.asset(
-            'assets/images/lalitha_sahasranamam.jpg',
-            width: size,
-            height: size,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => fallback,
+          errorBuilder: (_, __, ___) => fallback,
+        );
+      } catch (_) {
+        imageWidget = fallback;
+      }
+    } else if (imageUrl.startsWith('blob:')) {
+      imageWidget = Image.network(
+        imageUrl,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => fallback,
+      );
+    } else if (imageUrl.startsWith('http')) {
+      imageWidget = CachedNetworkImage(
+        imageUrl: imageUrl,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        placeholder: (_, __) => Container(
+          width: size,
+          height: size,
+          color: const Color(0xFFF0EBE1),
+          child: const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.maroonPrimary),
+            ),
           ),
         ),
+        errorWidget: (_, __, ___) => fallback,
       );
+    } else if (imageUrl.startsWith('assets/')) {
+      imageWidget = Image.asset(
+        imageUrl,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => fallback,
+      );
+    } else if (!kIsWeb) {
+      try {
+        final file = File(imageUrl);
+        imageWidget = Image.file(
+          file,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => fallback,
+        );
+      } catch (_) {
+        imageWidget = fallback;
+      }
+    } else {
+      imageWidget = fallback;
     }
-    return fallback;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: imageWidget,
+    );
   }
 
   @override
@@ -490,92 +548,97 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                        child: Material(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                          child: InkWell(
-                            onTap: () {
-                              player.playSong(song, newQueue: allSongs);
-                            },
-                            borderRadius: BorderRadius.circular(20),
-                            child: Padding(
-                              padding: const EdgeInsets.all(14),
-                              child: Row(
-                                children: [
-                                  // Album Artwork
-                                  _buildSongImage(song.imageUrl, size: 64, radius: 14),
-                                  const SizedBox(width: 16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Row(
+                            children: [
+                              // Album Artwork
+                              _buildSongImage(song.imageUrl, size: 64, radius: 14),
+                              const SizedBox(width: 16),
 
-                                  // Title & Deity
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          song.getLocalizedTitle(currentLang),
-                                          style: TextStyle(
-                                            fontSize: 16.5,
-                                            fontWeight: FontWeight.bold,
-                                            color: isPlaying ? AppColors.maroonPrimary : AppColors.textDark,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '${song.getLocalizedDeity(currentLang)} • ${song.formattedDuration}',
-                                          style: const TextStyle(
-                                            fontSize: 13.5,
-                                            color: Color(0xFF6B5B52),
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
+                              // Title & Deity
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      song.getLocalizedTitle(currentLang),
+                                      style: TextStyle(
+                                        fontSize: 16.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: isPlaying ? AppColors.maroonPrimary : AppColors.textDark,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ),
-
-                                  // Play/Pause Circular Action Button
-                                  Container(
-                                    width: 44,
-                                    height: 44,
-                                    decoration: BoxDecoration(
-                                      color: isPlaying ? AppColors.maroonPrimary : const Color(0xFFF3EDE3),
-                                      shape: BoxShape.circle,
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '${song.getLocalizedDeity(currentLang)} • ${song.formattedDuration}',
+                                      style: const TextStyle(
+                                        fontSize: 13.5,
+                                        color: Color(0xFF6B5B52),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    child: Icon(
-                                      isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                                      color: isPlaying ? Colors.white : AppColors.maroonPrimary,
-                                      size: 26,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-
-                                  // Favorite Heart
-                                  IconButton(
-                                    icon: Icon(
-                                      prefs.isFavorite(song.id) ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
-                                      color: prefs.isFavorite(song.id) ? AppColors.maroonPrimary : const Color(0xFF8B776A),
-                                      size: 22,
-                                    ),
-                                    onPressed: () async {
-                                      await prefs.toggleFavorite(song.id);
-                                    },
-                                  ),
-
-                                  // Details Screen Arrow
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF8B776A), size: 16),
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (_) => SongDetailsScreen(song: song)),
-                                      );
-                                    },
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
+
+                              // Play/Pause Circular Action Button
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: isPlaying ? AppColors.maroonPrimary : const Color(0xFFF3EDE3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  icon: Icon(
+                                    isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                    color: isPlaying ? Colors.white : AppColors.maroonPrimary,
+                                    size: 26,
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                  tooltip: isPlaying ? 'Pause' : 'Play',
+                                  onPressed: () {
+                                    if (isPlaying) {
+                                      player.pause();
+                                    } else if (player.currentSong?.id == song.id) {
+                                      player.resume();
+                                    } else {
+                                      player.playSong(song, newQueue: allSongs);
+                                    }
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+
+                              // Favorite Heart
+                              IconButton(
+                                icon: Icon(
+                                  prefs.isFavorite(song.id) ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                                  color: prefs.isFavorite(song.id) ? AppColors.maroonPrimary : const Color(0xFF8B776A),
+                                  size: 22,
+                                ),
+                                tooltip: 'Favorite',
+                                onPressed: () async {
+                                  await prefs.toggleFavorite(song.id);
+                                },
+                              ),
+
+                              // Details Screen Arrow
+                              IconButton(
+                                icon: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF8B776A), size: 16),
+                                tooltip: 'Details',
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (_) => SongDetailsScreen(song: song)),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -585,24 +648,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 18)),
-
               // --- Sacred Album Covers Carousel ---
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Featured Sahasranamas',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textDark,
-                          letterSpacing: -0.3,
+              if (allSongs.isNotEmpty) ...[
+                const SliverToBoxAdapter(child: SizedBox(height: 18)),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Featured Sahasranamas',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                            letterSpacing: -0.3,
+                          ),
                         ),
-                      ),
                       const SizedBox(height: 14),
                       SizedBox(
                         height: 250,
@@ -629,48 +692,56 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ],
                               ),
-                              child: InkWell(
-                                onTap: () {
-                                  player.playSong(song, newQueue: allSongs);
-                                },
-                                borderRadius: BorderRadius.circular(20),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // Album Cover Card
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(16),
-                                        child: Stack(
-                                          children: [
-                                            _buildSongImage(song.imageUrl, size: 156, radius: 16),
-                                            Positioned(
-                                              bottom: 8,
-                                              right: 8,
-                                              child: Container(
-                                                width: 38,
-                                                height: 38,
-                                                decoration: BoxDecoration(
-                                                  color: AppColors.maroonPrimary,
-                                                  shape: BoxShape.circle,
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black.withOpacity(0.3),
-                                                      blurRadius: 6,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Icon(
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Album Cover Card
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Stack(
+                                        children: [
+                                          _buildSongImage(song.imageUrl, size: 156, radius: 16),
+                                          Positioned(
+                                            bottom: 8,
+                                            right: 8,
+                                            child: Container(
+                                              width: 38,
+                                              height: 38,
+                                              decoration: BoxDecoration(
+                                                color: AppColors.maroonPrimary,
+                                                shape: BoxShape.circle,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black.withOpacity(0.3),
+                                                    blurRadius: 6,
+                                                  ),
+                                                ],
+                                              ),
+                                              child: IconButton(
+                                                icon: Icon(
                                                   isCurrentPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                                                   color: Colors.white,
                                                   size: 22,
                                                 ),
+                                                padding: EdgeInsets.zero,
+                                                tooltip: isCurrentPlaying ? 'Pause' : 'Play',
+                                                onPressed: () {
+                                                  if (isCurrentPlaying) {
+                                                    player.pause();
+                                                  } else if (player.currentSong?.id == song.id) {
+                                                    player.resume();
+                                                  } else {
+                                                    player.playSong(song, newQueue: allSongs);
+                                                  }
+                                                },
                                               ),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
+                                    ),
                                       const SizedBox(height: 10),
                                       Text(
                                         song.getLocalizedTitle(currentLang),
@@ -704,6 +775,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+            ],
 
               const SliverToBoxAdapter(child: SizedBox(height: 32)),
             ],
