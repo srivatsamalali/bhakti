@@ -136,7 +136,7 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
             final tempPlayer = AudioPlayer();
             final source = AudioSource.file(
               directPath,
-              tag: const MediaItem(id: 'temp_probe', title: 'Duration Probe'),
+              tag: MediaItem(id: 'temp_probe', title: 'Duration Probe'),
             );
             final d = await tempPlayer.setAudioSource(source).timeout(const Duration(seconds: 8));
             if (d != null && d.inSeconds > 0) {
@@ -154,8 +154,8 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
             final tempUrl = await saveLocalMedia('temp_detect_${DateTime.now().millisecondsSinceEpoch}', audioBytes, 'mp3', 'audio/mpeg');
             if (tempUrl.isNotEmpty) {
               final source = (!kIsWeb && tempUrl.startsWith('/'))
-                  ? AudioSource.file(tempUrl, tag: const MediaItem(id: 'temp_probe', title: 'Duration Probe'))
-                  : AudioSource.uri(Uri.parse(tempUrl), tag: const MediaItem(id: 'temp_probe', title: 'Duration Probe'));
+                  ? AudioSource.file(tempUrl, tag: MediaItem(id: 'temp_probe', title: 'Duration Probe'))
+                  : AudioSource.uri(Uri.parse(tempUrl), tag: MediaItem(id: 'temp_probe', title: 'Duration Probe'));
               final d = await tempPlayer.setAudioSource(source).timeout(const Duration(seconds: 8));
               if (d != null && d.inSeconds > 0) {
                 detectedDuration = d.inSeconds;
