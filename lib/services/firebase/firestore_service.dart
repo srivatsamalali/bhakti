@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -205,10 +206,11 @@ class FirestoreService {
         final docRef = fs.collection(AppConstants.colSongs).doc(songId);
         await docRef.set(newSong.toFirestore()).timeout(
           const Duration(seconds: 30),
-          onTimeout: () => debugPrint('Firestore set timed out, proceeding locally.'),
+          onTimeout: () => throw TimeoutException('Firestore write timed out.'),
         );
       } catch (e) {
         debugPrint('Firestore createSong error: $e');
+        rethrow;
       }
     }
     
@@ -229,10 +231,11 @@ class FirestoreService {
             .update(song.toFirestore())
             .timeout(
               const Duration(seconds: 30),
-              onTimeout: () => debugPrint('Firestore update timed out, proceeding locally.'),
+              onTimeout: () => throw TimeoutException('Firestore update timed out.'),
             );
       } catch (e) {
         debugPrint('Firestore updateSong error: $e');
+        rethrow;
       }
     }
 

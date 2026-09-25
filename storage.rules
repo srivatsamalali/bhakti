@@ -2,15 +2,14 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     // Public devotional assets: Audio and images can be read/streamed by all users
-    match /songs/{songId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.resource.size < 50 * 1024 * 1024; // Limit max file size to 50MB
+    match /songs/{allPaths=**} {
+      allow read, delete: if true;
+      allow create, update: if request.resource.size < 50 * 1024 * 1024; // Limit max file size to 50MB
     }
 
     // Categories & App assets
     match /categories/{allPaths=**} {
-      allow read: if true;
-      allow write: if true;
+      allow read, write: if true;
     }
   }
 }
