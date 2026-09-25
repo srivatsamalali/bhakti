@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import '../../core/constants/app_constants.dart';
 import '../audio/audio_compression_service.dart';
-import '../storage/media_blob_helper.dart';
 
 class StorageService {
   FirebaseStorage? get _storage {
@@ -12,6 +12,16 @@ class StorageService {
       return FirebaseStorage.instance;
     } catch (_) {
       return null;
+    }
+  }
+
+  Future<void> _ensureAuthenticated() async {
+    try {
+      if (FirebaseAuth.instance.currentUser == null) {
+        await FirebaseAuth.instance.signInAnonymously();
+      }
+    } catch (e) {
+      debugPrint('Anonymous auth before storage upload notice: $e');
     }
   }
 
@@ -29,6 +39,8 @@ class StorageService {
     final validExt = ['jpg', 'jpeg', 'png', 'webp'].contains(ext) ? ext : 'jpg';
     final mimeType = 'image/$validExt';
 
+    await _ensureAuthenticated();
+
     try {
       final st = _storage;
       if (st != null) {
@@ -38,21 +50,18 @@ class StorageService {
           customMetadata: {'uploadedFor': 'Bhakti App Devotional Cover'},
         );
 
-        final uploadTask = await ref.putData(bytes, metadata).timeout(
+        final uploadTask = ref.putData(bytes, metadata);
+        final snapshot = await uploadTask.timeout(
           const Duration(minutes: 2),
           onTimeout: () => throw Exception('Storage image upload timed out.'),
         );
-        final downloadUrl = await uploadTask.ref.getDownloadURL();
-        return downloadUrl;
+        final downloadUrl = await snapshot.ref.getDownloadURL();
+        if (downloadUrl.isNotEmpty && downloadUrl.startsWith('http')) {
+          return downloadUrl;
+        }
       }
     } catch (e) {
       debugPrint('Cloud Storage Image Upload exception: $e');
-    }
-
-    // Fast local / blob URL fallback (instant, lightweight)
-    final localUrl = await saveLocalMedia('cover_$songId', bytes, validExt, mimeType);
-    if (localUrl.isNotEmpty) {
-      return localUrl;
     }
 
     // Fallback if small
@@ -98,6 +107,8 @@ class StorageService {
     final validExt = ['mp3', 'm4a', 'aac', 'wav'].contains(ext) ? ext : 'mp3';
     final mimeType = validExt == 'mp3' ? 'audio/mpeg' : 'audio/mp4';
 
+    await _ensureAuthenticated();
+
     try {
       final st = _storage;
       if (st != null) {
@@ -119,27 +130,20 @@ class StorageService {
 
         final snapshot = await uploadTask.timeout(
           const Duration(minutes: 5),
-          onTimeout: () => throw Exception('Storage audio upload timed out.'),
+          onTimeout: () => throw Exception('Storage audio upload timed out after 5 minutes.'),
         );
         final downloadUrl = await snapshot.ref.getDownloadURL();
-        return downloadUrl;
+        if (downloadUrl.isNotEmpty && downloadUrl.startsWith('http')) {
+          if (onProgress != null) onProgress(1.0);
+          return downloadUrl;
+        }
       }
     } catch (e) {
       debugPrint('Cloud Storage Audio Upload exception: $e');
+      throw Exception('Failed to upload audio to Cloud Storage: $e. Please verify internet connection.');
     }
 
-    if (onProgress != null) {
-      onProgress(1.0);
-    }
-
-    // Fallback to high-speed local / blob URL (avoids Firestore 1MB document limit!)
-    final localUrl = await saveLocalMedia('audio_$songId', uploadBytes, validExt, mimeType);
-    if (localUrl.isNotEmpty) {
-      return localUrl;
-    }
-
-    // Default sample if all else fails
-    return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+    throw Exception('Cloud Storage service is not available. Please verify internet connection.');
   }
 
   /// Uploads devotional audio track via File

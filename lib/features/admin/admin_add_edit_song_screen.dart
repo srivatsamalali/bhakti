@@ -369,6 +369,10 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
         }
       }
 
+      if (audioUrl.isEmpty || (!audioUrl.startsWith('http') && !audioUrl.startsWith('assets/'))) {
+        throw Exception('Audio track must be uploaded to Cloud Storage. Please check internet connection.');
+      }
+
       modalSetState?.call(() {
         currentStep = 'Syncing with cloud catalog...';
         progressValue = 0.92;

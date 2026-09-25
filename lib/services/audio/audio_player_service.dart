@@ -150,35 +150,18 @@ class AudioPlayerService extends ChangeNotifier {
       );
 
       final AudioSource audioSource;
-      final isLalitha = song.id.contains('lalitha') || song.title.toLowerCase().contains('lalitha');
-
       if (song.audioUrl.startsWith('assets/')) {
         audioSource = AudioSource.asset(song.audioUrl, tag: mediaTag);
-      } else if (!kIsWeb && isLalitha && (song.audioUrl.startsWith('blob:') || song.audioUrl.startsWith('data:'))) {
-        // Lalitha Sahasranama blob fallback to bundled authentic audio
-        audioSource = AudioSource.asset('assets/audio/lalitha_sahasranamam.mp3', tag: mediaTag);
       } else if (!kIsWeb && song.audioUrl.startsWith('file://')) {
         audioSource = AudioSource.uri(Uri.parse(song.audioUrl), tag: mediaTag);
       } else if (!kIsWeb && song.audioUrl.startsWith('/')) {
         audioSource = AudioSource.file(song.audioUrl, tag: mediaTag);
-      } else if (song.audioUrl.startsWith('blob:') && !kIsWeb) {
-        audioSource = AudioSource.asset('assets/audio/lalitha_sahasranamam.mp3', tag: mediaTag);
       } else {
         audioSource = AudioSource.uri(Uri.parse(song.audioUrl), tag: mediaTag);
       }
 
       await _player.setVolume(1.0);
-      try {
-        await _player.setAudioSource(audioSource);
-      } catch (audioSourceError) {
-        debugPrint('Remote audio source failed: $audioSourceError. Falling back to local offline audio.');
-        // Fallback to local high quality bundled audio
-        final fallbackSource = AudioSource.asset(
-          'assets/audio/lalitha_sahasranamam.mp3',
-          tag: mediaTag,
-        );
-        await _player.setAudioSource(fallbackSource);
-      }
+      await _player.setAudioSource(audioSource);
       await _player.setSpeed(_playbackSpeed);
       await _player.play();
       notifyListeners();
