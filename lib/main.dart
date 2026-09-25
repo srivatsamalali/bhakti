@@ -46,11 +46,8 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    if (FirebaseAuth.instance.currentUser == null) {
-      await FirebaseAuth.instance.signInAnonymously();
-    }
   } catch (e) {
-    debugPrint('Firebase initialization / auth notice: $e');
+    debugPrint('Firebase initialization notice: $e');
   }
 
   // 4. Launch Flutter Application UI

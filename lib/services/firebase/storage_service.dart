@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import '../../core/constants/app_constants.dart';
@@ -12,16 +11,6 @@ class StorageService {
       return FirebaseStorage.instance;
     } catch (_) {
       return null;
-    }
-  }
-
-  Future<void> _ensureAuthenticated() async {
-    try {
-      if (FirebaseAuth.instance.currentUser == null) {
-        await FirebaseAuth.instance.signInAnonymously();
-      }
-    } catch (e) {
-      debugPrint('Anonymous auth before storage upload notice: $e');
     }
   }
 
@@ -38,8 +27,6 @@ class StorageService {
     final ext = fileName.split('.').last.toLowerCase();
     final validExt = ['jpg', 'jpeg', 'png', 'webp'].contains(ext) ? ext : 'jpg';
     final mimeType = 'image/$validExt';
-
-    await _ensureAuthenticated();
 
     try {
       final st = _storage;
@@ -106,8 +93,6 @@ class StorageService {
     final ext = fileName.split('.').last.toLowerCase();
     final validExt = ['mp3', 'm4a', 'aac', 'wav'].contains(ext) ? ext : 'mp3';
     final mimeType = validExt == 'mp3' ? 'audio/mpeg' : 'audio/mp4';
-
-    await _ensureAuthenticated();
 
     try {
       final st = _storage;
