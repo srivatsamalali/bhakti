@@ -50,15 +50,6 @@ class FirestoreService {
 
   // --- Public Read (All Users) ---
 
-  // Allowed active catalog song IDs
-  static const Set<String> _allowedSongIds = {
-    'lalitha_sahasranamam',
-    'vishnu_sahasranamam',
-    'hanuman_chalisa',
-    'shiva_panchakshari',
-  };
-
-
   /// Stream of all published devotional songs
   Stream<List<SongModel>> streamPublishedSongs({String? language, String? categoryId}) {
     try {
@@ -79,14 +70,13 @@ class FirestoreService {
       }
 
       return query.snapshots().map((snapshot) {
-        if (snapshot.docs.isEmpty && _fallbackSongs.isNotEmpty) {
-          return _filterFallbackSongs(language, categoryId);
-        }
         final list = snapshot.docs
             .map((doc) => SongModel.fromFirestore(doc))
-            .where((s) => _allowedSongIds.contains(s.id))
             .toList();
-        return list.isNotEmpty ? list : _filterFallbackSongs(language, categoryId);
+        if (list.isNotEmpty) {
+          return list;
+        }
+        return _fallbackSongs.isNotEmpty ? _filterFallbackSongs(language, categoryId) : <SongModel>[];
       }).handleError((error) {
         debugPrint('Firestore stream error, falling back to local: $error');
         return _filterFallbackSongs(language, categoryId);
@@ -103,14 +93,6 @@ class FirestoreService {
     try {
       final fs = _firestore;
       if (fs != null) {
-        // Clean out any stale demo songs from Firestore
-        final allDocs = await fs.collection(AppConstants.colSongs).get().timeout(const Duration(seconds: 4));
-        for (var doc in allDocs.docs) {
-          if (!_allowedSongIds.contains(doc.id)) {
-            doc.reference.delete().catchError((_) {});
-          }
-        }
-
         Query query = fs
             .collection(AppConstants.colSongs)
             .where('published', isEqualTo: true);
@@ -125,10 +107,9 @@ class FirestoreService {
         final snapshot = await query.get().timeout(const Duration(seconds: 4));
         final list = snapshot.docs
             .map((doc) => SongModel.fromFirestore(doc))
-            .where((s) => _allowedSongIds.contains(s.id))
             .toList();
         if (list.isNotEmpty) {
-          return _enrichWithFallback(list);
+          return list;
         }
       }
     } catch (e) {
@@ -137,28 +118,8 @@ class FirestoreService {
     return _filterFallbackSongs(language, categoryId);
   }
 
-  List<SongModel> _enrichWithFallback(List<SongModel> songs) {
-    return songs.map((s) {
-      final fallbackMatch = _fallbackSongs.firstWhere(
-        (f) => f.id == s.id,
-        orElse: () => s,
-      );
-      if (fallbackMatch.id == s.id) {
-        return s.copyWith(
-          titleLocalized: s.titleLocalized ?? fallbackMatch.titleLocalized,
-          deityLocalized: s.deityLocalized ?? fallbackMatch.deityLocalized,
-          lyrics: fallbackMatch.lyrics ?? s.lyrics,
-          lyricsLocalized: fallbackMatch.lyricsLocalized ?? s.lyricsLocalized,
-          meaningLocalized: fallbackMatch.meaningLocalized ?? s.meaningLocalized,
-          licenseInfo: fallbackMatch.licenseInfo ?? s.licenseInfo,
-        );
-      }
-      return s;
-    }).toList();
-  }
-
   List<SongModel> _filterFallbackSongs(String? language, String? categoryId) {
-    var result = List<SongModel>.from(_fallbackSongs.where((s) => _allowedSongIds.contains(s.id)));
+    var result = List<SongModel>.from(_fallbackSongs);
     if (language != null && language.isNotEmpty) {
       result = result.where((s) => s.language == language).toList();
     }

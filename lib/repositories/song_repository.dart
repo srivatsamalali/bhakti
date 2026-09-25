@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/song_model.dart';
 import '../services/firebase/firestore_service.dart';
@@ -6,6 +7,7 @@ import '../services/preferences/preferences_service.dart';
 class SongRepository extends ChangeNotifier {
   final FirestoreService _firestoreService;
   final PreferencesService _prefs;
+  StreamSubscription<List<SongModel>>? _songsSubscription;
 
   List<SongModel> _allSongs = [];
   bool _isLoading = false;
@@ -17,7 +19,26 @@ class SongRepository extends ChangeNotifier {
 
   SongRepository(this._firestoreService, this._prefs) {
     _prefs.addListener(_onPrefsChanged);
-    loadSongs();
+    _initSongStream();
+  }
+
+  void _initSongStream() {
+    _isLoading = true;
+    notifyListeners();
+
+    _songsSubscription = _firestoreService.streamPublishedSongs().listen(
+      (songs) {
+        _allSongs = songs;
+        _isLoading = false;
+        _errorMessage = null;
+        notifyListeners();
+      },
+      onError: (err) {
+        _errorMessage = err.toString();
+        _isLoading = false;
+        notifyListeners();
+      },
+    );
   }
 
   void _onPrefsChanged() {
@@ -26,6 +47,7 @@ class SongRepository extends ChangeNotifier {
 
   @override
   void dispose() {
+    _songsSubscription?.cancel();
     _prefs.removeListener(_onPrefsChanged);
     super.dispose();
   }
