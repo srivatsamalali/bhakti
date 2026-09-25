@@ -429,6 +429,39 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 )
+              else if (displayedSongs.isEmpty)
+                SliverToBoxAdapter(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFEADBCE)),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.music_off_rounded, size: 48, color: AppColors.maroonPrimary.withOpacity(0.5)),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'No Songs Available Yet',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Upload devotional songs from the Admin portal or pull down to refresh.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               else
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 18),
