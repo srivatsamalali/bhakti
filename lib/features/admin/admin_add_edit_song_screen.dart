@@ -129,27 +129,41 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
         }
 
         int detectedDuration = 0;
-        if (audioBytes != null) {
+        final directPath = (!kIsWeb && file.path != null && file.path!.isNotEmpty) ? file.path : null;
+
+        if (directPath != null) {
+          try {
+            final tempPlayer = AudioPlayer();
+            final source = AudioSource.file(
+              directPath,
+              tag: const MediaItem(id: 'temp_probe', title: 'Duration Probe'),
+            );
+            final d = await tempPlayer.setAudioSource(source).timeout(const Duration(seconds: 8));
+            if (d != null && d.inSeconds > 0) {
+              detectedDuration = d.inSeconds;
+            }
+            await tempPlayer.dispose();
+          } catch (e) {
+            debugPrint('Direct file path duration detection notice: $e');
+          }
+        }
+
+        if (detectedDuration == 0 && audioBytes != null) {
           try {
             final tempPlayer = AudioPlayer();
             final tempUrl = await saveLocalMedia('temp_detect_${DateTime.now().millisecondsSinceEpoch}', audioBytes, 'mp3', 'audio/mpeg');
             if (tempUrl.isNotEmpty) {
-              final d = await tempPlayer.setUrl(tempUrl).timeout(const Duration(seconds: 4));
+              final source = (!kIsWeb && tempUrl.startsWith('/'))
+                  ? AudioSource.file(tempUrl, tag: const MediaItem(id: 'temp_probe', title: 'Duration Probe'))
+                  : AudioSource.uri(Uri.parse(tempUrl), tag: const MediaItem(id: 'temp_probe', title: 'Duration Probe'));
+              final d = await tempPlayer.setAudioSource(source).timeout(const Duration(seconds: 8));
               if (d != null && d.inSeconds > 0) {
                 detectedDuration = d.inSeconds;
               }
             }
             await tempPlayer.dispose();
           } catch (e) {
-            debugPrint('Duration detection notice: $e');
-          }
-
-          if (detectedDuration == 0) {
-            // Standard 192kbps estimate (24,000 bytes per second)
-            final est = (audioBytes.lengthInBytes / 24000).round();
-            if (est > 10) {
-              detectedDuration = est;
-            }
+            debugPrint('Temp audio duration detection notice: $e');
           }
         }
 

@@ -90,14 +90,19 @@ class _BhaktiAppState extends State<BhaktiApp> {
         ChangeNotifierProvider<AuthService>(
           create: (_) => AuthService(widget.prefsService),
         ),
-        ChangeNotifierProvider<AudioPlayerService>(
-          create: (_) => AudioPlayerService(widget.prefsService),
-        ),
         ChangeNotifierProvider<CategoryRepository>(
           create: (_) => CategoryRepository(firestoreService),
         ),
         ChangeNotifierProvider<SongRepository>(
           create: (_) => SongRepository(firestoreService, widget.prefsService),
+        ),
+        ChangeNotifierProxyProvider<SongRepository, AudioPlayerService>(
+          create: (ctx) => AudioPlayerService(widget.prefsService)..setDependencies(null, firestoreService),
+          update: (ctx, songRepo, player) {
+            final p = player ?? AudioPlayerService(widget.prefsService);
+            p.setDependencies(songRepo, firestoreService);
+            return p;
+          },
         ),
         ChangeNotifierProvider<VoiceService>(
           create: (_) => VoiceService(),

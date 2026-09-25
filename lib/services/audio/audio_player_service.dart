@@ -53,6 +53,14 @@ class AudioPlayerService extends ChangeNotifier {
     _init();
   }
 
+  SongRepository? _songRepo;
+  FirestoreService? _firestoreService;
+
+  void setDependencies(SongRepository? songRepo, FirestoreService? firestoreService) {
+    _songRepo = songRepo;
+    _firestoreService = firestoreService;
+  }
+
   void _init() {
     _playbackSpeed = _prefs.getPlaybackSpeed();
     _player.setSpeed(_playbackSpeed);
@@ -74,6 +82,8 @@ class AudioPlayerService extends ChangeNotifier {
       if (d != null && d.inSeconds > 0 && _currentSong != null) {
         if (_currentSong!.duration != d.inSeconds) {
           _currentSong = _currentSong!.copyWith(duration: d.inSeconds);
+          _songRepo?.updateSongDuration(_currentSong!.id, d.inSeconds);
+          _firestoreService?.updateSongDuration(_currentSong!.id, d.inSeconds);
         }
       }
       notifyListeners();

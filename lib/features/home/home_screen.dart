@@ -572,15 +572,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 4),
-                                    Text(
-                                      '${song.getLocalizedDeity(currentLang)} • ${song.formattedDuration}',
-                                      style: const TextStyle(
-                                        fontSize: 13.5,
-                                        color: Color(0xFF6B5B52),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                    Builder(
+                                      builder: (context) {
+                                        final liveDuration = (isPlaying && player.totalDuration != null && player.totalDuration!.inSeconds > 0)
+                                            ? '${player.totalDuration!.inMinutes}:${(player.totalDuration!.inSeconds % 60).toString().padLeft(2, '0')}'
+                                            : song.formattedDuration;
+                                        return Text(
+                                          '${song.getLocalizedDeity(currentLang)} • $liveDuration',
+                                          style: const TextStyle(
+                                            fontSize: 13.5,
+                                            color: Color(0xFF6B5B52),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
@@ -766,9 +773,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ],
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
                         ),
                       ),
                     ],

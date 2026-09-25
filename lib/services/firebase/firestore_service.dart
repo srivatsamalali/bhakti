@@ -283,4 +283,28 @@ class FirestoreService {
     }
   }
 
+  /// Update song duration in Firestore
+  Future<void> updateSongDuration(String songId, int durationInSeconds) async {
+    if (durationInSeconds <= 0) return;
+    final fs = _firestore;
+    if (fs != null) {
+      try {
+        await fs
+            .collection(AppConstants.colSongs)
+            .doc(songId)
+            .update({'duration': durationInSeconds, 'updatedAt': Timestamp.now()}).timeout(
+          const Duration(seconds: 10),
+          onTimeout: () => debugPrint('Firestore update duration timed out.'),
+        );
+      } catch (e) {
+        debugPrint('Firestore updateSongDuration error: $e');
+      }
+    }
+
+    final idx = _fallbackSongs.indexWhere((s) => s.id == songId);
+    if (idx != -1) {
+      _fallbackSongs[idx] = _fallbackSongs[idx].copyWith(duration: durationInSeconds);
+    }
+  }
+
 }
