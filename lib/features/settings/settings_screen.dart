@@ -13,6 +13,8 @@ import '../admin/admin_dashboard_screen.dart';
 import '../admin/admin_login_screen.dart';
 import '../language/language_selection_screen.dart';
 import '../player/sleep_timer_dialog.dart';
+import '../../services/audio/offline_download_service.dart';
+import '../../services/notifications/devotional_reminder_service.dart';
 
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -196,7 +198,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true,
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 160),
         children: [
           // Section: Preferences
           _buildSectionHeader('Preferences & Experience'),
@@ -231,6 +233,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
+          // Section: Daily Prayer & Sacred Reminders
+          _buildSectionHeader('Daily Prayer & Sacred Reminders'),
+          Consumer<DevotionalReminderService>(
+            builder: (context, reminders, _) {
+              return Card(
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      secondary: const Icon(Icons.wb_sunny_outlined, color: AppColors.saffronPrimary),
+                      title: const Text('Morning Brahma Muhurta', style: TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: Text('Awaken for morning prayer (${reminders.morningTime})'),
+                      value: reminders.morningEnabled,
+                      activeColor: AppColors.maroonPrimary,
+                      onChanged: (val) => reminders.toggleMorning(val),
+                    ),
+                    const Divider(height: 1),
+                    SwitchListTile(
+                      secondary: const Icon(Icons.wb_twilight_rounded, color: AppColors.goldDark),
+                      title: const Text('Evening Sandhya Deepam', style: TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: Text('Evening lamp lighting & chanting (${reminders.eveningTime})'),
+                      value: reminders.eveningEnabled,
+                      activeColor: AppColors.maroonPrimary,
+                      onChanged: (val) => reminders.toggleEvening(val),
+                    ),
+                    const Divider(height: 1),
+                    SwitchListTile(
+                      secondary: const Icon(Icons.notifications_active_outlined, color: AppColors.maroonPrimary),
+                      title: const Text('Ekadashi & Festival Alerts', style: TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: const Text('Notifies upcoming auspicious tithis & vratas'),
+                      value: reminders.festivalAlerts,
+                      activeColor: AppColors.maroonPrimary,
+                      onChanged: (val) => reminders.toggleFestivalAlerts(val),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+
           // Section: Bhakti AI Assistant
           _buildSectionHeader('Bhakti AI Assistant'),
           Card(
@@ -280,28 +322,75 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Section: Storage & Cache
-          _buildSectionHeader('Storage & History'),
-
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.cleaning_services_outlined, color: AppColors.maroonPrimary),
-                  title: Text(context.tr('clearCache')),
-                  subtitle: Text('${context.tr('cacheSize')}: $_cacheSize'),
-                  trailing: const Icon(Icons.delete_outline, color: AppColors.error),
-                  onTap: _showClearCacheDialog,
+          // Section: Storage & Offline Chants
+          _buildSectionHeader('Storage & Offline Chants'),
+          Consumer<OfflineDownloadService>(
+            builder: (context, downloadService, _) {
+              final downloadedCount = downloadService.downloadedSongs.length;
+              return Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.download_done_rounded, color: AppColors.maroonPrimary),
+                      title: const Text('Downloaded Stotras (Offline)', style: TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: Text('$downloadedCount stotras available for offline chanting'),
+                      trailing: downloadedCount > 0
+                          ? TextButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    backgroundColor: AppColors.creamCard,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                                    title: const Text('Downloaded Stotras', style: TextStyle(color: AppColors.maroonPrimary, fontWeight: FontWeight.bold)),
+                                    content: SizedBox(
+                                      width: double.maxFinite,
+                                      child: ListView(
+                                        shrinkWrap: true,
+                                        children: downloadService.downloadedSongs.values.map((song) {
+                                          return ListTile(
+                                            contentPadding: EdgeInsets.zero,
+                                            title: Text(song.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                            subtitle: Text(song.deity, style: const TextStyle(fontSize: 11)),
+                                            trailing: IconButton(
+                                              icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 20),
+                                              onPressed: () {
+                                                downloadService.deleteDownloadedSong(song.id);
+                                              },
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Done')),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: const Text('Manage', style: TextStyle(color: AppColors.maroonPrimary, fontWeight: FontWeight.bold)),
+                            )
+                          : const Icon(Icons.arrow_forward_ios, size: 14),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.cleaning_services_outlined, color: AppColors.maroonPrimary),
+                      title: Text(context.tr('clearCache')),
+                      subtitle: Text('${context.tr('cacheSize')}: $_cacheSize'),
+                      trailing: const Icon(Icons.delete_outline, color: AppColors.error),
+                      onTap: _showClearCacheDialog,
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.history, color: AppColors.maroonPrimary),
+                      title: Text(context.tr('clearRecents')),
+                      trailing: const Icon(Icons.delete_outline, color: AppColors.error),
+                      onTap: _showClearRecentsDialog,
+                    ),
+                  ],
                 ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.history, color: AppColors.maroonPrimary),
-                  title: Text(context.tr('clearRecents')),
-                  trailing: const Icon(Icons.delete_outline, color: AppColors.error),
-                  onTap: _showClearRecentsDialog,
-                ),
-              ],
-            ),
+              );
+            },
           ),
           const SizedBox(height: 16),
 

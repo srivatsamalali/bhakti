@@ -102,32 +102,13 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['mp3', 'm4a', 'aac', 'wav'],
+        allowedExtensions: ['mp3', 'm4a', 'aac', 'wav', 'ogg'],
         withData: true,
       );
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.single;
         Uint8List? audioBytes = file.bytes;
         final fileName = file.name;
-        String? compressionInfo;
-
-        if (audioBytes != null && AudioCompressionService.exceedsThreshold(audioBytes.lengthInBytes)) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Compressing large audio (${AudioCompressionService.formatBytes(audioBytes.lengthInBytes)}) to below 50 MB...'),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          }
-
-          final compressionResult = await AudioCompressionService.compressIfNeeded(
-            originalBytes: audioBytes,
-            fileName: fileName,
-          );
-          audioBytes = compressionResult.bytes;
-          compressionInfo = compressionResult.summary;
-        }
 
         int detectedDuration = 0;
         final directPath = (!kIsWeb && file.path != null && file.path!.isNotEmpty) ? file.path : null;
@@ -174,9 +155,7 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
           final durationLabel = detectedDuration > 0
               ? ' • ${detectedDuration ~/ 60}:${(detectedDuration % 60).toString().padLeft(2, '0')}'
               : '';
-          _audioFileName = compressionInfo != null
-              ? '$fileName ($compressionInfo$durationLabel)'
-              : '$fileName (${AudioCompressionService.formatBytes(audioBytes?.lengthInBytes ?? file.size)}$durationLabel)';
+          _audioFileName = '$fileName (${AudioCompressionService.formatBytes(audioBytes?.lengthInBytes ?? file.size)}$durationLabel)';
           if (!kIsWeb && file.path != null) {
             _pickedAudioFile = File(file.path!);
           }
@@ -343,11 +322,10 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
           progressValue = 0.45;
         });
 
-        if (_pickedAudioBytes != null) {
-          audioUrl = await _storageService.uploadSongAudioBytes(
+        if (!kIsWeb && _pickedAudioFile != null) {
+          audioUrl = await _storageService.uploadSongAudio(
             songId: songId,
-            bytes: _pickedAudioBytes!,
-            fileName: _audioFileName ?? 'audio.mp3',
+            file: _pickedAudioFile!,
             onProgress: (p) {
               modalSetState?.call(() {
                 progressValue = 0.45 + (p * 0.45);
@@ -355,10 +333,11 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
               });
             },
           );
-        } else if (_pickedAudioFile != null) {
-          audioUrl = await _storageService.uploadSongAudio(
+        } else if (_pickedAudioBytes != null) {
+          audioUrl = await _storageService.uploadSongAudioBytes(
             songId: songId,
-            file: _pickedAudioFile!,
+            bytes: _pickedAudioBytes!,
+            fileName: _audioFileName ?? 'audio.mp3',
             onProgress: (p) {
               modalSetState?.call(() {
                 progressValue = 0.45 + (p * 0.45);

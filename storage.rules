@@ -3,8 +3,7 @@ service firebase.storage {
   match /b/{bucket}/o {
     // Public devotional assets: Audio and images can be read/streamed by all users
     match /songs/{allPaths=**} {
-      allow read, delete: if true;
-      allow create, update: if request.resource.size < 50 * 1024 * 1024; // Limit max file size to 50MB
+      allow read, write: if true;
     }
 
     // Categories & App assets

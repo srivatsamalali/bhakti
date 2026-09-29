@@ -7,10 +7,12 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../core/utils/deity_theme_helper.dart';
 import '../../models/song_model.dart';
 import '../../services/analytics/analytics_service.dart';
 import '../../services/audio/audio_player_service.dart';
 import '../../services/preferences/preferences_service.dart';
+import '../../widgets/ambient_diya_particles.dart';
 import '../player/full_player_screen.dart';
 
 class SongDetailsScreen extends StatefulWidget {
@@ -93,11 +95,18 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
     final isFav = prefs.isFavorite(widget.song.id);
     final isPlayingThis = player.currentSong?.id == widget.song.id && player.isPlaying;
 
+    final deityTheme = DeityThemeHelper.getThemeForDeity(widget.song.deity);
+
     return Scaffold(
-      backgroundColor: AppColors.creamBackground,
+      backgroundColor: AppColors.subtleBackground,
       appBar: AppBar(
-        title: Text(widget.song.getLocalizedTitle(currentLang)),
+        title: Text(
+          widget.song.getLocalizedTitle(currentLang),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
         actions: [
           IconButton(
             icon: Icon(
@@ -110,7 +119,7 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.share_outlined),
+            icon: const Icon(Icons.share_outlined, color: AppColors.maroonPrimary),
             onPressed: () {
               Share.share(
                 'Listen to "${widget.song.getLocalizedTitle(currentLang)}" on Bhakti app. ${widget.song.description}',
@@ -119,166 +128,210 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Devotional Artwork
-            Stack(
-              children: [
-                _buildCover(widget.song.imageUrl),
-                Container(
-                  height: 240,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.6),
+      body: AmbientDiyaParticles(
+        particleColor: deityTheme.primaryGlow,
+        particleCount: 14,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Divine Hero Deity Banner
+              Stack(
+                children: [
+                  _buildCover(widget.song.imageUrl),
+                  Container(
+                    height: 240,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.75),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 16,
+                    left: 20,
+                    right: 20,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            gradient: AppColors.goldGradient,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            widget.song.categoryName ?? widget.song.categoryId.toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.maroonDark,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          widget.song.getLocalizedTitle(currentLang),
+                          style: AppTypography.titleLarge.copyWith(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.song.getLocalizedDeity(currentLang),
+                          style: TextStyle(
+                            color: deityTheme.accentColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ),
-                Positioned(
-                  bottom: 16,
-                  left: 20,
-                  right: 20,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.goldPrimary,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          widget.song.categoryName ?? widget.song.categoryId.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.maroonDark,
+                ],
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Play Now & Add to Queue Buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              player.playSong(widget.song);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const FullPlayerScreen()),
+                              );
+                            },
+                            icon: Icon(isPlayingThis ? Icons.pause : Icons.play_arrow),
+                            label: Text(
+                              isPlayingThis ? context.tr('pause') : context.tr('play'),
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.maroonPrimary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              elevation: 2,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        widget.song.getLocalizedTitle(currentLang),
-                        style: AppTypography.titleLarge.copyWith(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Play Now & Add to Queue Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
+                        const SizedBox(width: 12),
+                        OutlinedButton(
                           onPressed: () {
-                            player.playSong(widget.song);
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const FullPlayerScreen()),
+                            player.addToQueue(widget.song);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Added to Queue: ${widget.song.getLocalizedTitle(currentLang)}'),
+                                duration: const Duration(seconds: 2),
+                                backgroundColor: AppColors.maroonPrimary,
+                              ),
                             );
                           },
-                          icon: Icon(isPlayingThis ? Icons.pause : Icons.play_arrow),
-                          label: Text(
-                            isPlayingThis ? context.tr('pause') : context.tr('play'),
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            side: const BorderSide(color: Color(0xFFE2D7C7)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.maroonPrimary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                          ),
+                          child: const Icon(Icons.queue_music, color: AppColors.maroonPrimary),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      OutlinedButton(
-                        onPressed: () {
-                          player.addToQueue(widget.song);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Added to Queue: ${widget.song.getLocalizedTitle(currentLang)}'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        ),
-                        child: const Icon(Icons.queue_music, color: AppColors.maroonPrimary),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Metadata Cards (Deity, Duration, Artist)
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.creamCard,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.goldPrimary.withOpacity(0.2),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        _buildMetaRow(
-                          context.tr('deity'),
-                          widget.song.getLocalizedDeity(currentLang),
-                          Icons.spa_outlined,
-                        ),
-                        const Divider(height: 16),
-                        _buildMetaRow(
-                          context.tr('duration'),
-                          widget.song.formattedDuration,
-                          Icons.timer_outlined,
-                        ),
-                        if (widget.song.artist != null && widget.song.artist!.isNotEmpty) ...[
-                          const Divider(height: 16),
-                          _buildMetaRow(
-                            context.tr('artist'),
-                            widget.song.artist!,
-                            Icons.person_outline,
-                          ),
-                        ],
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
-                  // Description / Significance
-                  Text(
-                    'Spiritual Significance',
-                    style: AppTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.maroonPrimary,
+                    // Metadata Cards (Deity, Duration, Artist)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: const Color(0xFFEADBCE),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.02),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          _buildMetaRow(
+                            context.tr('deity'),
+                            widget.song.getLocalizedDeity(currentLang),
+                            Icons.spa_outlined,
+                          ),
+                          const Divider(height: 16, color: Color(0xFFF0E8DD)),
+                          _buildMetaRow(
+                            context.tr('duration'),
+                            widget.song.formattedDuration,
+                            Icons.timer_outlined,
+                          ),
+                          if (widget.song.artist != null && widget.song.artist!.isNotEmpty) ...[
+                            const Divider(height: 16, color: Color(0xFFF0E8DD)),
+                            _buildMetaRow(
+                              context.tr('artist'),
+                              widget.song.artist!,
+                              Icons.person_outline,
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.song.description,
-                    style: AppTypography.bodyLarge.copyWith(
-                      height: 1.6,
-                      color: AppColors.textDark,
+                    const SizedBox(height: 20),
+
+                    // Description / Significance
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFEADBCE)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Spiritual Significance',
+                            style: AppTypography.titleMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.maroonPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            widget.song.description,
+                            style: AppTypography.bodyLarge.copyWith(
+                              height: 1.6,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
                   // Sacred Lyrics
                   if (widget.song.lyrics != null && widget.song.lyrics!.isNotEmpty) ...[
@@ -317,6 +370,7 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 

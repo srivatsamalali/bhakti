@@ -9,6 +9,7 @@ import '../../services/audio/audio_player_service.dart';
 import '../../services/preferences/preferences_service.dart';
 import '../player/full_player_screen.dart';
 import '../../widgets/deepam_loader.dart';
+import '../../widgets/divine_music_visualizer.dart';
 
 
 class BhaktiAiScreen extends StatefulWidget {
@@ -399,17 +400,22 @@ class _BhaktiAiScreenState extends State<BhaktiAiScreen> with SingleTickerProvid
 
               // Chat Messages Stream
               Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                  itemCount: aiService.messages.length + (aiService.isProcessing ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == aiService.messages.length && aiService.isProcessing) {
-                      return _buildThinkingBubble();
-                    }
-                    final message = aiService.messages[index];
-                    return _buildMessageItem(context, message, player);
-                  },
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                      itemCount: aiService.messages.length + (aiService.isProcessing ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == aiService.messages.length && aiService.isProcessing) {
+                          return _buildThinkingBubble();
+                        }
+                        final message = aiService.messages[index];
+                        return _buildMessageItem(context, message, player);
+                      },
+                    ),
+                  ),
                 ),
               ),
 
@@ -597,7 +603,18 @@ class _BhaktiAiScreenState extends State<BhaktiAiScreen> with SingleTickerProvid
       decoration: BoxDecoration(
         color: const Color(0xFFFAF3E8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5D5C2)),
+        border: Border.all(
+          color: isCurrentPlaying ? AppColors.goldPrimary : const Color(0xFFE5D5C2),
+          width: isCurrentPlaying ? 1.5 : 1,
+        ),
+        boxShadow: [
+          if (isCurrentPlaying)
+            BoxShadow(
+              color: AppColors.goldPrimary.withOpacity(0.18),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+        ],
       ),
       child: Row(
         children: [
@@ -641,15 +658,30 @@ class _BhaktiAiScreenState extends State<BhaktiAiScreen> with SingleTickerProvid
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  localizedTitle,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.maroonPrimary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        localizedTitle,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.maroonPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isCurrentPlaying) ...[
+                      const SizedBox(width: 6),
+                      const DivineMusicVisualizer(
+                        isPlaying: true,
+                        height: 12,
+                        width: 16,
+                        barColor: AppColors.saffronPrimary,
+                      ),
+                    ],
+                  ],
                 ),
                 Text(
                   '$localizedDeity • ${song.formattedDuration}',
@@ -740,81 +772,117 @@ class _BhaktiAiScreenState extends State<BhaktiAiScreen> with SingleTickerProvid
 
   Widget _buildBottomInputBar(BuildContext context, BhaktiAiService aiService) {
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 10, 16, MediaQuery.of(context).padding.bottom + 10),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
           top: BorderSide(color: Color(0xFFEADBCE), width: 1),
         ),
       ),
-      child: Row(
-        children: [
-          // Microphone Button
-          Container(
+      padding: EdgeInsets.fromLTRB(16, 10, 16, MediaQuery.of(context).padding.bottom + 10),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [Color(0xFFE88A1A), Color(0xFF800020)],
-              ),
+              color: const Color(0xFFFDFBF7),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: const Color(0xFFE2CCA8), width: 1.2),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.maroonPrimary.withOpacity(0.25),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
+                  color: AppColors.maroonPrimary.withOpacity(0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: _handleVoiceMicTap,
-                borderRadius: BorderRadius.circular(24),
-                child: const Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Icon(Icons.mic, color: Colors.white, size: 22),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Voice Microphone Pill Button
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _handleVoiceMicTap,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFF9800), Color(0xFF800020)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.maroonPrimary.withOpacity(0.25),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.mic, color: Colors.white, size: 20),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
 
-          // Text Input Field
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF6F0E7),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFE2D5C4)),
-              ),
-              child: TextField(
-                controller: _textController,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _handleSendText(),
-                decoration: const InputDecoration(
-                  hintText: 'Ask Bhakti anything...',
-                  hintStyle: TextStyle(fontSize: 14, color: Color(0xFF9E8E84)),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                const SizedBox(width: 10),
+
+                // Text Input Field
+                Expanded(
+                  child: TextField(
+                    controller: _textController,
+                    minLines: 1,
+                    maxLines: 4,
+                    textInputAction: TextInputAction.send,
+                    onSubmitted: (_) => _handleSendText(),
+                    style: const TextStyle(fontSize: 14.5, color: AppColors.textDark, height: 1.3),
+                    decoration: const InputDecoration(
+                      hintText: 'Ask Bhakti anything (chants, meanings, lyrics)...',
+                      hintStyle: TextStyle(fontSize: 14, color: Color(0xFF9E8E84)),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
 
-          // Send Button
-          Container(
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.maroonPrimary,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_upward_rounded, color: Colors.white, size: 22),
-              onPressed: _handleSendText,
+                const SizedBox(width: 8),
+
+                // Send Button
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _handleSendText,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: AppColors.heroMaroonGradient,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.maroonPrimary.withOpacity(0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.arrow_upward_rounded, color: Colors.white, size: 20),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

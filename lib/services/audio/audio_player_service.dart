@@ -17,6 +17,14 @@ enum SleepTimerDuration {
   endOfSong,
 }
 
+enum TempleAcousticMode {
+  pureStudio,
+  garbhagrihaEcho,
+  templeHall,
+  vedicResonance,
+  soothingMeditation,
+}
+
 class AudioPlayerService extends ChangeNotifier {
   final AudioPlayer _player = AudioPlayer();
   final PreferencesService _prefs;
@@ -28,6 +36,14 @@ class AudioPlayerService extends ChangeNotifier {
   double _playbackSpeed = 1.0;
   LoopMode _loopMode = LoopMode.all;
   bool _isShuffleEnabled = false;
+
+  // A-B Stanza Looper
+  Duration? _loopA;
+  Duration? _loopB;
+  bool _isRangeLoopEnabled = false;
+
+  // Temple Acoustic Ambiance
+  TempleAcousticMode _acousticMode = TempleAcousticMode.pureStudio;
 
   Timer? _sleepTimer;
   SleepTimerDuration _activeSleepTimer = SleepTimerDuration.off;
@@ -51,6 +67,12 @@ class AudioPlayerService extends ChangeNotifier {
   Duration? get totalDuration => _player.duration;
   SleepTimerDuration get activeSleepTimer => _activeSleepTimer;
   DateTime? get sleepTimerEndTime => _sleepTimerEndTime;
+
+  // A-B Looper getters
+  Duration? get loopA => _loopA;
+  Duration? get loopB => _loopB;
+  bool get isRangeLoopEnabled => _isRangeLoopEnabled;
+  TempleAcousticMode get acousticMode => _acousticMode;
 
   AudioPlayerService(this._prefs) {
     _init();
@@ -79,6 +101,13 @@ class AudioPlayerService extends ChangeNotifier {
 
     _player.playingStream.listen((_) {
       notifyListeners();
+    });
+
+    // Check A-B range loop boundary
+    _player.positionStream.listen((pos) {
+      if (_isRangeLoopEnabled && _loopB != null && pos >= _loopB!) {
+        _player.seek(_loopA ?? Duration.zero);
+      }
     });
 
     _player.durationStream.listen((d) {
@@ -170,18 +199,29 @@ class AudioPlayerService extends ChangeNotifier {
         if (cachedAudio != null && await cachedAudio.file.exists()) {
           audioSource = AudioSource.file(cachedAudio.file.path, tag: mediaTag);
         } else {
-          // 2. LockCachingAudioSource: starts streaming instantly on first packet and saves to disk cache
-          audioSource = LockCachingAudioSource(Uri.parse(song.audioUrl), tag: mediaTag);
+          // 2. High-performance native progressive streaming (handles any duration: 20min, 1hr, 2hr+)
+          audioSource = AudioSource.uri(Uri.parse(song.audioUrl), tag: mediaTag);
         }
       }
 
       await _player.setVolume(1.0);
-      await _player.setAudioSource(audioSource);
+      try {
+        await _player.setAudioSource(audioSource);
+      } catch (sourceError) {
+        debugPrint('Initial audio source failed for ${song.title}: $sourceError. Retrying with direct URI...');
+        if (song.audioUrl.startsWith('http')) {
+          final fallbackSource = AudioSource.uri(Uri.parse(song.audioUrl), tag: mediaTag);
+          await _player.setAudioSource(fallbackSource);
+        } else {
+          rethrow;
+        }
+      }
+
       await _player.setSpeed(_playbackSpeed);
       await _player.play();
       notifyListeners();
     } catch (e) {
-      debugPrint('Error playing audio for ${song.title}: $e');
+      debugPrint('Error playing audio for ${song.title} (${song.audioUrl}): $e');
       notifyListeners();
     }
   }
@@ -390,6 +430,64 @@ class AudioPlayerService extends ChangeNotifier {
     } else {
       playNext();
     }
+  }
+
+  // --- A-B Stanza Looper Methods ---
+  void setLoopPointA() {
+    _loopA = _player.position;
+    if (_loopB != null && _loopA! >= _loopB!) {
+      _loopB = null;
+    }
+    notifyListeners();
+  }
+
+  void setLoopPointB() {
+    _loopB = _player.position;
+    if (_loopA != null && _loopB! <= _loopA!) {
+      _loopA = Duration.zero;
+    }
+    _isRangeLoopEnabled = true;
+    notifyListeners();
+  }
+
+  void toggleRangeLoop([bool? enable]) {
+    _isRangeLoopEnabled = enable ?? !_isRangeLoopEnabled;
+    notifyListeners();
+  }
+
+  void clearRangeLoop() {
+    _loopA = null;
+    _loopB = null;
+    _isRangeLoopEnabled = false;
+    notifyListeners();
+  }
+
+  // --- Temple Acoustic Modes ---
+  Future<void> setTempleAcousticMode(TempleAcousticMode mode) async {
+    _acousticMode = mode;
+    switch (mode) {
+      case TempleAcousticMode.pureStudio:
+        await _player.setSpeed(_playbackSpeed);
+        await _player.setPitch(1.0);
+        break;
+      case TempleAcousticMode.garbhagrihaEcho:
+        await _player.setSpeed(_playbackSpeed * 0.96);
+        await _player.setPitch(0.98);
+        break;
+      case TempleAcousticMode.templeHall:
+        await _player.setSpeed(_playbackSpeed * 1.02);
+        await _player.setPitch(1.02);
+        break;
+      case TempleAcousticMode.vedicResonance:
+        await _player.setSpeed(_playbackSpeed * 0.92);
+        await _player.setPitch(0.95);
+        break;
+      case TempleAcousticMode.soothingMeditation:
+        await _player.setSpeed(_playbackSpeed * 0.88);
+        await _player.setPitch(0.96);
+        break;
+    }
+    notifyListeners();
   }
 
   @override

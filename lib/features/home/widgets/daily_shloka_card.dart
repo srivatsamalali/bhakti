@@ -1,10 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../services/preferences/preferences_service.dart';
 
-class DailyShlokaCard extends StatelessWidget {
+import '../../../widgets/interactive_flower_offering.dart';
+
+class DailyShlokaCard extends StatefulWidget {
   const DailyShlokaCard({super.key});
+
+  @override
+  State<DailyShlokaCard> createState() => _DailyShlokaCardState();
+}
+
+class _DailyShlokaCardState extends State<DailyShlokaCard> {
+  final GlobalKey<State<InteractiveFlowerOffering>> _offeringKey = GlobalKey();
+  final FlutterTts _flutterTts = FlutterTts();
+  bool _isPlayingAudio = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initTts();
+  }
+
+  void _initTts() {
+    _flutterTts.setCompletionHandler(() {
+      if (mounted) setState(() => _isPlayingAudio = false);
+    });
+    _flutterTts.setCancelHandler(() {
+      if (mounted) setState(() => _isPlayingAudio = false);
+    });
+    _flutterTts.setErrorHandler((_) {
+      if (mounted) setState(() => _isPlayingAudio = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _flutterTts.stop();
+    super.dispose();
+  }
+
+  Future<void> _togglePlayShloka(String text, String lang) async {
+    if (_isPlayingAudio) {
+      await _flutterTts.stop();
+      if (mounted) setState(() => _isPlayingAudio = false);
+      return;
+    }
+
+    try {
+      setState(() => _isPlayingAudio = true);
+      String ttsLang = 'sa-IN';
+      if (lang == 'kn') {
+        ttsLang = 'kn-IN';
+      } else if (lang == 'hi') {
+        ttsLang = 'hi-IN';
+      } else if (lang == 'ta') {
+        ttsLang = 'ta-IN';
+      } else if (lang == 'ml') {
+        ttsLang = 'ml-IN';
+      } else if (lang == 'en') {
+        ttsLang = 'en-IN';
+      }
+
+      await _flutterTts.setLanguage(ttsLang);
+      await _flutterTts.setSpeechRate(0.38); // Gentle sacred chanting pace
+      await _flutterTts.setPitch(0.95);
+      await _flutterTts.speak(text);
+    } catch (_) {
+      if (mounted) setState(() => _isPlayingAudio = false);
+    }
+  }
 
   static const Map<String, Map<String, String>> _shlokaContent = {
     'kn': {
@@ -45,120 +113,215 @@ class DailyShlokaCard extends StatelessWidget {
     final currentLang = prefs.getSelectedLanguage();
     final data = _shlokaContent[currentLang] ?? _shlokaContent['en']!;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: const Color(0xFFEADBCE),
-          width: 1.2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.maroonPrimary.withOpacity(0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+    return InteractiveFlowerOffering(
+      key: _offeringKey,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFFFDF9),
+              Color(0xFFFAF4E8),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          border: Border.all(
+            color: const Color(0xFFE2CCA8),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.goldPrimary.withOpacity(0.12),
+              blurRadius: 18,
+              offset: const Offset(0, 5),
+            ),
+            BoxShadow(
+              color: AppColors.maroonPrimary.withOpacity(0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Stack(
           children: [
-            // Header badge
-            Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 8,
-              runSpacing: 6,
-              children: [
+            // Subtle Decorative Corner Diya Accent
+            Positioned(
+              top: -10,
+              right: -10,
+              child: Icon(
+                Icons.wb_sunny_rounded,
+                size: 70,
+                color: AppColors.goldLight.withOpacity(0.12),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Row: [Badge] + [Action Tools (Audio, Flower, Copy)]
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          gradient: AppColors.heroMaroonGradient,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.maroonPrimary.withOpacity(0.25),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.auto_awesome, size: 12, color: AppColors.goldLight),
+                            const SizedBox(width: 5),
+                            Text(
+                              data['title']!.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Action Icons (Listen, Flower offering, Copy)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Listen Shloka Audio Button
+                          IconButton(
+                            icon: Icon(
+                              _isPlayingAudio ? Icons.volume_up_rounded : Icons.volume_mute_rounded,
+                              size: 19,
+                              color: _isPlayingAudio ? AppColors.maroonPrimary : const Color(0xFF8B776A),
+                            ),
+                            tooltip: _isPlayingAudio ? 'Stop Chanting' : 'Listen Shloka 🔊',
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              _togglePlayShloka(data['shloka']!, currentLang);
+                            },
+                          ),
+                          const SizedBox(width: 4),
+                          // Flower offering action button
+                          IconButton(
+                            icon: const Icon(Icons.spa_rounded, size: 19, color: AppColors.goldDark),
+                            tooltip: 'Offer Pushpam 🌸',
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              final state = _offeringKey.currentState;
+                              if (state != null) {
+                                (state as dynamic).triggerOffering();
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 4),
+                          IconButton(
+                            icon: const Icon(Icons.copy_rounded, size: 17, color: Color(0xFF8B776A)),
+                            tooltip: 'Copy Shloka',
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              Clipboard.setData(ClipboardData(text: '${data['shloka']}\n\n${data['meaning']}'));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Shloka copied to clipboard! 🙏'),
+                                  duration: const Duration(seconds: 2),
+                                  backgroundColor: AppColors.maroonPrimary,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Mantra / Deity Title
+                  Text(
+                    data['deity']!,
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.maroonPrimary,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Sacred Shloka Verse with gold accent
+                  Text(
+                    data['shloka']!,
+                  style: const TextStyle(
+                    fontSize: 16.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF2C1E18),
+                    height: 1.6,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Meaning Box with spiritual saffron accent
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: BoxDecoration(
-                    color: AppColors.maroonPrimary.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.maroonPrimary.withOpacity(0.2)),
+                    color: Colors.white.withOpacity(0.85),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFECD7B8)),
                   ),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.auto_awesome, size: 14, color: AppColors.maroonPrimary),
-                      const SizedBox(width: 6),
-                      Text(
-                        data['title']!.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.maroonPrimary,
-                          letterSpacing: 0.8,
+                      const Padding(
+                        padding: EdgeInsets.only(top: 2),
+                        child: Icon(
+                          Icons.spa_rounded,
+                          color: AppColors.goldDark,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          data['meaning']!,
+                          style: const TextStyle(
+                            fontSize: 13.5,
+                            color: Color(0xFF5E4E42),
+                            height: 1.45,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Text(
-                  data['deity']!,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.maroonPrimary,
-                  ),
-                ),
               ],
             ),
-            const SizedBox(height: 14),
-
-            // Sacred Shloka Verse
-            Text(
-              data['shloka']!,
-              style: const TextStyle(
-                fontSize: 16.5,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-                height: 1.55,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Meaning Box
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9F5EE),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFECE4D6)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 2),
-                    child: Icon(
-                      Icons.spa_rounded,
-                      color: AppColors.maroonPrimary,
-                      size: 17,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      data['meaning']!,
-                      style: const TextStyle(
-                        fontSize: 13.5,
-                        color: Color(0xFF5E5047),
-                        height: 1.45,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
       ),
     );
   }
 }
+

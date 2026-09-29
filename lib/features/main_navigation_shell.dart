@@ -4,8 +4,11 @@ import '../core/constants/app_colors.dart';
 import '../core/localization/app_localizations.dart';
 import '../repositories/song_repository.dart';
 import '../services/audio/audio_player_service.dart';
+import '../widgets/divine_music_visualizer.dart';
+import '../widgets/liquid_glass/glass_style.dart';
+import '../widgets/liquid_glass/glass_tab_bar.dart';
+import '../widgets/liquid_glass/liquid_glass.dart';
 import 'admin/admin_login_screen.dart';
-import 'ai/bhakti_ai_screen.dart';
 import 'favorites/favorites_screen.dart';
 import 'home/home_screen.dart';
 import 'player/mini_player_bar.dart';
@@ -25,151 +28,133 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   final List<Widget> _screens = const [
     HomeScreen(),
     SongLibraryScreen(),
-    BhaktiAiScreen(),
     FavoritesScreen(),
     SettingsScreen(),
   ];
 
-
   Widget _buildDesktopSidebar(BuildContext context, AudioPlayerService player, SongRepository songRepo) {
     final allSongs = songRepo.allSongs;
 
-    return Material(
-      color: const Color(0xFFF3ECE0),
-      child: Container(
+    return LiquidGlass(
+      style: GlassStyle.sidebar,
+      tint: AppColors.goldPrimary,
+      cornerRadius: 0,
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.zero,
+      customBorder: const Border(
+        right: BorderSide(color: Color(0x33C8A050), width: 1.2),
+      ),
+      child: SizedBox(
         width: 250,
-        decoration: const BoxDecoration(
-          border: Border(
-            right: BorderSide(color: Color(0xFFE2D7C7), width: 1),
-          ),
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          // Authentic Bhakti Diya Sacred Logo Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.maroonPrimary.withOpacity(0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      'images/logo.png',
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Image.asset(
-                        'assets/images/logo.png',
+            // Authentic Bhakti Diya Sacred Logo Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.maroonPrimary.withOpacity(0.18),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'images/logo.png',
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: AppColors.maroonPrimary,
-                          child: const Icon(Icons.wb_sunny, color: AppColors.goldLight, size: 24),
+                        errorBuilder: (_, __, ___) => Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: AppColors.maroonPrimary,
+                            child: const Icon(Icons.wb_sunny, color: AppColors.goldLight, size: 24),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'BHAKTI',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.maroonPrimary,
-                        letterSpacing: 1.2,
+                  const SizedBox(width: 12),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'BHAKTI',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.maroonPrimary,
+                          letterSpacing: 1.2,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Divine Chants & Stotras',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF7A685D),
+                      Text(
+                        'Divine Chants & Stotras',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF7A685D),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
 
-          // Primary Navigation Items
-          _buildSidebarNavItem(
-            icon: Icons.home_rounded,
-            label: 'Home',
-            isSelected: _currentIndex == 0,
-            onTap: () => setState(() => _currentIndex = 0),
-          ),
-          _buildSidebarNavItem(
-            icon: Icons.library_music_rounded,
-            label: 'Explore Chants',
-            isSelected: _currentIndex == 1,
-            onTap: () => setState(() => _currentIndex = 1),
-          ),
-          _buildSidebarNavItem(
-            icon: Icons.auto_awesome_rounded,
-            label: 'Bhakti AI',
-            isSelected: _currentIndex == 2,
-            onTap: () => setState(() => _currentIndex = 2),
-          ),
-          _buildSidebarNavItem(
-            icon: Icons.favorite_rounded,
-            label: 'Favorites',
-            isSelected: _currentIndex == 3,
-            onTap: () => setState(() => _currentIndex = 3),
-          ),
-          _buildSidebarNavItem(
-            icon: Icons.settings_rounded,
-            label: 'Settings',
-            isSelected: _currentIndex == 4,
-            onTap: () => setState(() => _currentIndex = 4),
-          ),
+            // Primary Navigation Items
+            _buildSidebarNavItem(
+              icon: Icons.home_rounded,
+              label: 'Home',
+              isSelected: _currentIndex == 0,
+              onTap: () => setState(() => _currentIndex = 0),
+            ),
+            _buildSidebarNavItem(
+              icon: Icons.library_music_rounded,
+              label: 'Explore Chants',
+              isSelected: _currentIndex == 1,
+              onTap: () => setState(() => _currentIndex = 1),
+            ),
+            _buildSidebarNavItem(
+              icon: Icons.favorite_rounded,
+              label: 'Favorites',
+              isSelected: _currentIndex == 2,
+              onTap: () => setState(() => _currentIndex = 2),
+            ),
+            _buildSidebarNavItem(
+              icon: Icons.settings_rounded,
+              label: 'Settings',
+              isSelected: _currentIndex == 3,
+              onTap: () => setState(() => _currentIndex = 3),
+            ),
 
+            const SizedBox(height: 12),
+            Divider(color: AppColors.goldPrimary.withOpacity(0.25), height: 1, indent: 16, endIndent: 16),
+            const SizedBox(height: 12),
 
-          const SizedBox(height: 12),
-          const Divider(color: Color(0xFFE2D7C7), height: 1, indent: 16, endIndent: 16),
-          const SizedBox(height: 12),
-
-          // Admin Portal Nav Pill
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: InkWell(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
-                );
-              },
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFDECFC0)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
+            // Admin Portal Nav Pill
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: LiquidGlass(
+                style: GlassStyle.button,
+                tint: AppColors.saffronPrimary,
+                cornerRadius: 20,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
+                  );
+                },
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -187,78 +172,97 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 ),
               ),
             ),
-          ),
 
-          if (allSongs.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                'SACRED SAHASRANAMAS',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF8B776A),
-                  letterSpacing: 1.1,
+            if (allSongs.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  'SACRED SAHASRANAMAS',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF8B776A),
+                    letterSpacing: 1.1,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
+              const SizedBox(height: 8),
 
-            // Quick Playlists list
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                children: [
-                  ...allSongs.map((song) {
-                    final isCurrentPlaying = player.currentSong?.id == song.id && player.isPlaying;
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 4),
-                      decoration: BoxDecoration(
-                        color: isCurrentPlaying ? AppColors.maroonPrimary.withOpacity(0.08) : Colors.transparent,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(14),
-                        child: ListTile(
-                          dense: true,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                          leading: Icon(
-                            isCurrentPlaying ? Icons.graphic_eq : Icons.play_circle_fill,
-                            color: isCurrentPlaying ? AppColors.maroonPrimary : AppColors.goldPrimary,
-                            size: 22,
-                          ),
-                          title: Text(
-                            song.title,
-                            style: TextStyle(
-                              fontSize: 13.5,
-                              fontWeight: isCurrentPlaying ? FontWeight.bold : FontWeight.w600,
-                              color: isCurrentPlaying ? AppColors.maroonPrimary : AppColors.textDark,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            song.deity,
-                            style: const TextStyle(fontSize: 11.5, color: Color(0xFF7A685D)),
-                            maxLines: 1,
-                          ),
-                          onTap: () {
-                            player.playSong(song, newQueue: allSongs);
-                          },
+              // Quick Playlists list
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  children: [
+                    ...allSongs.map((song) {
+                      final isCurrentPlaying = player.currentSong?.id == song.id && player.isPlaying;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        margin: const EdgeInsets.only(bottom: 4),
+                        decoration: BoxDecoration(
+                          color: isCurrentPlaying ? Colors.white.withOpacity(0.9) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(14),
+                          border: isCurrentPlaying
+                              ? Border.all(color: AppColors.goldPrimary.withOpacity(0.6), width: 1.2)
+                              : null,
+                          boxShadow: isCurrentPlaying
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.goldPrimary.withOpacity(0.15),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : null,
                         ),
-                      ),
-                    );
-                  }),
-                ],
+                        child: Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(14),
+                          child: ListTile(
+                            dense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                            leading: isCurrentPlaying
+                                ? const DivineMusicVisualizer(
+                                    isPlaying: true,
+                                    height: 12,
+                                    width: 16,
+                                    barColor: AppColors.maroonPrimary,
+                                  )
+                                : const Icon(
+                                    Icons.play_circle_fill,
+                                    color: AppColors.goldPrimary,
+                                    size: 22,
+                                  ),
+                            title: Text(
+                              song.title,
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: isCurrentPlaying ? FontWeight.bold : FontWeight.w600,
+                                color: isCurrentPlaying ? AppColors.maroonPrimary : AppColors.textDark,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Text(
+                              song.deity,
+                              style: const TextStyle(fontSize: 11.5, color: Color(0xFF7A685D)),
+                              maxLines: 1,
+                            ),
+                            onTap: () {
+                              player.playSong(song, newQueue: allSongs);
+                            },
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
               ),
-            ),
-          ] else
-            const Spacer(),
-        ],
+            ] else
+              const Spacer(),
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -271,18 +275,35 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
       child: Material(
-        color: isSelected ? AppColors.maroonPrimary : Colors.transparent,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
-          child: Padding(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+            decoration: BoxDecoration(
+              gradient: isSelected ? AppColors.heroMaroonGradient : null,
+              borderRadius: BorderRadius.circular(16),
+              border: isSelected
+                  ? Border.all(color: AppColors.goldPrimary.withOpacity(0.5), width: 1)
+                  : null,
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: AppColors.maroonPrimary.withOpacity(0.25),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
+                  : null,
+            ),
             child: Row(
               children: [
                 Icon(
                   icon,
-                  color: isSelected ? Colors.white : AppColors.textMuted,
+                  color: isSelected ? AppColors.goldLight : AppColors.textMuted,
                   size: 22,
                 ),
                 const SizedBox(width: 14),
@@ -292,6 +313,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                     fontSize: 14.5,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                     color: isSelected ? Colors.white : AppColors.textDark,
+                    letterSpacing: 0.2,
                   ),
                 ),
               ],
@@ -320,7 +342,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 Expanded(
                   child: Row(
                     children: [
-                      // Desktop Left Navigation Sidebar
+                      // Desktop Left Navigation Sidebar with Liquid Glass
                       _buildDesktopSidebar(context, player, songRepo),
 
                       // Desktop Main Screen Content
@@ -334,15 +356,18 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                   ),
                 ),
 
-                // Persistent YouTube Music Bottom Player Bar
+                // Persistent Liquid Glass Bottom Player Bar
                 if (hasActiveTrack) const MiniPlayerBar(),
               ],
             ),
           );
         }
 
-        // Mobile Layout
+        final favCount = songRepo.getFavoriteSongs().length;
+
+        // Mobile Layout with GlassTabBar and GlassBottomAccessory
         return Scaffold(
+          extendBody: true,
           backgroundColor: AppColors.subtleBackground,
           body: IndexedStack(
             index: _currentIndex,
@@ -351,71 +376,41 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           bottomNavigationBar: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Persistent Mini Player above bottom navigation
+              // Persistent Liquid Glass Mini Player above navigation bar
               if (hasActiveTrack) const MiniPlayerBar(),
 
-              // Subtle Divine Bottom Navigation
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    top: BorderSide(color: AppColors.subtleBorder, width: 1),
+              // Floating Liquid Glass Tab Bar matching WhatsApp / iOS 26 Liquid Glass
+              GlassTabBar(
+                currentIndex: _currentIndex,
+                tint: AppColors.goldPrimary,
+                onTap: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                items: [
+                  GlassTabItem(
+                    icon: Icons.home_outlined,
+                    activeIcon: Icons.home_rounded,
+                    label: context.tr('navHome'),
                   ),
-                ),
-                child: BottomNavigationBar(
-                  backgroundColor: Colors.white,
-                  selectedItemColor: AppColors.maroonPrimary,
-                  unselectedItemColor: AppColors.textMuted,
-                  currentIndex: _currentIndex,
-                  type: BottomNavigationBarType.fixed,
-                  onTap: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  items: [
-                    BottomNavigationBarItem(
-                      icon: const Icon(Icons.home_outlined),
-                      activeIcon: const Icon(Icons.home_rounded),
-                      label: context.tr('navHome'),
-                    ),
-                    BottomNavigationBarItem(
-                      icon: const Icon(Icons.library_music_outlined),
-                      activeIcon: const Icon(Icons.library_music_rounded),
-                      label: context.tr('navSongs'),
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.saffronPrimary.withOpacity(0.15),
-                        ),
-                        child: const Icon(Icons.auto_awesome, color: AppColors.saffronPrimary, size: 20),
-                      ),
-                      activeIcon: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.maroonPrimary,
-                        ),
-                        child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
-                      ),
-                      label: 'Bhakti AI',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: const Icon(Icons.favorite_outline_rounded),
-                      activeIcon: const Icon(Icons.favorite_rounded),
-                      label: context.tr('navFavorites'),
-                    ),
-                    BottomNavigationBarItem(
-                      icon: const Icon(Icons.settings_outlined),
-                      activeIcon: const Icon(Icons.settings_rounded),
-                      label: context.tr('navSettings'),
-                    ),
-
-                  ],
-                ),
+                  GlassTabItem(
+                    icon: Icons.library_music_outlined,
+                    activeIcon: Icons.library_music_rounded,
+                    label: context.tr('navSongs'),
+                  ),
+                  GlassTabItem(
+                    icon: Icons.favorite_outline_rounded,
+                    activeIcon: Icons.favorite_rounded,
+                    label: context.tr('navFavorites'),
+                    badgeText: favCount > 0 ? '$favCount' : null,
+                  ),
+                  GlassTabItem(
+                    icon: Icons.settings_outlined,
+                    activeIcon: Icons.settings_rounded,
+                    label: context.tr('navSettings'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -424,4 +419,5 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     );
   }
 }
+
 

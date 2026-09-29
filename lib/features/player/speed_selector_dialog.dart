@@ -14,47 +14,113 @@ class SpeedSelectorDialog extends StatelessWidget {
     final player = context.watch<AudioPlayerService>();
     final currentSpeed = player.playbackSpeed;
 
-    return AlertDialog(
-      backgroundColor: AppColors.creamCard,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Row(
-        children: [
-          const Icon(Icons.speed, color: AppColors.maroonPrimary, size: 26),
-          const SizedBox(width: 10),
-          Text(
-            context.tr('speed'),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.maroonPrimary,
-            ),
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: Container(
+        width: 340,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.creamCard,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: AppColors.goldPrimary.withOpacity(0.4),
+            width: 1.5,
           ),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: speeds.map((speed) {
-          final isSelected = (currentSpeed - speed).abs() < 0.01;
-          return ListTile(
-            title: Text(
-              '${speed}x',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.maroonPrimary : AppColors.textDark,
-              ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.maroonPrimary.withOpacity(0.2),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
             ),
-            trailing: isSelected
-                ? const Icon(Icons.check_circle, color: AppColors.saffronPrimary)
-                : null,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            onTap: () {
-              player.setPlaybackSpeed(speed);
-              Navigator.pop(context);
-            },
-          );
-        }).toList(),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.maroonPrimary.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.speed_rounded, color: AppColors.maroonPrimary, size: 22),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    context.tr('speed'),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.maroonPrimary,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: AppColors.textMuted, size: 20),
+                  onPressed: () => Navigator.pop(context),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ...speeds.map((speed) {
+              final isSelected = (currentSpeed - speed).abs() < 0.01;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () {
+                      player.setPlaybackSpeed(speed);
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.maroonPrimary.withOpacity(0.08)
+                            : Colors.white.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isSelected
+                              ? AppColors.goldPrimary
+                              : AppColors.goldPrimary.withOpacity(0.15),
+                          width: isSelected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${speed}x ${speed == 1.0 ? "(Normal)" : ""}',
+                            style: TextStyle(
+                              fontSize: 14.5,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              color: isSelected ? AppColors.maroonPrimary : AppColors.textDark,
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(Icons.check_circle_rounded, color: AppColors.saffronPrimary, size: 20)
+                          else
+                            Icon(Icons.radio_button_unchecked, color: AppColors.goldDark.withOpacity(0.35), size: 18),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
 }
+

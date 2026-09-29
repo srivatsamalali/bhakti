@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -15,6 +14,9 @@ import 'repositories/song_repository.dart';
 import 'services/ads/ad_service.dart';
 import 'services/analytics/analytics_service.dart';
 import 'services/audio/audio_player_service.dart';
+import 'services/audio/offline_download_service.dart';
+import 'services/notifications/devotional_reminder_service.dart';
+import 'services/panchanga/panchanga_service.dart';
 import 'services/ai/ai_tools_service.dart';
 import 'services/ai/bhakti_ai_service.dart';
 import 'services/ai/voice_service.dart';
@@ -126,6 +128,15 @@ class _BhaktiAppState extends State<BhaktiApp> {
           ),
           update: (ctx, prefs, tools, voice, prev) =>
               prev ?? BhaktiAiService(preferencesService: prefs, toolsService: tools, voiceService: voice),
+        ),
+        ChangeNotifierProvider<PanchangaService>(
+          create: (_) => PanchangaService(),
+        ),
+        ChangeNotifierProvider<DevotionalReminderService>(
+          create: (_) => DevotionalReminderService(),
+        ),
+        ChangeNotifierProvider<OfflineDownloadService>(
+          create: (_) => OfflineDownloadService(),
         ),
       ],
 

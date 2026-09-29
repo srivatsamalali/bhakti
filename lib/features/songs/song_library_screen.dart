@@ -151,7 +151,7 @@ class _SongLibraryScreenState extends State<SongLibraryScreen> {
                       )
                     : ListView.builder(
                         itemCount: filteredSongs.length,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 150),
                         physics: const BouncingScrollPhysics(),
                         itemBuilder: (context, index) {
                           final song = filteredSongs[index];

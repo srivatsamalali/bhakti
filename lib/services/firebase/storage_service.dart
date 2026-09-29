@@ -91,8 +91,16 @@ class StorageService {
     }
 
     final ext = fileName.split('.').last.toLowerCase();
-    final validExt = ['mp3', 'm4a', 'aac', 'wav'].contains(ext) ? ext : 'mp3';
-    final mimeType = validExt == 'mp3' ? 'audio/mpeg' : 'audio/mp4';
+    final validExt = ['mp3', 'm4a', 'aac', 'wav', 'ogg'].contains(ext) ? ext : 'mp3';
+    final mimeType = validExt == 'mp3'
+        ? 'audio/mpeg'
+        : validExt == 'm4a'
+            ? 'audio/mp4'
+            : validExt == 'aac'
+                ? 'audio/aac'
+                : validExt == 'wav'
+                    ? 'audio/wav'
+                    : 'audio/mpeg';
 
     try {
       final st = _storage;
@@ -114,8 +122,8 @@ class StorageService {
         }
 
         final snapshot = await uploadTask.timeout(
-          const Duration(minutes: 5),
-          onTimeout: () => throw Exception('Storage audio upload timed out after 5 minutes.'),
+          const Duration(minutes: 10),
+          onTimeout: () => throw Exception('Storage audio upload timed out. Please check your internet connection.'),
         );
         final downloadUrl = await snapshot.ref.getDownloadURL();
         if (downloadUrl.isNotEmpty && downloadUrl.startsWith('http')) {
@@ -131,12 +139,59 @@ class StorageService {
     throw Exception('Cloud Storage service is not available. Please verify internet connection.');
   }
 
-  /// Uploads devotional audio track via File
+  /// Uploads devotional audio track directly via File on native platforms (efficient disk-to-cloud streaming)
   Future<String> uploadSongAudio({
     required String songId,
     required File file,
     Function(double progress)? onProgress,
   }) async {
+    final fileName = file.path.split(Platform.pathSeparator).last;
+    final ext = fileName.split('.').last.toLowerCase();
+    final validExt = ['mp3', 'm4a', 'aac', 'wav', 'ogg'].contains(ext) ? ext : 'mp3';
+    final mimeType = validExt == 'mp3'
+        ? 'audio/mpeg'
+        : validExt == 'm4a'
+            ? 'audio/mp4'
+            : validExt == 'aac'
+                ? 'audio/aac'
+                : validExt == 'wav'
+                    ? 'audio/wav'
+                    : 'audio/mpeg';
+
+    try {
+      final st = _storage;
+      if (st != null) {
+        final ref = st.ref().child('songs/$songId/audio.$validExt');
+        final metadata = SettableMetadata(
+          contentType: mimeType,
+          customMetadata: {'uploadedFor': 'Bhakti App Audio Streaming'},
+        );
+
+        final uploadTask = ref.putFile(file, metadata);
+        if (onProgress != null) {
+          uploadTask.snapshotEvents.listen((event) {
+            if (event.totalBytes > 0) {
+              final progress = event.bytesTransferred / event.totalBytes;
+              onProgress(progress);
+            }
+          });
+        }
+
+        final snapshot = await uploadTask.timeout(
+          const Duration(minutes: 10),
+          onTimeout: () => throw Exception('Storage audio upload timed out. Please check your internet connection.'),
+        );
+        final downloadUrl = await snapshot.ref.getDownloadURL();
+        if (downloadUrl.isNotEmpty && downloadUrl.startsWith('http')) {
+          if (onProgress != null) onProgress(1.0);
+          return downloadUrl;
+        }
+      }
+    } catch (e) {
+      debugPrint('Cloud Storage Native File Audio Upload exception: $e');
+    }
+
+    // Fallback to byte upload
     final bytes = await file.readAsBytes();
     return uploadSongAudioBytes(
       songId: songId,

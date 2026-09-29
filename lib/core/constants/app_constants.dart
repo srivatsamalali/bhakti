@@ -6,7 +6,7 @@ class AppConstants {
   static const String appTagline = 'Divine Music for a Better Life';
   static const String appSpiritualTagline = 'Spirituality for Everyone, Everywhere';
   static const String appUniversalPrayer = '॥ लोकाः समस्ताः सुखिनೋ ಭವಂತು ॥';
-  static const String appVersion = '1.0.1';
+  static const String appVersion = '1.0.10';
 
   // Supported language codes
   static const String langKannada = 'kn';
@@ -66,6 +66,6 @@ class AppConstants {
 
   // Max bounds
   static const int maxRecentHistoryCount = 25;
-  static const int maxUploadImageSizeBytes = 5 * 1024 * 1024; // 5MB
-  static const int maxUploadAudioSizeBytes = 50 * 1024 * 1024; // 50MB
+  static const int maxUploadImageSizeBytes = 10 * 1024 * 1024; // 10MB
+  static const int maxUploadAudioSizeBytes = 250 * 1024 * 1024; // 250MB (Supports 1+ hour high-def stotras)
 }

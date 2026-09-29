@@ -1,19 +1,27 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_typography.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../core/utils/deity_theme_helper.dart';
 import '../../models/song_model.dart';
 import '../../services/audio/audio_player_service.dart';
+import '../../services/audio/offline_download_service.dart';
 import '../../services/preferences/preferences_service.dart';
+import '../../widgets/ambient_diya_particles.dart';
+import '../../widgets/devotional_waveform_bar.dart';
+import '../../widgets/sacred_mandala_aura.dart';
+import 'ab_looper_sheet.dart';
 import 'queue_sheet.dart';
 import 'sleep_timer_dialog.dart';
 import 'speed_selector_dialog.dart';
+import 'temple_acoustic_dialog.dart';
 
 class FullPlayerScreen extends StatefulWidget {
   const FullPlayerScreen({super.key});
@@ -22,89 +30,332 @@ class FullPlayerScreen extends StatefulWidget {
   State<FullPlayerScreen> createState() => _FullPlayerScreenState();
 }
 
-class _FullPlayerScreenState extends State<FullPlayerScreen> {
-  bool _showLyrics = false;
+class _FullPlayerScreenState extends State<FullPlayerScreen> with TickerProviderStateMixin {
+  bool _showLyricsSheet = false;
+  bool _isDisliked = false;
+  late final AnimationController _mandalaController;
+  late final AnimationController _glowController;
+
+  @override
+  void initState() {
+    super.initState();
+    _mandalaController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 45),
+    )..repeat();
+
+    _glowController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2400),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _mandalaController.dispose();
+    _glowController.dispose();
+    super.dispose();
+  }
 
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes;
     final seconds = d.inSeconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 
-  Widget _buildArtwork(SongModel song) {
-    Widget imageWidget;
+  Widget _buildArtworkImage(SongModel song) {
+    Widget fallback = Container(
+      color: AppColors.maroonDark,
+      child: const Center(
+        child: Icon(Icons.music_note_rounded, color: AppColors.goldLight, size: 72),
+      ),
+    );
+
     if (song.imageUrl.startsWith('blob:')) {
-      imageWidget = Image.network(
+      return Image.network(
         song.imageUrl,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Image.asset(
-          'assets/images/lalitha_sahasranamam.jpg',
-          fit: BoxFit.cover,
-        ),
+        errorBuilder: (_, __, ___) => fallback,
       );
     } else if (song.imageUrl.startsWith('http')) {
-      imageWidget = CachedNetworkImage(
+      return CachedNetworkImage(
         imageUrl: song.imageUrl,
         fit: BoxFit.cover,
-        placeholder: (_, __) => Container(
-          color: AppColors.maroonDark,
-          child: const Center(
-            child: Icon(Icons.music_note, color: AppColors.goldLight, size: 64),
-          ),
-        ),
-        errorWidget: (_, __, ___) => Image.asset(
-          'assets/images/lalitha_sahasranamam.jpg',
-          fit: BoxFit.cover,
-        ),
+        placeholder: (_, __) => fallback,
+        errorWidget: (_, __, ___) => fallback,
       );
     } else if (song.imageUrl.startsWith('assets/')) {
-      imageWidget = Image.asset(
+      return Image.asset(
         song.imageUrl,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
-          color: AppColors.maroonDark,
-          child: const Icon(Icons.music_note, color: AppColors.goldLight, size: 64),
-        ),
+        errorBuilder: (_, __, ___) => fallback,
       );
     } else if (!kIsWeb) {
       try {
-        imageWidget = Image.file(
+        return Image.file(
           File(song.imageUrl),
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            color: AppColors.maroonDark,
-            child: const Icon(Icons.music_note, color: AppColors.goldLight, size: 64),
-          ),
+          errorBuilder: (_, __, ___) => fallback,
         );
       } catch (_) {
-        imageWidget = Image.asset('assets/images/lalitha_sahasranamam.jpg', fit: BoxFit.cover);
+        return fallback;
       }
-    } else {
-      imageWidget = Image.asset('assets/images/lalitha_sahasranamam.jpg', fit: BoxFit.cover);
     }
+    return fallback;
+  }
 
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(maxHeight: 340),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.goldLight.withOpacity(0.22),
-            blurRadius: 28,
-            spreadRadius: 4,
-            offset: const Offset(0, 10),
+  void _showMoreOptions(BuildContext context, AudioPlayerService player, SongModel song) {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1410).withOpacity(0.96),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(color: Colors.white.withOpacity(0.12)),
           ),
-        ],
-        border: Border.all(
-          color: AppColors.goldPrimary.withOpacity(0.4),
-          width: 2,
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(22),
-        child: imageWidget,
-      ),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 38,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white30,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 18),
+              ListTile(
+                leading: const Icon(Icons.temple_hindu_rounded, color: AppColors.goldLight),
+                title: const Text('Temple Acoustic Ambiance', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                subtitle: Text(
+                  player.acousticMode == TempleAcousticMode.pureStudio
+                      ? 'Studio Sound'
+                      : 'Active: ${player.acousticMode.name}',
+                  style: const TextStyle(color: Colors.white60, fontSize: 12),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showDialog(context: context, builder: (_) => const TempleAcousticDialog());
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.repeat_on_rounded, color: AppColors.goldLight),
+                title: const Text('A-B Stanza Memorization Looper', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => const AbLooperSheet(),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.speed_rounded, color: AppColors.goldLight),
+                title: const Text('Playback Speed', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                trailing: Text('${player.playbackSpeed}x', style: const TextStyle(color: AppColors.goldLight, fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showDialog(context: context, builder: (_) => const SpeedSelectorDialog());
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.bedtime_outlined, color: AppColors.goldLight),
+                title: const Text('Sleep Timer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showDialog(context: context, builder: (_) => const SleepTimerDialog());
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.queue_music_rounded, color: AppColors.goldLight),
+                title: const Text('Up Next / Queue', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => const QueueSheet(),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSaveToPlaylistDialog(BuildContext context, PreferencesService prefs, SongModel song, String currentLang) {
+    HapticFeedback.lightImpact();
+    final playlists = prefs.getPlaylistNames();
+    final textController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFFFFFDF9),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22),
+                side: const BorderSide(color: Color(0xFFECD7B8), width: 1.5),
+              ),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.maroonPrimary.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.playlist_add_rounded, color: AppColors.maroonPrimary, size: 24),
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Save to Playlist',
+                    style: TextStyle(color: AppColors.maroonPrimary, fontWeight: FontWeight.bold, fontSize: 17),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // New playlist text field
+                    TextField(
+                      controller: textController,
+                      decoration: InputDecoration(
+                        hintText: 'New playlist name (e.g. Daily Chants)...',
+                        hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF8D7B6F)),
+                        prefixIcon: const Icon(Icons.create_new_folder_outlined, color: AppColors.maroonPrimary, size: 20),
+                        filled: true,
+                        fillColor: const Color(0xFFF6EFE6),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        final name = textController.text.trim();
+                        if (name.isNotEmpty) {
+                          await prefs.createPlaylist(name);
+                          await prefs.addSongToPlaylist(name, song.id);
+                          if (ctx.mounted) Navigator.pop(ctx);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Saved "${song.getLocalizedTitle(currentLang)}" to playlist "$name"! 📿'),
+                                backgroundColor: AppColors.maroonPrimary,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: const Text('Create & Save', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.maroonPrimary,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 40),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+
+                    if (playlists.isNotEmpty) ...[
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Existing Playlists:',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF6B584C)),
+                      ),
+                      const SizedBox(height: 6),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 160),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: playlists.length,
+                          itemBuilder: (_, index) {
+                            final pName = playlists[index];
+                            final containsSong = prefs.getCustomPlaylists()[pName]?.contains(song.id) ?? false;
+
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                              leading: Icon(
+                                containsSong ? Icons.check_circle_rounded : Icons.folder_outlined,
+                                color: containsSong ? Colors.green : AppColors.maroonPrimary,
+                                size: 20,
+                              ),
+                              title: Text(pName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                              trailing: containsSong
+                                  ? const Text('Added', style: TextStyle(color: Colors.green, fontSize: 11.5, fontWeight: FontWeight.bold))
+                                  : TextButton(
+                                      onPressed: () async {
+                                        await prefs.addSongToPlaylist(pName, song.id);
+                                        if (ctx.mounted) Navigator.pop(ctx);
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Added "${song.getLocalizedTitle(currentLang)}" to "$pName"! 📿'),
+                                              backgroundColor: AppColors.maroonPrimary,
+                                              behavior: SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: const Text('Add', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.maroonPrimary)),
+                                    ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancel', style: TextStyle(color: Color(0xFF7A685D))),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _shareCurrentSong(BuildContext context, SongModel song, String currentLang) async {
+    HapticFeedback.lightImpact();
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null
+        ? box.localToGlobal(Offset.zero) & box.size
+        : const Rect.fromLTWH(0, 0, 100, 100);
+
+    final title = song.getLocalizedTitle(currentLang);
+    final deity = song.getLocalizedDeity(currentLang);
+
+    await Share.share(
+      '🕉️ Listening to divine chant "$title" ($deity) on Bhakti Devotional App. May peace, health, and divine blessings reach you! 🙏\n\nExperience high-quality spiritual stotras on Bhakti.',
+      subject: title,
+      sharePositionOrigin: origin,
     );
   }
 
@@ -113,459 +364,736 @@ class _FullPlayerScreenState extends State<FullPlayerScreen> {
     final player = context.watch<AudioPlayerService>();
     final song = player.currentSong;
     final prefs = context.watch<PreferencesService>();
+    final downloadService = context.watch<OfflineDownloadService>();
     final currentLang = prefs.getSelectedLanguage();
 
     if (song == null) {
       return Scaffold(
-        backgroundColor: AppColors.darkBackground,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.keyboard_arrow_down, size: 32, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        body: Center(
-          child: Text(
-            context.tr('noSongsAvailable'),
-            style: const TextStyle(color: Colors.white),
-          ),
+        backgroundColor: Colors.black.withOpacity(0.9),
+        body: const Center(
+          child: Text('No song playing', style: TextStyle(color: Colors.white)),
         ),
       );
     }
 
     final isFav = prefs.isFavorite(song.id);
+    final isDownloaded = downloadService.isDownloaded(song.id);
+    final isDownloading = downloadService.isDownloading(song.id);
+    final deityTheme = DeityThemeHelper.getThemeForDeity(song.deity);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onVerticalDragEnd: (details) {
-          // Swipe down to dismiss player
-          if (details.primaryVelocity != null && details.primaryVelocity! > 300) {
-            Navigator.of(context).pop();
-          }
-        },
-        onHorizontalDragEnd: (details) {
-          // Swipe left -> Next chant, Swipe right -> Previous chant
-          if (details.primaryVelocity != null) {
-            if (details.primaryVelocity! < -250) {
-              player.playNext();
-            } else if (details.primaryVelocity! > 250) {
-              player.playPrevious();
-            }
-          }
-        },
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: AppColors.playerBackgroundGradient,
+      body: Stack(
+        children: [
+          // Frosted Glass Blur Background with transparent ambient gradients
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF101924).withOpacity(0.92),
+                      const Color(0xFF18202A).withOpacity(0.94),
+                      const Color(0xFF0D141C).withOpacity(0.97),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ),
           ),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 520),
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    // Top Bar with Minimize, Title, and Share
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.keyboard_arrow_down, size: 36, color: Colors.white),
-                            tooltip: 'Swipe down or tap to minimize',
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          Column(
-                            children: [
-                              Text(
-                                context.tr('nowPlaying').toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  letterSpacing: 2.0,
-                                  color: AppColors.goldLight,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                song.categoryName ?? song.categoryId.toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.share_outlined, color: Colors.white, size: 24),
-                            onPressed: () {
-                              Share.share(
-                                'Listening to divine devotional hymn "${song.getLocalizedTitle(currentLang)}" on Bhakti app. May it bring peace and blessings!',
-                              );
-                            },
-                          ),
-                        ],
+
+          // Floating Ambient Diya Particles
+          Positioned.fill(
+            child: AmbientDiyaParticles(
+              particleColor: deityTheme.accentColor,
+              particleCount: 16,
+              child: const SizedBox.expand(),
+            ),
+          ),
+
+          // Main YouTube Music-style Player Screen with Vertical Swipe Down Dismiss Gesture
+          GestureDetector(
+            onVerticalDragEnd: (details) {
+              if (details.primaryVelocity != null && details.primaryVelocity! > 140) {
+                HapticFeedback.lightImpact();
+                Navigator.pop(context);
+              }
+            },
+            child: SafeArea(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final availableHeight = constraints.maxHeight;
+                  final isDesktop = constraints.maxWidth >= 700;
+                  final maxArtSize = (availableHeight * 0.36).clamp(140.0, 320.0);
+
+                  return Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: isDesktop ? 480 : double.infinity,
                       ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // Main Body: Artwork or Lyrics View
-                    Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: _showLyrics
-                            ? Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: AppColors.darkSurface.withOpacity(0.85),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: AppColors.goldPrimary.withOpacity(0.3),
-                                  ),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // --- TOP BAR: [Chevron Down] + [Spacer] + [Cast & More] ---
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Minimize Chevron
+                                IconButton(
+                                  icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 34, color: Colors.white),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  onPressed: () {
+                                    HapticFeedback.lightImpact();
+                                    Navigator.pop(context);
+                                  },
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+
+                                // Cast & Overflow 3-dots Menu
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          context.tr('lyrics'),
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.goldLight,
+                                    IconButton(
+                                      icon: const Icon(Icons.cast_rounded, size: 22, color: Colors.white),
+                                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                                      constraints: const BoxConstraints(),
+                                      onPressed: () {
+                                        HapticFeedback.lightImpact();
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: const Text('Searching for Google Cast & AirPlay speakers... 📡'),
+                                            backgroundColor: const Color(0xFF1E2630),
+                                            behavior: SnackBarBehavior.floating,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                           ),
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.more_vert_rounded, size: 24, color: Colors.white),
+                                      padding: const EdgeInsets.only(left: 6),
+                                      constraints: const BoxConstraints(),
+                                      onPressed: () => _showMoreOptions(context, player, song),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+
+                            const Spacer(flex: 1),
+
+                            // --- MAIN ALBUM ARTWORK WITH SACRED MANDALA AURA ---
+                            Flexible(
+                              flex: 10,
+                              child: Center(
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxHeight: maxArtSize,
+                                    maxWidth: maxArtSize,
+                                  ),
+                                  child: AspectRatio(
+                                    aspectRatio: 1.0,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        // Rotating Sacred Chakra Mandala Aura
+                                        SacredMandalaAura(
+                                          isPlaying: player.isPlaying,
+                                          rotationAnimation: _mandalaController,
+                                          glowAnimation: _glowController,
+                                          auraColor: deityTheme.accentColor,
                                         ),
-                                        IconButton(
-                                          icon: const Icon(Icons.close, color: Colors.white70),
-                                          onPressed: () {
-                                            setState(() {
-                                              _showLyrics = false;
-                                            });
-                                          },
+
+                                        // Main Artwork Card with dynamic aura shadow
+                                        Container(
+                                          margin: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(18),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(0.5),
+                                                blurRadius: 24,
+                                                offset: const Offset(0, 10),
+                                              ),
+                                              BoxShadow(
+                                                color: deityTheme.accentColor.withOpacity(player.isPlaying ? 0.35 : 0.15),
+                                                blurRadius: 20,
+                                                spreadRadius: player.isPlaying ? 3 : 1,
+                                              ),
+                                            ],
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(18),
+                                            child: _buildArtworkImage(song),
+                                          ),
                                         ),
                                       ],
                                     ),
-                                    const Divider(color: Colors.white24),
-                                    Expanded(
-                                      child: SingleChildScrollView(
-                                        physics: const BouncingScrollPhysics(),
-                                        child: Text(
-                                          song.lyrics ?? context.tr('noLyricsAvailable'),
-                                          style: AppTypography.sacredDevotionalText.copyWith(
-                                            color: AppColors.textLight,
-                                            fontSize: 16,
-                                            height: 1.9,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : SingleChildScrollView(
-                                physics: const BouncingScrollPhysics(),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    _buildArtwork(song),
-                                    const SizedBox(height: 18),
-
-                                    // Song Title & Deity
-                                    Text(
-                                      song.getLocalizedTitle(currentLang),
-                                      style: AppTypography.titleLarge.copyWith(
-                                        fontSize: 22,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      song.getLocalizedDeity(currentLang),
-                                      style: AppTypography.bodyLarge.copyWith(
-                                        fontSize: 15,
-                                        color: AppColors.goldLight,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    if (song.artist != null && song.artist!.isNotEmpty) ...[
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        song.artist!,
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.white60,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ],
+                                  ),
                                 ),
                               ),
-                      ),
-                    ),
+                            ),
 
-              const SizedBox(height: 12),
+                            const Spacer(flex: 1),
 
-              // Progress Bar & Durations
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: StreamBuilder<Duration>(
-                  stream: player.positionStream,
-                  builder: (context, snapshot) {
-                    final position = snapshot.data ?? Duration.zero;
-                    final total = player.totalDuration ?? Duration(seconds: song.duration);
-                    final maxSec = total.inSeconds > 0 ? total.inSeconds.toDouble() : 1.0;
-                    final currentSec = position.inSeconds.toDouble().clamp(0.0, maxSec);
-
-                    return Column(
+                    // --- SONG TITLE, DEITY & LIVE AUDIO WAVEFORM ROW ---
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        SliderTheme(
-                          data: SliderTheme.of(context).copyWith(
-                            trackHeight: 5,
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
-                            activeTrackColor: AppColors.goldLight,
-                            inactiveTrackColor: Colors.white24,
-                            thumbColor: Colors.white,
-                            overlayColor: AppColors.goldLight.withOpacity(0.3),
-                          ),
-                          child: Slider(
-                            value: currentSec,
-                            max: maxSec,
-                            onChanged: (val) {
-                              player.seek(Duration(seconds: val.toInt()));
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                _formatDuration(position),
-                                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                              InkWell(
+                                onTap: () {
+                                  setState(() => _showLyricsSheet = true);
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        song.getLocalizedTitle(currentLang),
+                                        style: const TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          letterSpacing: -0.2,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.chevron_right_rounded, color: Colors.white70, size: 24),
+                                  ],
+                                ),
                               ),
+                              const SizedBox(height: 3),
                               Text(
-                                _formatDuration(total),
-                                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                '${song.getLocalizedDeity(currentLang)}${song.categoryName != null ? ' • ${song.categoryName}' : ''}',
+                                style: TextStyle(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white.withOpacity(0.65),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
                         ),
+                        const SizedBox(width: 12),
+                        // Dynamic Audio Waveform Spectrum Bar
+                        DevotionalWaveformBar(
+                          isPlaying: player.isPlaying,
+                          barCount: 16,
+                          height: 22,
+                          primaryColor: deityTheme.accentColor,
+                          secondaryColor: AppColors.goldPrimary,
+                        ),
                       ],
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // Primary Playback Controls: Prev, Seek -15, Play/Pause, Seek +15, Next
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Previous
-                    IconButton(
-                      icon: const Icon(Icons.skip_previous, size: 36, color: Colors.white),
-                      onPressed: () => player.playPrevious(),
                     ),
 
-                    // Seek Backward 15s
-                    IconButton(
-                      icon: const Icon(Icons.rotate_left, size: 32, color: Colors.white),
-                      tooltip: context.tr('seekBackward15'),
-                      onPressed: () => player.seekBackward15(),
-                    ),
+                  const SizedBox(height: 14),
 
-                    // Play / Pause (Sacred Radiant Diya Style)
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: AppColors.goldGradient,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.goldLight.withOpacity(0.5),
-                            blurRadius: 20,
-                            spreadRadius: 2,
+                  // --- HORIZONTAL ACTION PILLS CAROUSEL ---
+                  SizedBox(
+                    height: 40,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        // Like & Dislike Compound Pill (No Numbers)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          child: Row(
+                            children: [
+                              InkWell(
+                                borderRadius: const BorderRadius.horizontal(left: Radius.circular(22)),
+                                onTap: () async {
+                                  HapticFeedback.selectionClick();
+                                  await prefs.toggleFavorite(song.id);
+                                  setState(() => _isDisliked = false);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        isFav ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
+                                        size: 18,
+                                        color: isFav ? AppColors.goldLight : Colors.white,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Like',
+                                        style: TextStyle(
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: isFav ? AppColors.goldLight : Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Container(width: 1, height: 18, color: Colors.white24),
+                              InkWell(
+                                borderRadius: const BorderRadius.horizontal(right: Radius.circular(22)),
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  setState(() => _isDisliked = !_isDisliked);
+                                  if (isFav) prefs.toggleFavorite(song.id);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  child: Icon(
+                                    _isDisliked ? Icons.thumb_down_rounded : Icons.thumb_down_outlined,
+                                    size: 18,
+                                    color: _isDisliked ? Colors.redAccent : Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        // Save to Playlist Pill
+                        _buildActionPill(
+                          icon: Icons.playlist_add_rounded,
+                          label: 'Save',
+                          onTap: () => _showSaveToPlaylistDialog(context, prefs, song, currentLang),
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        // Share Pill (No Numbers, Reliable Native Sharing)
+                        Builder(
+                          builder: (btnCtx) {
+                            return _buildActionPill(
+                              icon: Icons.share_outlined,
+                              label: 'Share',
+                              onTap: () => _shareCurrentSong(btnCtx, song, currentLang),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        // Download Pill
+                        _buildActionPill(
+                          icon: isDownloaded
+                              ? Icons.check_circle_rounded
+                              : (isDownloading ? Icons.hourglass_top_rounded : Icons.download_rounded),
+                          label: isDownloaded ? 'Downloaded' : (isDownloading ? 'Downloading...' : 'Download'),
+                          iconColor: isDownloaded ? Colors.greenAccent : Colors.white,
+                          onTap: () async {
+                            HapticFeedback.selectionClick();
+                            if (isDownloaded) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Track is available offline! 📿'),
+                                  backgroundColor: const Color(0xFF1E2630),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                              );
+                            } else {
+                              await downloadService.downloadSong(song);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // --- SLIM PROGRESS BAR & TIMESTAMPS ---
+                  StreamBuilder<Duration>(
+                    stream: player.positionStream,
+                    builder: (context, snapshot) {
+                      final position = snapshot.data ?? Duration.zero;
+                      final total = player.totalDuration ?? Duration(seconds: song.duration);
+                      final maxSec = total.inSeconds > 0 ? total.inSeconds.toDouble() : 1.0;
+                      final currentSec = position.inSeconds.toDouble().clamp(0.0, maxSec);
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              trackHeight: 3.2,
+                              trackShape: const RectangularSliderTrackShape(),
+                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.5),
+                              overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                              activeTrackColor: Colors.white,
+                              inactiveTrackColor: Colors.white.withOpacity(0.22),
+                              thumbColor: Colors.white,
+                              overlayColor: Colors.white.withOpacity(0.2),
+                            ),
+                            child: Slider(
+                              value: currentSec,
+                              max: maxSec,
+                              onChanged: (val) {
+                                player.seek(Duration(seconds: val.toInt()));
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _formatDuration(position),
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.65),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  _formatDuration(total),
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.65),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
-                      ),
-                      child: IconButton(
-                        padding: const EdgeInsets.all(16),
-                        iconSize: 42,
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  // --- PRIMARY PLAYBACK CONTROLS (Shuffle, Prev, Solid White Play, Next, Repeat) ---
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Shuffle
+                      IconButton(
                         icon: Icon(
-                          player.isPlaying ? Icons.pause : Icons.play_arrow,
-                          color: AppColors.maroonDark,
+                          Icons.shuffle_rounded,
+                          color: player.isShuffleEnabled ? AppColors.goldLight : Colors.white70,
+                          size: 26,
                         ),
-                        onPressed: () => player.togglePlayPause(),
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          player.toggleShuffle();
+                        },
                       ),
-                    ),
 
-                    // Seek Forward 15s
-                    IconButton(
-                      icon: const Icon(Icons.rotate_right, size: 32, color: Colors.white),
-                      tooltip: context.tr('seekForward15'),
-                      onPressed: () => player.seekForward15(),
-                    ),
-
-                    // Next
-                    IconButton(
-                      icon: const Icon(Icons.skip_next, size: 36, color: Colors.white),
-                      onPressed: () => player.playNext(),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Secondary Controls: Shuffle, Repeat, Speed, Sleep Timer, Lyrics, Queue, Favorite
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    // Shuffle
-                    IconButton(
-                      icon: Icon(
-                        Icons.shuffle,
-                        color: player.isShuffleEnabled ? AppColors.goldLight : Colors.white60,
-                        size: 22,
+                      // Previous Track
+                      IconButton(
+                        icon: const Icon(Icons.skip_previous_rounded, color: Colors.white, size: 40),
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          player.playPrevious();
+                        },
                       ),
-                      tooltip: context.tr('shuffle'),
-                      onPressed: () => player.toggleShuffle(),
-                    ),
 
-                    // Repeat
-                    IconButton(
-                      icon: Icon(
-                        player.loopMode == LoopMode.one
-                            ? Icons.repeat_one
-                            : (player.loopMode == LoopMode.all ? Icons.repeat : Icons.repeat),
-                        color: player.loopMode != LoopMode.off
-                            ? AppColors.goldLight
-                            : Colors.white60,
-                        size: 22,
-                      ),
-                      onPressed: () => player.toggleLoopMode(),
-                    ),
-
-                    // Playback Speed
-                    TextButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => const SpeedSelectorDialog(),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: player.playbackSpeed != 1.0
-                                ? AppColors.goldLight
-                                : Colors.white38,
+                      // Solid White Circular Play/Pause Button
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.mediumImpact();
+                          player.togglePlayPause();
+                        },
+                        child: Container(
+                          width: 68,
+                          height: 68,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.25),
+                                blurRadius: 14,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '${player.playbackSpeed}x',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: player.playbackSpeed != 1.0
-                                ? AppColors.goldLight
-                                : Colors.white70,
+                          child: Center(
+                            child: Icon(
+                              player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                              size: 40,
+                              color: const Color(0xFF161E28),
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                    // Sleep Timer
-                    IconButton(
-                      icon: Icon(
-                        Icons.bedtime_outlined,
-                        color: player.activeSleepTimer != SleepTimerDuration.off
-                            ? AppColors.goldLight
-                            : Colors.white60,
-                        size: 22,
+                      // Next Track
+                      IconButton(
+                        icon: const Icon(Icons.skip_next_rounded, color: Colors.white, size: 40),
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          player.playNext();
+                        },
                       ),
-                      tooltip: context.tr('sleepTimer'),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => const SleepTimerDialog(),
-                        );
-                      },
-                    ),
 
-                    // Lyrics Toggle
-                    IconButton(
-                      icon: Icon(
-                        Icons.menu_book_outlined,
-                        color: _showLyrics ? AppColors.goldLight : Colors.white60,
-                        size: 22,
+                      // Repeat Mode
+                      IconButton(
+                        icon: Icon(
+                          player.loopMode == LoopMode.one ? Icons.repeat_one_rounded : Icons.repeat_rounded,
+                          color: player.loopMode != LoopMode.off ? AppColors.goldLight : Colors.white70,
+                          size: 26,
+                        ),
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          player.toggleLoopMode();
+                        },
                       ),
-                      tooltip: context.tr('lyrics'),
-                      onPressed: () {
-                        setState(() {
-                          _showLyrics = !_showLyrics;
-                        });
-                      },
-                    ),
+                    ],
+                  ),
 
-                    // Queue
-                    IconButton(
-                      icon: const Icon(Icons.queue_music, color: Colors.white70, size: 24),
-                      tooltip: context.tr('queue'),
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (_) => const QueueSheet(),
-                        );
-                      },
-                    ),
+                  const SizedBox(height: 14),
 
-                    // Favorite
-                    IconButton(
-                      icon: Icon(
-                        isFav ? Icons.favorite : Icons.favorite_border,
-                        color: isFav ? AppColors.error : Colors.white70,
-                        size: 24,
+                  // --- BOTTOM LYRICS CAPSULE CARD ---
+                  InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      setState(() => _showLyricsSheet = true);
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.09),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white.withOpacity(0.12)),
                       ),
-                      onPressed: () async {
-                        await prefs.toggleFavorite(song.id);
-                      },
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.music_note_rounded, color: Colors.white, size: 20),
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Lyrics',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  'See lyrics',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white60,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right_rounded, color: Colors.white60, size: 22),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+
+                  const SizedBox(height: 4),
+                ],
               ),
-
-              const SizedBox(height: 14),
-            ],
+            ),
           ),
+        );
+      },
+    ),
+  ),
+),
+
+          // --- FULL-SCREEN LYRICS SHEET (SCREEN 2 FROM SCREENSHOT) ---
+          if (_showLyricsSheet)
+            Positioned.fill(
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 240),
+                opacity: _showLyricsSheet ? 1.0 : 0.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF121B24).withOpacity(0.97),
+                  ),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Top Drag Indicator
+                            Center(
+                              child: Container(
+                                width: 44,
+                                height: 4.5,
+                                decoration: BoxDecoration(
+                                  color: Colors.white38,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Mini Album Artwork + Title + Close Button Row
+                            Row(
+                              children: [
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: _buildArtworkImage(song),
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        song.getLocalizedTitle(currentLang),
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        song.getLocalizedDeity(currentLang),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.white60,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Close Lyrics Pill Button
+                                GestureDetector(
+                                  onTap: () {
+                                    HapticFeedback.lightImpact();
+                                    setState(() => _showLyricsSheet = false);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(7),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.14),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.close_rounded, color: Colors.white, size: 22),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 28),
+
+                            // Large Devotional Lyrics with High-Clarity Typography
+                            Expanded(
+                              child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                                  child: Text(
+                                    song.lyrics != null && song.lyrics!.trim().isNotEmpty
+                                        ? song.lyrics!
+                                        : context.tr('noLyricsAvailable'),
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      height: 1.85,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: 0.1,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionPill({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color iconColor = Colors.white,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18, color: iconColor),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
-    ),
-    ),
-    ),
     );
   }
 }

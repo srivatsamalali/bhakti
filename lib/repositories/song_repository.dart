@@ -57,9 +57,13 @@ class SongRepository extends ChangeNotifier {
       if (song.audioUrl.startsWith('http')) {
         DefaultCacheManager().getFileFromCache(song.audioUrl).then((cached) {
           if (cached == null) {
-            DefaultCacheManager().downloadFile(song.audioUrl).catchError((_) => null);
+            DefaultCacheManager().downloadFile(song.audioUrl).then((_) {}).catchError((e) {
+              debugPrint('Pre-cache audio failed: $e');
+            });
           }
-        }).catchError((_) => null);
+        }).catchError((e) {
+          debugPrint('Cache check failed: $e');
+        });
       }
     }
   }

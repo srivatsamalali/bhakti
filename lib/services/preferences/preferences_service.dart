@@ -187,6 +187,7 @@ class PreferencesService extends ChangeNotifier {
 
   // --- Offline Song Catalog Cache ---
   static const String keyCachedSongs = 'bhakti_offline_songs_cache_v2';
+  static const String keyCustomPlaylists = 'bhakti_user_custom_playlists_v1';
 
   String? getCachedSongsJson() {
     return _prefs.getString(keyCachedSongs);
@@ -194,6 +195,73 @@ class PreferencesService extends ChangeNotifier {
 
   Future<bool> saveCachedSongsJson(String jsonString) async {
     return _prefs.setString(keyCachedSongs, jsonString);
+  }
+
+  // --- Custom User Playlists ---
+  Map<String, List<String>> getCustomPlaylists() {
+    final raw = _prefs.getString(keyCustomPlaylists);
+    if (raw == null || raw.isEmpty) return {};
+    try {
+      final decoded = jsonDecode(raw) as Map<String, dynamic>;
+      return decoded.map((k, v) => MapEntry(k, List<String>.from(v as List)));
+    } catch (_) {
+      return {};
+    }
+  }
+
+  List<String> getPlaylistNames() {
+    return getCustomPlaylists().keys.toList();
+  }
+
+  Future<bool> createPlaylist(String name) async {
+    final map = getCustomPlaylists();
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return false;
+    if (!map.containsKey(trimmed)) {
+      map[trimmed] = [];
+      final success = await _prefs.setString(keyCustomPlaylists, jsonEncode(map));
+      notifyListeners();
+      return success;
+    }
+    return true;
+  }
+
+  Future<bool> addSongToPlaylist(String name, String songId) async {
+    final map = getCustomPlaylists();
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return false;
+    final list = map[trimmed] ?? [];
+    if (!list.contains(songId)) {
+      list.add(songId);
+      map[trimmed] = list;
+      final success = await _prefs.setString(keyCustomPlaylists, jsonEncode(map));
+      notifyListeners();
+      return success;
+    }
+    return true;
+  }
+
+  Future<bool> removeSongFromPlaylist(String name, String songId) async {
+    final map = getCustomPlaylists();
+    final trimmed = name.trim();
+    if (map.containsKey(trimmed)) {
+      map[trimmed]!.remove(songId);
+      final success = await _prefs.setString(keyCustomPlaylists, jsonEncode(map));
+      notifyListeners();
+      return success;
+    }
+    return false;
+  }
+
+  Future<bool> deletePlaylist(String name) async {
+    final map = getCustomPlaylists();
+    if (map.containsKey(name)) {
+      map.remove(name);
+      final success = await _prefs.setString(keyCustomPlaylists, jsonEncode(map));
+      notifyListeners();
+      return success;
+    }
+    return false;
   }
 }
 

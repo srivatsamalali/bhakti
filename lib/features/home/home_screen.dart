@@ -13,7 +13,12 @@ import '../language/language_selection_screen.dart';
 import '../search/search_screen.dart';
 import '../settings/settings_screen.dart';
 import '../songs/song_details_screen.dart';
-import '../../widgets/deepam_loader.dart';
+import '../../widgets/ambient_diya_particles.dart';
+import '../../widgets/divine_music_visualizer.dart';
+import '../../widgets/liquid_glass/glass_style.dart';
+import '../../widgets/liquid_glass/liquid_glass.dart';
+import '../../widgets/shimmer_song_tile.dart';
+import 'widgets/daily_panchanga_card.dart';
 import 'widgets/daily_shloka_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -143,16 +148,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.subtleBackground,
       body: SafeArea(
-        child: RefreshIndicator(
-          color: AppColors.maroonPrimary,
-          backgroundColor: Colors.white,
-          onRefresh: () async {
-            await songRepo.loadSongs();
-          },
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-            slivers: [
-              // --- Clean Top Header Bar ---
+        child: AmbientDiyaParticles(
+          particleCount: 14,
+          particleColor: AppColors.goldPrimary,
+          child: RefreshIndicator(
+            color: AppColors.maroonPrimary,
+            backgroundColor: Colors.white,
+            onRefresh: () async {
+              await songRepo.loadSongs();
+            },
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              slivers: [
+                // --- Clean Top Header Bar ---
               SliverToBoxAdapter(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -243,50 +251,75 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(width: 16),
                           ],
-
-                          // Mobile Search Pill Button
-                          if (!isDesktop) ...[
-                            InkWell(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => const SearchScreen()),
-                                );
-                              },
-                              borderRadius: BorderRadius.circular(20),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: isCompact ? 10 : 14,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFFE2D7C7)),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.search_rounded, color: AppColors.maroonPrimary, size: 18),
-                                    if (!isCompact) ...[
-                                      const SizedBox(width: 6),
-                                      const Text(
-                                        'Search...',
-                                        style: TextStyle(color: Color(0xFF7A685D), fontSize: 12.5, fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
+                          // Ask Bhakti AI Floating Liquid Glass Pill (Matching "Ask Meta AI" in iOS screenshot)
+                          LiquidGlass(
+                            style: GlassStyle.button,
+                            isStadium: true,
+                            tint: AppColors.saffronPrimary,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const BhaktiAiScreen()),
+                              );
+                            },
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isCompact ? 8 : 12,
+                              vertical: 6,
                             ),
-                            const SizedBox(width: 8),
-                          ],
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: SweepGradient(
+                                      colors: [
+                                        Color(0xFFFF4070),
+                                        Color(0xFFFFB300),
+                                        Color(0xFF00E5FF),
+                                        Color(0xFF7C4DFF),
+                                        Color(0xFFFF4070),
+                                      ],
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(Icons.auto_awesome, color: Colors.white, size: 12),
+                                  ),
+                                ),
+                                if (!isCompact || isDesktop) ...[
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    isCompact ? 'AI' : 'Ask Bhakti AI',
+                                    style: const TextStyle(
+                                      color: AppColors.maroonPrimary,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 0.2,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+
+                          // Search Pill Button
+                          LiquidGlass(
+                            style: GlassStyle.button,
+                            isStadium: true,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const SearchScreen()),
+                              );
+                            },
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
+                            child: const Icon(Icons.search_rounded, color: AppColors.maroonPrimary, size: 18),
+                          ),
+                          const SizedBox(width: 6),
 
                           // Language Switcher Pill
                           InkWell(
@@ -297,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                             borderRadius: BorderRadius.circular(20),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20),
@@ -313,11 +346,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.language_rounded, size: 16, color: AppColors.maroonPrimary),
-                                  const SizedBox(width: 5),
+                                  const Icon(Icons.language_rounded, size: 15, color: AppColors.maroonPrimary),
+                                  const SizedBox(width: 4),
                                   Text(
                                     currentLang.toUpperCase(),
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.maroonPrimary),
+                                    style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.maroonPrimary),
                                   ),
                                 ],
                               ),
@@ -325,11 +358,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
 
                           if (!isDesktop) ...[
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 4),
                             IconButton(
-                              icon: const Icon(Icons.settings_outlined, color: AppColors.maroonPrimary, size: 22),
+                              icon: const Icon(Icons.settings_outlined, color: AppColors.maroonPrimary, size: 20),
                               tooltip: 'Settings',
-                              padding: const EdgeInsets.all(4),
+                              padding: const EdgeInsets.all(2),
                               constraints: const BoxConstraints(),
                               onPressed: () {
                                 Navigator.of(context).push(
@@ -402,11 +435,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              // --- Bhakti AI Clean Interactive Assistant Bar ---
-              SliverToBoxAdapter(
+
+              // --- Daily Vedic Panchanga & Festivals ---
+              const SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
-                  child: _buildAiHeroBanner(context),
+                  padding: EdgeInsets.only(top: 4, bottom: 2),
+                  child: DailyPanchangaCard(),
                 ),
               ),
 
@@ -477,13 +511,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // --- Sacred Sahasranama Track Cards ---
               if (songRepo.isLoading && displayedSongs.isEmpty)
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 40),
-                    child: DeepamLoader(
-                      size: 90,
-                      message: 'Loading Divine Melodies...',
-                      subtitle: 'ॐ ಶಾಂತಿಃ',
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => const ShimmerSongTile(),
+                      childCount: 4,
                     ),
                   ),
                 )
@@ -529,21 +562,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       final song = displayedSongs[index];
                       final isPlaying = player.currentSong?.id == song.id && player.isPlaying;
 
-                      return Container(
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: isPlaying ? AppColors.maroonPrimary.withOpacity(0.5) : const Color(0xFFEADBCE),
-                            width: isPlaying ? 1.5 : 1,
+                            color: isPlaying ? AppColors.goldPrimary : const Color(0xFFEADBCE),
+                            width: isPlaying ? 1.8 : 1,
                           ),
                           boxShadow: [
                             BoxShadow(
                               color: isPlaying
-                                  ? AppColors.maroonPrimary.withOpacity(0.08)
+                                  ? AppColors.goldPrimary.withOpacity(0.2)
                                   : Colors.black.withOpacity(0.03),
-                              blurRadius: 10,
+                              blurRadius: isPlaying ? 14 : 10,
                               offset: const Offset(0, 3),
                             ),
                           ],
@@ -552,8 +586,31 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: const EdgeInsets.all(14),
                           child: Row(
                             children: [
-                              // Album Artwork
-                              _buildSongImage(song.imageUrl, size: 64, radius: 14),
+                              // Album Artwork with active aura
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  _buildSongImage(song.imageUrl, size: 64, radius: 14),
+                                  if (isPlaying)
+                                    Positioned(
+                                      bottom: 4,
+                                      right: 4,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.65),
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: const DivineMusicVisualizer(
+                                          isPlaying: true,
+                                          height: 10,
+                                          width: 14,
+                                          barColor: AppColors.goldLight,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                               const SizedBox(width: 16),
 
                               // Title & Deity
@@ -561,15 +618,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      song.getLocalizedTitle(currentLang),
-                                      style: TextStyle(
-                                        fontSize: 16.5,
-                                        fontWeight: FontWeight.bold,
-                                        color: isPlaying ? AppColors.maroonPrimary : AppColors.textDark,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            song.getLocalizedTitle(currentLang),
+                                            style: TextStyle(
+                                              fontSize: 16.5,
+                                              fontWeight: FontWeight.bold,
+                                              color: isPlaying ? AppColors.maroonPrimary : AppColors.textDark,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        if (isPlaying) ...[
+                                          const SizedBox(width: 6),
+                                          const DivineMusicVisualizer(
+                                            isPlaying: true,
+                                            height: 14,
+                                            width: 18,
+                                            barColor: AppColors.saffronPrimary,
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                     const SizedBox(height: 4),
                                     Builder(
@@ -579,10 +651,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                             : song.formattedDuration;
                                         return Text(
                                           '${song.getLocalizedDeity(currentLang)} • $liveDuration',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 13.5,
-                                            color: Color(0xFF6B5B52),
-                                            fontWeight: FontWeight.w500,
+                                            color: isPlaying ? AppColors.maroonPrimary.withOpacity(0.85) : const Color(0xFF6B5B52),
+                                            fontWeight: isPlaying ? FontWeight.w600 : FontWeight.w500,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -684,17 +756,23 @@ class _HomeScreenState extends State<HomeScreen> {
                             final song = allSongs[index];
                             final isCurrentPlaying = player.currentSong?.id == song.id && player.isPlaying;
 
-                            return Container(
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
                               width: 180,
                               margin: const EdgeInsets.only(right: 18),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFEADBCE)),
+                                border: Border.all(
+                                  color: isCurrentPlaying ? AppColors.goldPrimary : const Color(0xFFEADBCE),
+                                  width: isCurrentPlaying ? 1.8 : 1,
+                                ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.04),
-                                    blurRadius: 10,
+                                    color: isCurrentPlaying
+                                        ? AppColors.goldPrimary.withOpacity(0.25)
+                                        : Colors.black.withOpacity(0.04),
+                                    blurRadius: isCurrentPlaying ? 14 : 10,
                                     offset: const Offset(0, 4),
                                   ),
                                 ],
@@ -710,6 +788,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Stack(
                                         children: [
                                           _buildSongImage(song.imageUrl, size: 156, radius: 16),
+                                          if (isCurrentPlaying)
+                                            Positioned(
+                                              top: 8,
+                                              left: 8,
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black.withOpacity(0.7),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: const DivineMusicVisualizer(
+                                                  isPlaying: true,
+                                                  height: 10,
+                                                  width: 14,
+                                                  barColor: AppColors.goldLight,
+                                                ),
+                                              ),
+                                            ),
                                           Positioned(
                                             bottom: 8,
                                             right: 8,
@@ -717,11 +813,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                               width: 38,
                                               height: 38,
                                               decoration: BoxDecoration(
-                                                color: AppColors.maroonPrimary,
+                                                gradient: AppColors.heroMaroonGradient,
                                                 shape: BoxShape.circle,
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: Colors.black.withOpacity(0.3),
+                                                    color: AppColors.maroonPrimary.withOpacity(0.4),
                                                     blurRadius: 6,
                                                   ),
                                                 ],
@@ -783,145 +879,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
 
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              const SliverToBoxAdapter(child: SizedBox(height: 150)),
             ],
           ),
         ),
       ),
+    ),
     );
   }
 
-  Widget _buildAiHeroBanner(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isNarrow = constraints.maxWidth < 500;
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: const Color(0xFFEADBCE),
-              width: 1.2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.maroonPrimary.withOpacity(0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-            child: InkWell(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const BhaktiAiScreen()),
-                );
-              },
-              borderRadius: BorderRadius.circular(20),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                child: Row(
-                  children: [
-                    // Glowing Sacred Sparkle Icon
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        gradient: AppColors.heroMaroonGradient,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.maroonPrimary.withOpacity(0.2),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.auto_awesome, color: AppColors.goldLight, size: 22),
-                    ),
-                    const SizedBox(width: 14),
-
-                    // Clean Text Description
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Row(
-                            children: [
-                              Text(
-                                'Bhakti AI Assistant',
-                                style: TextStyle(
-                                  fontSize: 14.5,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.maroonPrimary,
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                              SizedBox(width: 6),
-                              Icon(Icons.mic, color: AppColors.maroonPrimary, size: 15),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            isNarrow
-                                ? 'Ask or chant in Kannada, Hindi, Tamil, ML, English'
-                                : 'Ask questions, explore meanings, or listen in your sacred language',
-                            style: const TextStyle(
-                              fontSize: 12.5,
-                              color: Color(0xFF7A685D),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-
-                    // Clean Action Pill Button
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.maroonPrimary,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.maroonPrimary.withOpacity(0.25),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 14),
-                          SizedBox(width: 6),
-                          Text(
-                            'Ask AI',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
