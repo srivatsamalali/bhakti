@@ -39,6 +39,8 @@
 	<string>Bhakti AI requires microphone access for voice requests and spiritual chants recognition.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Bhakti requires access to photos for selecting album art and devotional imagery in the admin portal.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Bhakti requires permission to save sacred wallpapers and shloka artwork directly to your Photos library.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Bhakti AI converts your devotional voice requests into text.</string>
 	<key>SKAdNetworkItems</key>

@@ -191,10 +191,11 @@ class SongRepository extends ChangeNotifier {
     }
   }
 
-  /// Search songs across title, deity, category, and language
+  /// Search songs across title, deity, category, language, and artist
   List<SongModel> searchSongs(String query, String currentLangCode) {
     if (query.trim().isEmpty) return [];
-    final cleanQuery = query.trim().toLowerCase();
+    final cleanQuery = query.trim().toLowerCase().replaceAll('_', ' ');
+    final queryTokens = cleanQuery.split(RegExp(r'\s+')).where((t) => t.isNotEmpty).toList();
 
     return _allSongs.where((song) {
       final title = song.title.toLowerCase();
@@ -203,14 +204,25 @@ class SongRepository extends ChangeNotifier {
       final localDeity = song.getLocalizedDeity(currentLangCode).toLowerCase();
       final category = (song.categoryName ?? song.categoryId).toLowerCase();
       final artist = (song.artist ?? '').toLowerCase();
+      final id = song.id.toLowerCase().replaceAll('_', ' ');
+      final fullSearchable = '$title $localTitle $deity $localDeity $category $artist $id';
 
-      return song.id.toLowerCase() == cleanQuery ||
-          title.contains(cleanQuery) ||
-          localTitle.contains(cleanQuery) ||
-          deity.contains(cleanQuery) ||
-          localDeity.contains(cleanQuery) ||
-          category.contains(cleanQuery) ||
-          artist.contains(cleanQuery);
+      // 1. Direct contains or ID match
+      if (id == cleanQuery || fullSearchable.contains(cleanQuery)) {
+        return true;
+      }
+
+      // 2. Token match (if all tokens are contained in the searchable text)
+      if (queryTokens.isNotEmpty && queryTokens.every((token) => fullSearchable.contains(token))) {
+        return true;
+      }
+
+      // 3. Any single token match if query is a single word (e.g. 'hanuman')
+      if (queryTokens.length == 1 && fullSearchable.contains(queryTokens.first)) {
+        return true;
+      }
+
+      return false;
     }).toList();
   }
 }

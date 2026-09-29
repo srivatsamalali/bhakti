@@ -193,11 +193,25 @@ class BhaktiAiService extends ChangeNotifier {
   ) async {
     switch (intent.type) {
       case AiIntentType.playSong:
-        final query = intent.targetSongId ?? intent.songQuery ?? rawQuery;
-        final songs = toolsService.songRepository.searchSongs(query, langCode);
-        final song = (songs.isNotEmpty)
-            ? songs.first
-            : toolsService.songRepository.getSongById(query);
+        final candidateQueries = [
+          if (intent.targetSongId != null) intent.targetSongId!.replaceAll('_', ' '),
+          if (intent.songQuery != null) intent.songQuery!.replaceAll('_', ' '),
+          rawQuery.trim(),
+        ];
+
+        SongModel? song;
+        for (final q in candidateQueries) {
+          final results = toolsService.songRepository.searchSongs(q, langCode);
+          if (results.isNotEmpty) {
+            song = results.first;
+            break;
+          }
+          final byId = toolsService.songRepository.getSongById(q);
+          if (byId != null) {
+            song = byId;
+            break;
+          }
+        }
 
         if (song != null) {
           final localizedTitle = song.getLocalizedTitle(langCode);
@@ -231,8 +245,13 @@ class BhaktiAiService extends ChangeNotifier {
             isVoice: isVoice,
           );
         } else {
+          final spiritualAnswer = await knowledgeEngine.answerQuery(
+            query: rawQuery,
+            languageCode: langCode,
+            matchedSongId: intent.targetSongId,
+          );
           return AiMessage(
-            text: _getSongNotFoundMessage(langCode, query),
+            text: spiritualAnswer,
             sender: AiSender.ai,
             detectedLanguage: langCode,
             intent: intent.type,
@@ -643,21 +662,7 @@ class BhaktiAiService extends ChangeNotifier {
     }
   }
 
-  String _getSongNotFoundMessage(String langCode, String query) {
-    switch (langCode) {
-      case AiLanguage.kannada:
-        return 'ಕ್ಷಮಿಸಿ, "$query" ಸದ್ಯಕ್ಕೆ ಭಕ್ತಿ ಲೈಬ್ರರಿಯಲ್ಲಿ ಲಭ್ಯವಿಲ್ಲ. ಲಭ್ಯವಿರುವ ಶ್ರೀ ಲಲಿತಾ ಸಹಸ್ರನಾಮ, ವಿಷ್ಣು ಸಹಸ್ರನಾಮ ಅಥವಾ ಶಿವ ಸ್ತೋತ್ರಗಳನ್ನು ಆಲಿಸಬಹುದು.';
-      case AiLanguage.hindi:
-        return 'क्षमा करें, "$query" अभी भक्ति लाइब्रेरी में उपलब्ध नहीं है। आप उपलब्ध ललिता सहस्रनाम या विष्णु सहस्रनाम सुन सकते हैं।';
-      case AiLanguage.tamil:
-        return 'மன்னிக்கவும், "$query" தற்போது பக்தி நூலகத்தில் இல்லை. உள்ள சஹஸ்ரநாமங்களை கேட்டு மகிழுங்கள்.';
-      case AiLanguage.malayalam:
-        return 'ക്ഷമിക്കണം, "$query" നിലവിൽ ഭക്തി ലൈബ്രറിയിൽ ലഭ്യമല്ല.';
-      case AiLanguage.english:
-      default:
-        return 'Sorry, "$query" is not currently available in the Bhakti library. You can enjoy Sri Lalitha Sahasranamam, Vishnu Sahasranamam, or Shiva Panchakshari.';
-    }
-  }
+
 
   String _getLyricsNotFoundMessage(String langCode) {
     switch (langCode) {

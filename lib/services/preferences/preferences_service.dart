@@ -263,5 +263,16 @@ class PreferencesService extends ChangeNotifier {
     }
     return false;
   }
+
+  // --- Deity Temple Themes ---
+  String getTempleThemeId() {
+    return _prefs.getString(AppConstants.keyTempleTheme) ?? 'tirumala';
+  }
+
+  Future<bool> setTempleThemeId(String themeId) async {
+    final success = await _prefs.setString(AppConstants.keyTempleTheme, themeId);
+    notifyListeners();
+    return success;
+  }
 }
 

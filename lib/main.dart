@@ -8,6 +8,7 @@ import 'firebase_options.dart';
 import 'core/constants/app_constants.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/temple_theme.dart';
 import 'features/splash/splash_screen.dart';
 import 'repositories/category_repository.dart';
 import 'repositories/song_repository.dart';
@@ -143,12 +144,13 @@ class _BhaktiAppState extends State<BhaktiApp> {
       child: Consumer<PreferencesService>(
         builder: (context, prefs, _) {
           final currentLangCode = prefs.getSelectedLanguage();
+          final activeTheme = TempleTheme.fromId(prefs.getTempleThemeId());
 
           return MaterialApp(
             title: AppConstants.appName,
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.lightTheme,
+            theme: AppTheme.getTheme(activeTheme),
+            darkTheme: AppTheme.getTheme(activeTheme),
             themeMode: ThemeMode.light,
             locale: Locale(currentLangCode),
             supportedLocales: const [

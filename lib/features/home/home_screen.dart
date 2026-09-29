@@ -20,6 +20,8 @@ import '../../widgets/liquid_glass/liquid_glass.dart';
 import '../../widgets/shimmer_song_tile.dart';
 import 'widgets/daily_panchanga_card.dart';
 import 'widgets/daily_shloka_card.dart';
+import '../../core/theme/temple_theme.dart';
+import '../settings/widgets/temple_theme_selector_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -145,14 +147,16 @@ class _HomeScreenState extends State<HomeScreen> {
       displayedSongs = allSongs.where((s) => s.language == 'kn').toList();
     }
 
+    final templeTheme = TempleTheme.fromId(prefs.getTempleThemeId());
+
     return Scaffold(
-      backgroundColor: AppColors.subtleBackground,
+      backgroundColor: templeTheme.backgroundColor,
       body: SafeArea(
         child: AmbientDiyaParticles(
           particleCount: 14,
-          particleColor: AppColors.goldPrimary,
+          particleColor: templeTheme.accentGold,
           child: RefreshIndicator(
-            color: AppColors.maroonPrimary,
+            color: templeTheme.primaryColor,
             backgroundColor: Colors.white,
             onRefresh: () async {
               await songRepo.loadSongs();
@@ -180,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.maroonPrimary.withOpacity(0.12),
+                                    color: templeTheme.primaryColor.withOpacity(0.12),
                                     blurRadius: 6,
                                     offset: const Offset(0, 2),
                                   ),
@@ -194,20 +198,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                     'assets/images/logo.png',
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, __, ___) => Container(
-                                      color: AppColors.maroonPrimary,
-                                      child: const Icon(Icons.wb_sunny, color: AppColors.goldLight, size: 20),
+                                      color: templeTheme.primaryColor,
+                                      child: Icon(Icons.wb_sunny, color: templeTheme.accentGold, size: 20),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 10),
-                            const Text(
+                            Text(
                               'BHAKTI',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.maroonPrimary,
+                                color: templeTheme.primaryColor,
                                 letterSpacing: 1.1,
                               ),
                             ),
@@ -227,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(color: const Color(0xFFE2D7C7)),
+                                    border: Border.all(color: templeTheme.borderColor),
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black.withOpacity(0.02),
@@ -236,11 +240,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ],
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     children: [
-                                      Icon(Icons.search_rounded, color: AppColors.maroonPrimary, size: 20),
-                                      SizedBox(width: 10),
-                                      Text(
+                                      Icon(Icons.search_rounded, color: templeTheme.primaryColor, size: 20),
+                                      const SizedBox(width: 10),
+                                      const Text(
                                         'Search sacred chants, sahasranamas, stotras...',
                                         style: TextStyle(color: Color(0xFF7A685D), fontSize: 13.5, fontWeight: FontWeight.w500),
                                       ),
@@ -255,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           LiquidGlass(
                             style: GlassStyle.button,
                             isStadium: true,
-                            tint: AppColors.saffronPrimary,
+                            tint: templeTheme.primaryColor,
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(builder: (_) => const BhaktiAiScreen()),
@@ -291,8 +295,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(width: 6),
                                   Text(
                                     isCompact ? 'AI' : 'Ask Bhakti AI',
-                                    style: const TextStyle(
-                                      color: AppColors.maroonPrimary,
+                                    style: TextStyle(
+                                      color: templeTheme.primaryColor,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w800,
                                       letterSpacing: 0.2,
@@ -317,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               horizontal: 8,
                               vertical: 6,
                             ),
-                            child: const Icon(Icons.search_rounded, color: AppColors.maroonPrimary, size: 18),
+                            child: Icon(Icons.search_rounded, color: templeTheme.primaryColor, size: 18),
                           ),
                           const SizedBox(width: 6),
 
@@ -334,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFE2D7C7)),
+                                border: Border.all(color: templeTheme.borderColor),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.03),
@@ -346,21 +350,52 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.language_rounded, size: 15, color: AppColors.maroonPrimary),
+                                  Icon(Icons.language_rounded, size: 15, color: templeTheme.primaryColor),
                                   const SizedBox(width: 4),
                                   Text(
                                     currentLang.toUpperCase(),
-                                    style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.maroonPrimary),
+                                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: templeTheme.primaryColor),
                                   ),
                                 ],
                               ),
                             ),
                           ),
+                          const SizedBox(width: 6),
 
-                          if (!isDesktop) ...[
-                            const SizedBox(width: 4),
+                          // Temple Theme Switcher Button
+                          Builder(
+                            builder: (ctx) {
+                              final currentTheme = TempleTheme.fromId(prefs.getTempleThemeId());
+                              return InkWell(
+                                onTap: () => TempleThemeSelectorSheet.show(ctx),
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: templeTheme.borderColor),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.03),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    currentTheme.emoji,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+
+                          if (isDesktop) ...[
+                            const SizedBox(width: 6),
                             IconButton(
-                              icon: const Icon(Icons.settings_outlined, color: AppColors.maroonPrimary, size: 20),
+                              icon: Icon(Icons.settings_outlined, color: templeTheme.primaryColor, size: 20),
                               tooltip: 'Settings',
                               padding: const EdgeInsets.all(2),
                               constraints: const BoxConstraints(),
@@ -399,15 +434,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.maroonPrimary : Colors.white,
+                              color: isSelected ? templeTheme.primaryColor : Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: isSelected ? AppColors.maroonPrimary : const Color(0xFFE2D7C7),
+                                color: isSelected ? templeTheme.primaryColor : templeTheme.borderColor,
                               ),
                               boxShadow: [
                                 if (isSelected)
                                   BoxShadow(
-                                    color: AppColors.maroonPrimary.withOpacity(0.2),
+                                    color: templeTheme.primaryColor.withOpacity(0.25),
                                     blurRadius: 6,
                                     offset: const Offset(0, 2),
                                   )
@@ -494,7 +529,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: const Icon(Icons.play_arrow_rounded, size: 18),
                         label: const Text('Play all', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.maroonPrimary,
+                          backgroundColor: templeTheme.primaryColor,
                           foregroundColor: Colors.white,
                           elevation: 1,
                           shape: RoundedRectangleBorder(
@@ -528,12 +563,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFEADBCE)),
+                      border: Border.all(color: templeTheme.borderColor),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.music_off_rounded, size: 48, color: AppColors.maroonPrimary.withOpacity(0.5)),
+                        Icon(Icons.music_off_rounded, size: 48, color: templeTheme.primaryColor.withOpacity(0.5)),
                         const SizedBox(height: 12),
                         const Text(
                           'No Songs Available Yet',
@@ -569,13 +604,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: isPlaying ? AppColors.goldPrimary : const Color(0xFFEADBCE),
+                            color: isPlaying ? templeTheme.primaryColor : templeTheme.borderColor,
                             width: isPlaying ? 1.8 : 1,
                           ),
                           boxShadow: [
                             BoxShadow(
                               color: isPlaying
-                                  ? AppColors.goldPrimary.withOpacity(0.2)
+                                  ? templeTheme.primaryColor.withOpacity(0.2)
                                   : Colors.black.withOpacity(0.03),
                               blurRadius: isPlaying ? 14 : 10,
                               offset: const Offset(0, 3),
@@ -601,11 +636,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                           color: Colors.black.withOpacity(0.65),
                                           borderRadius: BorderRadius.circular(6),
                                         ),
-                                        child: const DivineMusicVisualizer(
+                                        child: DivineMusicVisualizer(
                                           isPlaying: true,
                                           height: 10,
                                           width: 14,
-                                          barColor: AppColors.goldLight,
+                                          barColor: templeTheme.accentGold,
                                         ),
                                       ),
                                     ),
@@ -626,7 +661,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             style: TextStyle(
                                               fontSize: 16.5,
                                               fontWeight: FontWeight.bold,
-                                              color: isPlaying ? AppColors.maroonPrimary : AppColors.textDark,
+                                              color: isPlaying ? templeTheme.primaryColor : AppColors.textDark,
                                             ),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
@@ -634,11 +669,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         if (isPlaying) ...[
                                           const SizedBox(width: 6),
-                                          const DivineMusicVisualizer(
+                                          DivineMusicVisualizer(
                                             isPlaying: true,
                                             height: 14,
                                             width: 18,
-                                            barColor: AppColors.saffronPrimary,
+                                            barColor: templeTheme.primaryColor,
                                           ),
                                         ],
                                       ],
@@ -653,7 +688,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           '${song.getLocalizedDeity(currentLang)} • $liveDuration',
                                           style: TextStyle(
                                             fontSize: 13.5,
-                                            color: isPlaying ? AppColors.maroonPrimary.withOpacity(0.85) : const Color(0xFF6B5B52),
+                                            color: isPlaying ? templeTheme.primaryColor.withOpacity(0.85) : const Color(0xFF6B5B52),
                                             fontWeight: isPlaying ? FontWeight.w600 : FontWeight.w500,
                                           ),
                                           maxLines: 1,
@@ -670,13 +705,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: isPlaying ? AppColors.maroonPrimary : const Color(0xFFF3EDE3),
+                                  color: isPlaying ? templeTheme.primaryColor : const Color(0xFFF3EDE3),
                                   shape: BoxShape.circle,
                                 ),
                                 child: IconButton(
                                   icon: Icon(
                                     isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                                    color: isPlaying ? Colors.white : AppColors.maroonPrimary,
+                                    color: isPlaying ? Colors.white : templeTheme.primaryColor,
                                     size: 26,
                                   ),
                                   padding: EdgeInsets.zero,
@@ -698,7 +733,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               IconButton(
                                 icon: Icon(
                                   prefs.isFavorite(song.id) ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
-                                  color: prefs.isFavorite(song.id) ? AppColors.maroonPrimary : const Color(0xFF8B776A),
+                                  color: prefs.isFavorite(song.id) ? templeTheme.primaryColor : const Color(0xFF8B776A),
                                   size: 22,
                                 ),
                                 tooltip: 'Favorite',

@@ -22,6 +22,7 @@ import 'queue_sheet.dart';
 import 'sleep_timer_dialog.dart';
 import 'speed_selector_dialog.dart';
 import 'temple_acoustic_dialog.dart';
+import '../wallpaper/sacred_wallpaper_generator_dialog.dart';
 
 class FullPlayerScreen extends StatefulWidget {
   const FullPlayerScreen({super.key});
@@ -170,6 +171,18 @@ class _FullPlayerScreenState extends State<FullPlayerScreen> with TickerProvider
                 onTap: () {
                   Navigator.pop(ctx);
                   showDialog(context: context, builder: (_) => const SleepTimerDialog());
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.wallpaper_rounded, color: AppColors.goldLight),
+                title: const Text('Make Sacred Story & Poster', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                subtitle: const Text('Generate 4K wallpaper for Status & Stories', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  SacredWallpaperGeneratorDialog.show(
+                    context,
+                    song: song,
+                  );
                 },
               ),
               ListTile(
@@ -344,10 +357,11 @@ class _FullPlayerScreenState extends State<FullPlayerScreen> with TickerProvider
 
   void _shareCurrentSong(BuildContext context, SongModel song, String currentLang) async {
     HapticFeedback.lightImpact();
+    final size = MediaQuery.of(context).size;
     final box = context.findRenderObject() as RenderBox?;
-    final origin = box != null
-        ? box.localToGlobal(Offset.zero) & box.size
-        : const Rect.fromLTWH(0, 0, 100, 100);
+    final origin = box != null && box.hasSize
+        ? (box.localToGlobal(Offset.zero) & box.size)
+        : Rect.fromLTWH(0, size.height * 0.4, size.width, size.height * 0.2);
 
     final title = song.getLocalizedTitle(currentLang);
     final deity = song.getLocalizedDeity(currentLang);

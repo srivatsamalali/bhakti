@@ -1,0 +1,8 @@
+{
+  "java.import.gradle.enabled": false,
+  "java.autobuild.enabled": false,
+  "gradle.autoDetect": "off",
+  "gradle.enableProjectSync": false,
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "dart.flutterSdkPath": "/opt/homebrew/share/flutter"
+}

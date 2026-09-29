@@ -2,34 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_typography.dart';
+import 'temple_theme.dart';
 
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme {
+  static ThemeData getTheme([TempleTheme? theme]) {
+    final t = theme ?? TempleTheme.tirumala;
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      primaryColor: AppColors.maroonPrimary,
-      scaffoldBackgroundColor: AppColors.subtleBackground,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.maroonPrimary,
-        secondary: AppColors.saffronPrimary,
-        tertiary: AppColors.goldPrimary,
-        surface: AppColors.subtleCard,
+      primaryColor: t.primaryColor,
+      scaffoldBackgroundColor: t.backgroundColor,
+      colorScheme: ColorScheme.light(
+        primary: t.primaryColor,
+        secondary: t.secondaryColor,
+        tertiary: t.accentGold,
+        surface: t.cardColor,
         error: AppColors.error,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
-        onSurface: AppColors.textDark,
+        onSurface: t.textColor,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.subtleBackground,
+        backgroundColor: t.backgroundColor,
         elevation: 0,
         scrolledUnderElevation: 1,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: AppColors.maroonPrimary, size: 26),
+        iconTheme: IconThemeData(color: t.primaryColor, size: 26),
         titleTextStyle: AppTypography.titleLarge.copyWith(
-          color: AppColors.maroonPrimary,
+          color: t.primaryColor,
           fontWeight: FontWeight.bold,
         ),
         systemOverlayStyle: const SystemUiOverlayStyle(
@@ -38,13 +40,13 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: AppColors.subtleCard,
+        color: t.cardColor,
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.06),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(
-            color: AppColors.subtleBorder,
+          side: BorderSide(
+            color: t.borderColor,
             width: 1,
           ),
         ),
@@ -52,7 +54,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.maroonPrimary,
+          backgroundColor: t.primaryColor,
           foregroundColor: Colors.white,
           elevation: 1,
           minimumSize: const Size(double.infinity, 54),
@@ -68,9 +70,9 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.maroonPrimary,
+          foregroundColor: t.primaryColor,
           minimumSize: const Size(double.infinity, 52),
-          side: const BorderSide(color: AppColors.maroonPrimary, width: 1.5),
+          side: BorderSide(color: t.primaryColor, width: 1.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -81,42 +83,44 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFFF3ECE1),
+        fillColor: t.surfaceColor,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(24),
-          borderSide: const BorderSide(color: AppColors.subtleBorder),
+          borderSide: BorderSide(color: t.borderColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(24),
-          borderSide: const BorderSide(color: AppColors.subtleBorder),
+          borderSide: BorderSide(color: t.borderColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(24),
-          borderSide: const BorderSide(color: AppColors.maroonPrimary, width: 2),
+          borderSide: BorderSide(color: t.primaryColor, width: 2),
         ),
-        hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
-        labelStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textDark),
+        hintStyle: AppTypography.bodyMedium.copyWith(color: t.textMuted),
+        labelStyle: AppTypography.bodyMedium.copyWith(color: t.textColor),
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: Colors.white,
-        selectedItemColor: AppColors.maroonPrimary,
-        unselectedItemColor: AppColors.textMuted,
+        selectedItemColor: t.primaryColor,
+        unselectedItemColor: t.textMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
       ),
       sliderTheme: SliderThemeData(
-        activeTrackColor: AppColors.maroonPrimary,
-        inactiveTrackColor: AppColors.maroonPrimary.withOpacity(0.18),
-        thumbColor: AppColors.maroonPrimary,
-        overlayColor: AppColors.maroonPrimary.withOpacity(0.15),
+        activeTrackColor: t.primaryColor,
+        inactiveTrackColor: t.primaryColor.withOpacity(0.18),
+        thumbColor: t.primaryColor,
+        overlayColor: t.primaryColor.withOpacity(0.15),
         trackHeight: 5,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
       ),
     );
   }
+
+  static ThemeData get lightTheme => getTheme(TempleTheme.tirumala);
 
   static ThemeData get darkTheme {
     return ThemeData(

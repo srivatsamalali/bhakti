@@ -39,6 +39,7 @@ class AppConstants {
   static const String keyAdminAiDailyLimit = 'bhakti_admin_ai_daily_limit';
   static const String keyAdminAiMaxTokens = 'bhakti_admin_ai_max_tokens';
   static const String keyAdminAiGlobalEnabled = 'bhakti_admin_ai_global_enabled';
+  static const String keyTempleTheme = 'bhakti_active_temple_theme_v1';
 
 
   // Default Admin Credentials (Development)

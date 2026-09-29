@@ -39,13 +39,17 @@ class AiToolsService {
 
   /// Get specific song by exact ID or best title match
   SongModel? getSong(String songIdOrQuery, {String langCode = 'en'}) {
-    // 1. Exact ID
-    final exact = songRepository.allSongs.where((s) => s.id == songIdOrQuery).toList();
+    final clean = songIdOrQuery.replaceAll('_', ' ').trim();
+    // 1. Exact ID match
+    final exact = songRepository.allSongs.where((s) => s.id == songIdOrQuery || s.id == clean).toList();
     if (exact.isNotEmpty) return exact.first;
 
     // 2. Normalized search
-    final results = songRepository.searchSongs(songIdOrQuery, langCode);
+    final results = songRepository.searchSongs(clean, langCode);
     if (results.isNotEmpty) return results.first;
+
+    final rawResults = songRepository.searchSongs(songIdOrQuery, langCode);
+    if (rawResults.isNotEmpty) return rawResults.first;
 
     return null;
   }

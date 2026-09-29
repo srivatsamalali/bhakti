@@ -27,6 +27,7 @@ class GlassTabBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
   final Color? tint;
+  final Color? activeColor;
 
   const GlassTabBar({
     super.key,
@@ -34,10 +35,13 @@ class GlassTabBar extends StatelessWidget {
     required this.currentIndex,
     required this.onTap,
     this.tint,
+    this.activeColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveActiveColor = activeColor ?? Theme.of(context).primaryColor;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
       child: LiquidGlass(
@@ -110,7 +114,7 @@ class GlassTabBar extends StatelessWidget {
                                   Icon(
                                     isSelected ? (item.activeIcon ?? item.icon) : item.icon,
                                     color: isSelected
-                                        ? AppColors.maroonPrimary
+                                        ? effectiveActiveColor
                                         : AppColors.textDark.withOpacity(0.70),
                                     size: isSelected ? 23 : 21,
                                   ),
@@ -166,7 +170,7 @@ class GlassTabBar extends StatelessWidget {
                                   fontSize: 10.5,
                                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                                   color: isSelected
-                                      ? AppColors.maroonPrimary
+                                      ? effectiveActiveColor
                                       : AppColors.textDark.withOpacity(0.80),
                                   letterSpacing: 0.1,
                                 ),

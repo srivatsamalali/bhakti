@@ -118,11 +118,22 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
               AnalyticsService.instance.logSongFavorited(widget.song.id, !isFav);
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.share_outlined, color: AppColors.maroonPrimary),
-            onPressed: () {
-              Share.share(
-                'Listen to "${widget.song.getLocalizedTitle(currentLang)}" on Bhakti app. ${widget.song.description}',
+          Builder(
+            builder: (btnContext) {
+              return IconButton(
+                icon: const Icon(Icons.share_outlined, color: AppColors.maroonPrimary),
+                onPressed: () {
+                  final size = MediaQuery.of(context).size;
+                  final box = btnContext.findRenderObject() as RenderBox?;
+                  final origin = box != null && box.hasSize
+                      ? (box.localToGlobal(Offset.zero) & box.size)
+                      : Rect.fromLTWH(0, size.height * 0.4, size.width, size.height * 0.2);
+
+                  Share.share(
+                    'Listen to "${widget.song.getLocalizedTitle(currentLang)}" on Bhakti app. ${widget.song.description}',
+                    sharePositionOrigin: origin,
+                  );
+                },
               );
             },
           ),

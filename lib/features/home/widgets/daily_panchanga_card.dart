@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/temple_theme.dart';
 import '../../../../services/panchanga/panchanga_service.dart';
 import '../../../../services/preferences/preferences_service.dart';
 import '../../../widgets/moon_phase_dial.dart';
+import '../../wallpaper/sacred_wallpaper_generator_dialog.dart';
 
 class DailyPanchangaCard extends StatefulWidget {
   const DailyPanchangaCard({super.key});
@@ -169,6 +170,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     final prefs = context.watch<PreferencesService>();
     final panchangaService = context.watch<PanchangaService>();
     final currentLang = prefs.getSelectedLanguage();
+    final templeTheme = TempleTheme.fromId(prefs.getTempleThemeId());
     final data = panchangaService.getTodayPanchanga(currentLang);
 
     return Container(
@@ -176,12 +178,17 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFEADBCE), width: 1.2),
+        border: Border.all(color: templeTheme.borderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: AppColors.goldPrimary.withOpacity(0.08),
+            color: templeTheme.accentGold.withOpacity(0.1),
             blurRadius: 14,
             offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: templeTheme.primaryColor.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -200,18 +207,16 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  // Saffron Vedic Sun Icon
+                  // Vedic Sun / Spiritual Icon
                   Container(
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF8F00), Color(0xFFFF6F00)],
-                      ),
+                      gradient: templeTheme.heroGradient,
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFF6F00).withOpacity(0.25),
+                          color: templeTheme.primaryColor.withOpacity(0.28),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -228,43 +233,21 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                data.dayOfWeek,
-                                style: const TextStyle(
-                                  fontSize: 14.5,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.maroonPrimary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.goldLight.withOpacity(0.35),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                _getText('badge', currentLang),
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.goldDark,
-                                ),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          data.dayOfWeek,
+                          style: TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.bold,
+                            color: templeTheme.primaryColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${data.tithi} • ${data.nakshatra}',
+                          '${data.tithi} • ${data.paksha.replaceAll(RegExp(r'\(.*?\)'), '').trim()}',
                           style: const TextStyle(
-                            fontSize: 13,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF6B584C),
                           ),
@@ -281,11 +264,11 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                     decoration: BoxDecoration(
                       color: const Color(0xFFFAF4EB),
                       shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFFECD7B8)),
+                      border: Border.all(color: templeTheme.borderColor),
                     ),
                     child: Icon(
                       _isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                      color: AppColors.maroonPrimary,
+                      color: templeTheme.primaryColor,
                       size: 20,
                     ),
                   ),
@@ -296,9 +279,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
 
           // Collapsible Detailed Content (Today / Calendar / Rashi Chart)
           if (_isExpanded) ...[
-            const Divider(color: Color(0xFFEADBCE), height: 1, indent: 16, endIndent: 16),
+            Divider(color: templeTheme.borderColor, height: 1, indent: 16, endIndent: 16),
             
-            // Segmented Navigation Bar
+            // Segmented Navigation Bar with Single Sliding Capsule
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Container(
@@ -307,12 +290,45 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                   color: const Color(0xFFF3EDE4),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Row(
-                  children: [
-                    _buildSegmentButton(0, '☀️ ${_getText('tab_today', currentLang)}'),
-                    _buildSegmentButton(1, '📅 ${_getText('tab_calendar', currentLang)}'),
-                    _buildSegmentButton(2, '♈ ${_getText('tab_rashi', currentLang)}'),
-                  ],
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final segmentWidth = constraints.maxWidth / 3;
+                    return Stack(
+                      children: [
+                        // Single Smooth Sliding Active Indicator (Zero lag & Zero residual ghost shade)
+                        AnimatedPositioned(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOutCubic,
+                          left: _activeSegment * segmentWidth,
+                          top: 0,
+                          bottom: 0,
+                          width: segmentWidth,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(11),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 5,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Interactive Tab Items
+                        Row(
+                          children: [
+                            _buildSegmentItem(0, '☀️ ${_getText('tab_today', currentLang)}', templeTheme),
+                            _buildSegmentItem(1, '📅 ${_getText('tab_calendar', currentLang)}', templeTheme),
+                            _buildSegmentItem(2, '♈ ${_getText('tab_rashi', currentLang)}', templeTheme),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -322,10 +338,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 220),
                 child: _activeSegment == 0
-                    ? _buildTodayTab(context, data, currentLang)
+                    ? _buildTodayTab(context, data, currentLang, templeTheme)
                     : (_activeSegment == 1
-                        ? _buildCalendarTab(context, panchangaService, currentLang)
-                        : _buildRashiChartTab(context, panchangaService, currentLang)),
+                        ? _buildCalendarTab(context, panchangaService, currentLang, templeTheme)
+                        : _buildRashiChartTab(context, panchangaService, currentLang, templeTheme)),
               ),
             ),
           ],
@@ -334,10 +350,11 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     );
   }
 
-  Widget _buildSegmentButton(int index, String label) {
+  Widget _buildSegmentItem(int index, String label, TempleTheme templeTheme) {
     final isSelected = _activeSegment == index;
     return Expanded(
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           if (_activeSegment != index) {
             HapticFeedback.selectionClick();
@@ -346,30 +363,16 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
             });
           }
         },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          padding: const EdgeInsets.symmetric(vertical: 7),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(11),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          color: Colors.transparent,
           child: Center(
             child: Text(
               label,
               style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? AppColors.maroonPrimary : const Color(0xFF7D6B5E),
+                color: isSelected ? templeTheme.primaryColor : const Color(0xFF7D6B5E),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -380,8 +383,54 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     );
   }
 
+  Widget _buildLunarDetailTile({
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: iconColor.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Icon(icon, color: iconColor, size: 13),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF8D4F37),
+                ),
+              ),
+              const SizedBox(height: 1),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF4E342E),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   // --- TAB 1: TODAY'S PANCHANGA DETAILS ---
-  Widget _buildTodayTab(BuildContext context, PanchangaData data, String lang) {
+  Widget _buildTodayTab(BuildContext context, PanchangaData data, String lang, TempleTheme templeTheme) {
     return Column(
       key: const ValueKey(0),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,10 +467,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                 const SizedBox(height: 4),
                 Text(
                   data.specialOccasion,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.maroonPrimary,
+                    color: templeTheme.primaryColor,
                   ),
                 ),
               ],
@@ -434,7 +483,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
         // Celestial Lunar & Solar Tithi Orb Card (Subtle Saffron-Amber Theme)
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [Color(0xFFFFF6EB), Color(0xFFFDECDA)],
@@ -451,60 +500,103 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
               ),
             ],
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MoonPhaseDial(
-                tithiName: data.tithi,
-                paksha: data.paksha,
-                size: 48,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              // Top Row: Moon Phase Dial + Tithi & Paksha Badge
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  MoonPhaseDial(
+                    tithiName: data.tithi,
+                    paksha: data.paksha,
+                    size: 46,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${data.paksha} • ${data.tithi}',
-                          style: const TextStyle(
-                            fontSize: 13,
+                          data.tithi,
+                          style: TextStyle(
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.maroonPrimary,
+                            color: templeTheme.primaryColor,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${_getText('nakshatra', lang)}: ${data.nakshatra} • ${data.yoga}',
-                      style: const TextStyle(
-                        fontSize: 11.5,
-                        color: Color(0xFF5D4037),
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const Icon(Icons.wb_twilight_rounded, color: Color(0xFFE65100), size: 13),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Karana: ${data.karana} • ${_getText('brahma', lang)}: ${data.brahmaMuhurta}',
-                          style: const TextStyle(
-                            fontSize: 10.5,
-                            color: Color(0xFF8D4F37),
-                            fontWeight: FontWeight.w500,
+                        const SizedBox(height: 3),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFE0B2),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFFFFCC80), width: 0.8),
+                          ),
+                          child: Text(
+                            data.paksha,
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFD84315),
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+              const Divider(height: 1, color: Color(0xFFFFE0B2)),
+              const SizedBox(height: 10),
+
+              // 2x2 Vedic Attributes Grid (Full text visible, no truncation!)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildLunarDetailTile(
+                      icon: Icons.star_border_purple500_rounded,
+                      iconColor: const Color(0xFFE65100),
+                      label: _getText('nakshatra', lang),
+                      value: data.nakshatra,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _buildLunarDetailTile(
+                      icon: Icons.auto_awesome_rounded,
+                      iconColor: const Color(0xFF8E24AA),
+                      label: 'Yoga',
+                      value: data.yoga,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildLunarDetailTile(
+                      icon: Icons.wb_twilight_rounded,
+                      iconColor: const Color(0xFFF57C00),
+                      label: 'Karana',
+                      value: data.karana,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _buildLunarDetailTile(
+                      icon: Icons.wb_sunny_outlined,
+                      iconColor: const Color(0xFFE65100),
+                      label: _getText('brahma', lang),
+                      value: data.brahmaMuhurta,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -549,11 +641,15 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                     Text(
                       '${_getText('brahma', lang)}: ${data.brahmaMuhurta}',
                       style: const TextStyle(fontSize: 10.5, color: Color(0xFF1B5E20), fontWeight: FontWeight.w500),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${_getText('abhijit', lang)}: ${data.abhijitMuhurta}',
                       style: const TextStyle(fontSize: 10.5, color: Color(0xFF1B5E20), fontWeight: FontWeight.w500),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -595,11 +691,15 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                     Text(
                       '${_getText('rahu', lang)}: ${data.rahuKalam}',
                       style: const TextStyle(fontSize: 10.5, color: Color(0xFFB71C1C), fontWeight: FontWeight.w500),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${_getText('yama', lang)}: ${data.yamaGandam}',
                       style: const TextStyle(fontSize: 10.5, color: Color(0xFFB71C1C), fontWeight: FontWeight.w500),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -640,7 +740,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                   decoration: BoxDecoration(
-                    color: isToday ? const Color(0xFFE65100) : AppColors.maroonPrimary,
+                    color: isToday ? const Color(0xFFE65100) : templeTheme.primaryColor,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -676,12 +776,38 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
             ),
           );
         }),
+
+        const SizedBox(height: 12),
+
+        // 1-Tap Panchanga Story & Wallpaper Button
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            icon: Icon(Icons.wallpaper_rounded, size: 16, color: templeTheme.primaryColor),
+            label: const Text('Create Panchanga Story & Wallpaper 🖼️', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: templeTheme.primaryColor,
+              side: BorderSide(color: templeTheme.borderColor, width: 1.2),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            onPressed: () {
+              SacredWallpaperGeneratorDialog.show(
+                context,
+                shlokaTitle: 'Daily Panchanga • ${data.dayOfWeek}',
+                deity: 'Vedic Panchanga Blessings',
+                panchangaSummary: 'Tithi: ${data.tithi}\nPaksha: ${data.paksha}\nNakshatra: ${data.nakshatra}\nYoga: ${data.yoga} • Karana: ${data.karana}\n\nBrahma Muhurta: ${data.brahmaMuhurta}',
+                shlokaMeaning: 'Auspicious Abhijit: ${data.abhijitMuhurta} • Rahu Kalam: ${data.rahuKalam}',
+              );
+            },
+          ),
+        ),
       ],
     );
   }
 
   // --- TAB 2: VEDIC MONTH CALENDAR ---
-  Widget _buildCalendarTab(BuildContext context, PanchangaService service, String lang) {
+  Widget _buildCalendarTab(BuildContext context, PanchangaService service, String lang, TempleTheme templeTheme) {
     final days = service.getMonthCalendarDays(_calendarMonth, lang);
     final monthTitle = DateFormat('MMMM yyyy').format(_calendarMonth);
 
@@ -694,7 +820,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: const Icon(Icons.chevron_left_rounded, color: AppColors.maroonPrimary),
+              icon: Icon(Icons.chevron_left_rounded, color: templeTheme.primaryColor),
               visualDensity: VisualDensity.compact,
               onPressed: () {
                 setState(() {
@@ -704,14 +830,14 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
             ),
             Text(
               monthTitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppColors.maroonPrimary,
+                color: templeTheme.primaryColor,
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.chevron_right_rounded, color: AppColors.maroonPrimary),
+              icon: Icon(Icons.chevron_right_rounded, color: templeTheme.primaryColor),
               visualDensity: VisualDensity.compact,
               onPressed: () {
                 setState(() {
@@ -741,17 +867,17 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 HapticFeedback.selectionClick();
-                _showDayPanchangaPopup(context, day, service, lang);
+                _showDayPanchangaPopup(context, day, service, lang, templeTheme);
               },
               child: Container(
                 decoration: BoxDecoration(
                   color: day.isToday
-                      ? AppColors.maroonPrimary
+                      ? templeTheme.primaryColor
                       : (day.isAuspicious ? const Color(0xFFFFF8E1) : const Color(0xFFFAF7F2)),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: day.isToday
-                        ? AppColors.goldPrimary
+                        ? templeTheme.accentGold
                         : (day.isAuspicious ? const Color(0xFFFFB300) : const Color(0xFFE8DECF)),
                     width: day.isToday || day.isAuspicious ? 1.4 : 0.8,
                   ),
@@ -832,7 +958,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: AppColors.maroonPrimary,
+                          color: templeTheme.primaryColor,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -858,7 +984,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     );
   }
 
-  void _showDayPanchangaPopup(BuildContext context, VedicDayInfo day, PanchangaService service, String lang) {
+  void _showDayPanchangaPopup(BuildContext context, VedicDayInfo day, PanchangaService service, String lang, TempleTheme templeTheme) {
     final dayData = service.getPanchangaForDate(day.date, lang);
     final now = DateTime.now();
     final isTomorrow = day.date.year == now.year && day.date.month == now.month && day.date.day == now.day + 1;
@@ -877,27 +1003,25 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
         backgroundColor: const Color(0xFFFFFDF9),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22),
-          side: const BorderSide(color: Color(0xFFECD7B8), width: 1.8),
+          side: BorderSide(color: templeTheme.borderColor, width: 1.8),
         ),
         contentPadding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Sacred Header with Saffron Sun
+            // Sacred Header with Theme Sun
             Row(
               children: [
                 Container(
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFF8F00), Color(0xFFE65100)],
-                    ),
+                    gradient: templeTheme.heroGradient,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFE65100).withOpacity(0.3),
+                        color: templeTheme.primaryColor.withOpacity(0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -915,10 +1039,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                           Flexible(
                             child: Text(
                               dayData.dayOfWeek,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.maroonPrimary,
+                                color: templeTheme.primaryColor,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -929,7 +1053,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppColors.maroonPrimary,
+                                color: templeTheme.primaryColor,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -956,7 +1080,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
             ),
 
             const SizedBox(height: 12),
-            const Divider(color: Color(0xFFECD7B8), height: 1),
+            Divider(color: templeTheme.borderColor, height: 1),
             const SizedBox(height: 12),
 
             // Tithi & Nakshatra Box
@@ -973,10 +1097,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                 children: [
                   Text(
                     '${day.tithi} (${day.paksha})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.maroonPrimary,
+                      color: templeTheme.primaryColor,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -1067,7 +1191,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
             child: TextButton(
               onPressed: () => Navigator.pop(ctx),
               style: TextButton.styleFrom(
-                backgroundColor: AppColors.maroonPrimary,
+                backgroundColor: templeTheme.primaryColor,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               ),
@@ -1080,7 +1204,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
   }
 
   // --- TAB 3: 12 RASHI CHART & KUNDALI GUIDANCE ---
-  Widget _buildRashiChartTab(BuildContext context, PanchangaService service, String lang) {
+  Widget _buildRashiChartTab(BuildContext context, PanchangaService service, String lang, TempleTheme templeTheme) {
     final rashis = service.getAllRashiDetails(lang);
     if (_selectedRashiIndex >= rashis.length) {
       _selectedRashiIndex = 0;
@@ -1113,16 +1237,16 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                   duration: const Duration(milliseconds: 180),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.maroonPrimary : const Color(0xFFFAF7F2),
+                    color: isSelected ? templeTheme.primaryColor : const Color(0xFFFAF7F2),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected ? AppColors.goldPrimary : const Color(0xFFE4D7C8),
+                      color: isSelected ? templeTheme.accentGold : const Color(0xFFE4D7C8),
                       width: isSelected ? 1.5 : 1,
                     ),
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: AppColors.maroonPrimary.withOpacity(0.25),
+                              color: templeTheme.primaryColor.withOpacity(0.25),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -1136,7 +1260,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                         rashi.symbol,
                         style: TextStyle(
                           fontSize: 18,
-                          color: isSelected ? AppColors.goldPrimary : const Color(0xFF5D4037),
+                          color: isSelected ? templeTheme.accentGold : const Color(0xFF5D4037),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -1168,10 +1292,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFECD7B8), width: 1.2),
+            border: Border.all(color: templeTheme.borderColor, width: 1.2),
             boxShadow: [
               BoxShadow(
-                color: AppColors.goldPrimary.withOpacity(0.08),
+                color: templeTheme.accentGold.withOpacity(0.08),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -1187,13 +1311,13 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      color: AppColors.maroonPrimary,
+                      color: templeTheme.primaryColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
                       child: Text(
                         selectedRashi.symbol,
-                        style: const TextStyle(fontSize: 22, color: AppColors.goldPrimary),
+                        style: TextStyle(fontSize: 22, color: templeTheme.accentGold),
                       ),
                     ),
                   ),
@@ -1204,10 +1328,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                       children: [
                         Text(
                           selectedRashi.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.maroonPrimary,
+                            color: templeTheme.primaryColor,
                           ),
                         ),
                         Text(

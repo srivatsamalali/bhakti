@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/temple_theme.dart';
 import '../../../services/preferences/preferences_service.dart';
 
 import '../../../widgets/interactive_flower_offering.dart';
+import '../../wallpaper/sacred_wallpaper_generator_dialog.dart';
 
 class DailyShlokaCard extends StatefulWidget {
   const DailyShlokaCard({super.key});
@@ -111,6 +113,7 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
   Widget build(BuildContext context) {
     final prefs = context.watch<PreferencesService>();
     final currentLang = prefs.getSelectedLanguage();
+    final templeTheme = TempleTheme.fromId(prefs.getTempleThemeId());
     final data = _shlokaContent[currentLang] ?? _shlokaContent['en']!;
 
     return InteractiveFlowerOffering(
@@ -129,17 +132,17 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
             ],
           ),
           border: Border.all(
-            color: const Color(0xFFE2CCA8),
+            color: templeTheme.borderColor,
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.goldPrimary.withOpacity(0.12),
+              color: templeTheme.accentGold.withOpacity(0.12),
               blurRadius: 18,
               offset: const Offset(0, 5),
             ),
             BoxShadow(
-              color: AppColors.maroonPrimary.withOpacity(0.04),
+              color: templeTheme.primaryColor.withOpacity(0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -154,7 +157,7 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
               child: Icon(
                 Icons.wb_sunny_rounded,
                 size: 70,
-                color: AppColors.goldLight.withOpacity(0.12),
+                color: templeTheme.accentGold.withOpacity(0.12),
               ),
             ),
             Padding(
@@ -169,11 +172,11 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          gradient: AppColors.heroMaroonGradient,
+                          gradient: templeTheme.heroGradient,
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.maroonPrimary.withOpacity(0.25),
+                              color: templeTheme.primaryColor.withOpacity(0.25),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -206,7 +209,7 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                             icon: Icon(
                               _isPlayingAudio ? Icons.volume_up_rounded : Icons.volume_mute_rounded,
                               size: 19,
-                              color: _isPlayingAudio ? AppColors.maroonPrimary : const Color(0xFF8B776A),
+                              color: _isPlayingAudio ? templeTheme.primaryColor : const Color(0xFF8B776A),
                             ),
                             tooltip: _isPlayingAudio ? 'Stop Chanting' : 'Listen Shloka 🔊',
                             padding: const EdgeInsets.all(4),
@@ -230,6 +233,23 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                             },
                           ),
                           const SizedBox(width: 4),
+                          // 1-Tap Wallpaper / Story Generator
+                          IconButton(
+                            icon: const Icon(Icons.wallpaper_rounded, size: 18, color: AppColors.saffronPrimary),
+                            tooltip: 'Create Wallpaper / Story 🖼️',
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              SacredWallpaperGeneratorDialog.show(
+                                context,
+                                shlokaTitle: data['title'],
+                                shlokaText: data['shloka'],
+                                shlokaMeaning: data['meaning'],
+                                deity: data['deity'],
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 4),
                           IconButton(
                             icon: const Icon(Icons.copy_rounded, size: 17, color: Color(0xFF8B776A)),
                             tooltip: 'Copy Shloka',
@@ -241,7 +261,7 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                                 SnackBar(
                                   content: const Text('Shloka copied to clipboard! 🙏'),
                                   duration: const Duration(seconds: 2),
-                                  backgroundColor: AppColors.maroonPrimary,
+                                  backgroundColor: templeTheme.primaryColor,
                                   behavior: SnackBarBehavior.floating,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
@@ -258,10 +278,10 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                   // Mantra / Deity Title
                   Text(
                     data['deity']!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.maroonPrimary,
+                      color: templeTheme.primaryColor,
                       letterSpacing: 0.2,
                     ),
                   ),

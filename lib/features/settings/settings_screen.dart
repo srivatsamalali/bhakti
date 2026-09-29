@@ -16,6 +16,10 @@ import '../player/sleep_timer_dialog.dart';
 import '../../services/audio/offline_download_service.dart';
 import '../../services/notifications/devotional_reminder_service.dart';
 
+import '../../core/theme/temple_theme.dart';
+import '../wallpaper/sacred_wallpaper_generator_dialog.dart';
+import '../widgets/devotional_widgets_sheet.dart';
+import 'widgets/temple_theme_selector_sheet.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -205,6 +209,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Card(
             child: Column(
               children: [
+                // 1. Temple Theme Selector
+                ListTile(
+                  leading: const Icon(Icons.palette_rounded, color: AppColors.maroonPrimary),
+                  title: const Text('Sacred Temple Theme', style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: Text('${TempleTheme.fromId(prefs.getTempleThemeId()).emoji} ${TempleTheme.fromId(prefs.getTempleThemeId()).name}'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    TempleThemeSelectorSheet.show(context);
+                  },
+                ),
+                const Divider(height: 1),
+
+                // 2. Lock & Home Screen Widgets
+                ListTile(
+                  leading: const Icon(Icons.widgets_outlined, color: AppColors.maroonPrimary),
+                  title: const Text('Lock & Home Screen Widgets', style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Live Tithi, Shlokas & Mini Player on phone screen'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    DevotionalWidgetsSheet.show(context);
+                  },
+                ),
+                const Divider(height: 1),
+
+                // 3. 1-Tap Sacred Story & Wallpaper Creator
+                ListTile(
+                  leading: const Icon(Icons.auto_awesome_mosaic_outlined, color: AppColors.maroonPrimary),
+                  title: const Text('Sacred Story & 4K Wallpaper Creator', style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Generate devotional posters for Status & Stories'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    SacredWallpaperGeneratorDialog.show(context);
+                  },
+                ),
+                const Divider(height: 1),
+
                 ListTile(
                   leading: const Icon(Icons.language, color: AppColors.maroonPrimary),
                   title: Text(context.tr('languageSetting')),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/temple_theme.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../models/song_model.dart';
@@ -24,27 +25,28 @@ class HeroSpiritualBanner extends StatelessWidget {
     final isPlayingFeatured = featuredSong != null &&
         player.currentSong?.id == featuredSong!.id &&
         player.isPlaying;
+    final templeTheme = TempleTheme.fromId(prefs.getTempleThemeId());
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        gradient: AppColors.heroMaroonGradient,
+        gradient: templeTheme.heroGradient,
         borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: AppColors.maroonPrimary.withOpacity(0.35),
+            color: templeTheme.primaryColor.withOpacity(0.35),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: AppColors.goldLight.withOpacity(0.12),
+            color: templeTheme.accentGold.withOpacity(0.12),
             blurRadius: 24,
             spreadRadius: -4,
             offset: const Offset(0, -2),
           ),
         ],
         border: Border.all(
-          color: AppColors.goldPrimary.withOpacity(0.4),
+          color: templeTheme.accentGold.withOpacity(0.4),
           width: 1.5,
         ),
       ),
