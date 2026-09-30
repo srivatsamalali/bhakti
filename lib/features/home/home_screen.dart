@@ -543,9 +543,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(20),
                                     onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (_) => SongDetailsScreen(song: song)),
-                                      );
+                                      if (isCurrentPlaying) {
+                                        player.pause();
+                                      } else if (player.currentSong?.id == song.id) {
+                                        player.resume();
+                                      } else {
+                                        player.playSong(song, newQueue: allSongs);
+                                      }
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(12),
