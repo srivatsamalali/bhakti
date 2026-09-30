@@ -1344,6 +1344,9 @@ PODS:
   - Flutter (1.0.0)
   - flutter_tts (0.0.1):
     - Flutter
+  - gal (1.0.0):
+    - Flutter
+    - FlutterMacOS
   - Google-Mobile-Ads-SDK (11.13.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - google_mobile_ads (5.3.1):
@@ -1543,6 +1546,7 @@ DEPENDENCIES:
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - flutter_tts (from `.symlinks/plugins/flutter_tts/ios`)
+  - gal (from `.symlinks/plugins/gal/darwin`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/darwin`)
@@ -1610,6 +1614,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_tts:
     :path: ".symlinks/plugins/flutter_tts/ios"
+  gal:
+    :path: ".symlinks/plugins/gal/darwin"
   google_mobile_ads:
     :path: ".symlinks/plugins/google_mobile_ads/ios"
   image_picker_ios:
@@ -1659,6 +1665,7 @@ SPEC CHECKSUMS:
   FirebaseStorage: 50fc9ee147392943e492467db6b52759b0447037
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   flutter_tts: 35ac3c7d42412733e795ea96ad2d7e05d0a75113
+  gal: baecd024ebfd13c441269ca7404792a7152fde89
   Google-Mobile-Ads-SDK: 14f57f2dc33532a24db288897e26494640810407
   google_mobile_ads: 16ad301354fa6a7ea55770c6254bd4339bf8558b
   GoogleAdsOnDeviceConversion: 2be6297a4f048459e0ae17fad9bfd2844e10cf64

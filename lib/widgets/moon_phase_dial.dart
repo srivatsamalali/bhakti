@@ -19,9 +19,11 @@ class MoonPhaseDial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isShukla = paksha.toLowerCase().contains('shukla') ||
-        paksha.toLowerCase().contains('shuklapaksha') ||
+        paksha.toLowerCase().contains('waxing') ||
         paksha.contains('ಶುಕ್ಲ') ||
-        paksha.contains('शुक्ल');
+        paksha.contains('शुक्ल') ||
+        paksha.contains('வளர்பிறை') ||
+        paksha.contains('ശുക്ല');
 
     return Container(
       width: size,
