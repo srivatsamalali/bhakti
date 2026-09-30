@@ -18,6 +18,7 @@ import '../../widgets/divine_music_visualizer.dart';
 import '../../widgets/liquid_glass/glass_style.dart';
 import '../../widgets/liquid_glass/liquid_glass.dart';
 import '../../widgets/shimmer_song_tile.dart';
+import '../../widgets/sacred_filigree_border.dart';
 import 'widgets/daily_panchanga_card.dart';
 import 'widgets/daily_shloka_card.dart';
 import '../../core/theme/temple_theme.dart';
@@ -31,18 +32,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _selectedPill = 'All';
-
-  final List<String> _pills = const [
-    'All',
-    'Sahasranamam',
-    'Daily Chants',
-    'Meditation',
-    'Peaceful',
-    'Kannada',
-    'Sanskrit',
-  ];
-
   Widget _buildSongImage(String imageUrl, {double size = 56, double radius = 14}) {
     Widget fallback = Container(
       width: size,
@@ -140,12 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final currentLang = prefs.getSelectedLanguage();
 
     final allSongs = songRepo.allSongs;
-    var displayedSongs = allSongs;
-    if (_selectedPill == 'Sahasranamam') {
-      displayedSongs = allSongs.where((s) => s.categoryId == 'sahasranamam' || s.title.toLowerCase().contains('sahasranama')).toList();
-    } else if (_selectedPill == 'Kannada') {
-      displayedSongs = allSongs.where((s) => s.language == 'kn').toList();
-    }
+    final displayedSongs = allSongs;
 
     final templeTheme = TempleTheme.fromId(prefs.getTempleThemeId());
 
@@ -413,64 +397,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              // --- Clean Filter Pills ---
-              SliverToBoxAdapter(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: Row(
-                    children: _pills.map((pill) {
-                      final isSelected = _selectedPill == pill;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              _selectedPill = pill;
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(20),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: isSelected ? templeTheme.primaryColor : Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: isSelected ? templeTheme.primaryColor : templeTheme.borderColor,
-                              ),
-                              boxShadow: [
-                                if (isSelected)
-                                  BoxShadow(
-                                    color: templeTheme.primaryColor.withOpacity(0.25),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
-                                  )
-                                else
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.02),
-                                    blurRadius: 3,
-                                    offset: const Offset(0, 1),
-                                  ),
-                              ],
-                            ),
-                            child: Text(
-                              pill,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                color: isSelected ? Colors.white : AppColors.textDark,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-
-
               // --- Daily Vedic Panchanga & Festivals ---
               const SliverToBoxAdapter(
                 child: Padding(
@@ -516,137 +442,141 @@ class _HomeScreenState extends State<HomeScreen> {
                               final song = allSongs[index];
                               final isCurrentPlaying = player.currentSong?.id == song.id && player.isPlaying;
 
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                width: 180,
-                                margin: const EdgeInsets.only(right: 14),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: isCurrentPlaying ? AppColors.goldPrimary : const Color(0xFFEADBCE),
-                                    width: isCurrentPlaying ? 1.8 : 1,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: isCurrentPlaying
-                                          ? AppColors.goldPrimary.withOpacity(0.25)
-                                          : Colors.black.withOpacity(0.04),
-                                      blurRadius: isCurrentPlaying ? 14 : 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: InkWell(
+                              return GestureDetector(
+                                onTap: () {
+                                  if (isCurrentPlaying) {
+                                    player.pause();
+                                  } else if (player.currentSong?.id == song.id) {
+                                    player.resume();
+                                  } else {
+                                    player.playSong(song, newQueue: allSongs);
+                                  }
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 250),
+                                  width: 180,
+                                  margin: const EdgeInsets.only(right: 14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
                                     borderRadius: BorderRadius.circular(20),
-                                    onTap: () {
-                                      if (isCurrentPlaying) {
-                                        player.pause();
-                                      } else if (player.currentSong?.id == song.id) {
-                                        player.resume();
-                                      } else {
-                                        player.playSong(song, newQueue: allSongs);
-                                      }
-                                    },
+                                    border: Border.all(
+                                      color: isCurrentPlaying ? AppColors.goldPrimary : const Color(0xFFEADBCE),
+                                      width: isCurrentPlaying ? 1.8 : 1,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: isCurrentPlaying
+                                            ? AppColors.goldPrimary.withOpacity(0.25)
+                                            : Colors.black.withOpacity(0.04),
+                                        blurRadius: isCurrentPlaying ? 14 : 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: SacredCornerFiligree(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: isCurrentPlaying
+                                        ? const Color(0xFFD4AF37)
+                                        : const Color(0x99D4AF37),
+                                    cornerSize: 18,
+                                    strokeWidth: 1.4,
                                     child: Padding(
                                       padding: const EdgeInsets.all(12),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          // Album Cover Card
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(16),
-                                            child: Stack(
-                                              children: [
-                                                _buildSongImage(song.imageUrl, size: 156, radius: 16),
-                                                if (isCurrentPlaying)
-                                                  Positioned(
-                                                    top: 8,
-                                                    left: 8,
-                                                    child: Container(
-                                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.black.withOpacity(0.7),
-                                                        borderRadius: BorderRadius.circular(8),
-                                                      ),
-                                                      child: const DivineMusicVisualizer(
-                                                        isPlaying: true,
-                                                        height: 10,
-                                                        width: 14,
-                                                        barColor: AppColors.goldLight,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                Positioned(
-                                                  bottom: 8,
-                                                  right: 8,
-                                                  child: Container(
-                                                    width: 38,
-                                                    height: 38,
-                                                    decoration: BoxDecoration(
-                                                      gradient: AppColors.heroMaroonGradient,
-                                                      shape: BoxShape.circle,
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: AppColors.maroonPrimary.withOpacity(0.4),
-                                                          blurRadius: 6,
+                                            // Album Cover Card
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(16),
+                                              child: Stack(
+                                                children: [
+                                                  _buildSongImage(song.imageUrl, size: 156, radius: 16),
+                                                  if (isCurrentPlaying)
+                                                    Positioned(
+                                                      top: 8,
+                                                      left: 8,
+                                                      child: Container(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.black.withOpacity(0.7),
+                                                          borderRadius: BorderRadius.circular(8),
                                                         ),
-                                                      ],
-                                                    ),
-                                                    child: IconButton(
-                                                      icon: Icon(
-                                                        isCurrentPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                                                        color: Colors.white,
-                                                        size: 22,
+                                                        child: const DivineMusicVisualizer(
+                                                          isPlaying: true,
+                                                          height: 10,
+                                                          width: 14,
+                                                          barColor: AppColors.goldLight,
+                                                        ),
                                                       ),
-                                                      padding: EdgeInsets.zero,
-                                                      tooltip: isCurrentPlaying ? 'Pause' : 'Play',
-                                                      onPressed: () {
-                                                        if (isCurrentPlaying) {
-                                                          player.pause();
-                                                        } else if (player.currentSong?.id == song.id) {
-                                                          player.resume();
-                                                        } else {
-                                                          player.playSong(song, newQueue: allSongs);
-                                                        }
-                                                      },
+                                                    ),
+                                                  Positioned(
+                                                    bottom: 8,
+                                                    right: 8,
+                                                    child: Container(
+                                                      width: 38,
+                                                      height: 38,
+                                                      decoration: BoxDecoration(
+                                                        gradient: AppColors.heroMaroonGradient,
+                                                        shape: BoxShape.circle,
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: AppColors.maroonPrimary.withOpacity(0.4),
+                                                            blurRadius: 6,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: IconButton(
+                                                        icon: Icon(
+                                                          isCurrentPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                                          color: Colors.white,
+                                                          size: 22,
+                                                        ),
+                                                        padding: EdgeInsets.zero,
+                                                        tooltip: isCurrentPlaying ? 'Pause' : 'Play',
+                                                        onPressed: () {
+                                                          if (isCurrentPlaying) {
+                                                            player.pause();
+                                                          } else if (player.currentSong?.id == song.id) {
+                                                            player.resume();
+                                                          } else {
+                                                            player.playSong(song, newQueue: allSongs);
+                                                          }
+                                                        },
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Text(
-                                            song.getLocalizedTitle(currentLang),
-                                            style: const TextStyle(
-                                              fontSize: 14.5,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.textDark,
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              song.getLocalizedTitle(currentLang),
+                                              style: const TextStyle(
+                                                fontSize: 14.5,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.textDark,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            song.getLocalizedDeity(currentLang),
-                                            style: const TextStyle(
-                                              fontSize: 12.5,
-                                              color: Color(0xFF7A685D),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              song.getLocalizedDeity(currentLang),
+                                              style: const TextStyle(
+                                                fontSize: 12.5,
+                                                color: Color(0xFF7A685D),
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
                           ),
                         ),
                       ],

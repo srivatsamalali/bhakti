@@ -6,6 +6,7 @@ import '../../../../core/theme/temple_theme.dart';
 import '../../../../services/panchanga/panchanga_service.dart';
 import '../../../../services/preferences/preferences_service.dart';
 import '../../../widgets/moon_phase_dial.dart';
+import '../../../widgets/sacred_filigree_border.dart';
 import '../../wallpaper/sacred_wallpaper_generator_dialog.dart';
 
 class DailyPanchangaCard extends StatefulWidget {
@@ -192,19 +193,24 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Main Header Row (Tappable to expand)
-          InkWell(
-            onTap: () {
-              setState(() {
-                _isExpanded = !_isExpanded;
-              });
-            },
-            borderRadius: BorderRadius.circular(22),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+      child: SacredCornerFiligree(
+        borderRadius: BorderRadius.circular(22),
+        color: templeTheme.accentGold,
+        cornerSize: 22,
+        strokeWidth: 1.4,
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Main Header Row (Tappable to expand)
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _isExpanded = !_isExpanded;
+                  });
+                },
+                borderRadius: BorderRadius.circular(22),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
                   // Vedic Sun / Spiritual Icon
@@ -347,8 +353,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
           ],
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSegmentItem(int index, String label, TempleTheme templeTheme) {
     final isSelected = _activeSegment == index;

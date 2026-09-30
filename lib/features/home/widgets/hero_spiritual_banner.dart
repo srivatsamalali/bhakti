@@ -8,6 +8,7 @@ import '../../../models/song_model.dart';
 import '../../../repositories/song_repository.dart';
 import '../../../services/audio/audio_player_service.dart';
 import '../../../services/preferences/preferences_service.dart';
+import '../../../widgets/adaptive_button.dart';
 import '../../player/full_player_screen.dart';
 
 class HeroSpiritualBanner extends StatelessWidget {
@@ -138,12 +139,12 @@ class HeroSpiritualBanner extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Quick Continuous Playlist Action Buttons
+                  // Quick Continuous Playlist Action Buttons (Adaptive Liquid Glass / M3)
                   Row(
                     children: [
                       Expanded(
                         flex: 3,
-                        child: ElevatedButton.icon(
+                        child: AdaptiveButton.icon(
                           onPressed: allSongs.isEmpty
                               ? null
                               : () {
@@ -155,17 +156,16 @@ class HeroSpiritualBanner extends StatelessWidget {
                                     ),
                                   );
                                 },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.goldPrimary,
-                            foregroundColor: AppColors.maroonDark,
-                            elevation: 3,
-                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          icon: const Icon(Icons.all_inclusive, size: 18),
+                          variant: AdaptiveButtonVariant.primary,
+                          color: AppColors.goldPrimary,
+                          textColor: AppColors.maroonDark,
+                          height: 40,
+                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                          borderRadius: BorderRadius.circular(12),
+                          icon: const Icon(Icons.all_inclusive_rounded, size: 18),
                           label: const Text(
                             'Play All',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -174,7 +174,7 @@ class HeroSpiritualBanner extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         flex: 2,
-                        child: ElevatedButton.icon(
+                        child: AdaptiveButton.icon(
                           onPressed: allSongs.isEmpty
                               ? null
                               : () {
@@ -186,18 +186,15 @@ class HeroSpiritualBanner extends StatelessWidget {
                                     ),
                                   );
                                 },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white.withOpacity(0.18),
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            side: BorderSide(color: AppColors.goldLight.withOpacity(0.4)),
-                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          icon: const Icon(Icons.shuffle, size: 16, color: AppColors.goldLight),
+                          variant: AdaptiveButtonVariant.glass,
+                          textColor: Colors.white,
+                          height: 40,
+                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                          borderRadius: BorderRadius.circular(12),
+                          icon: const Icon(Icons.shuffle_rounded, size: 16, color: AppColors.goldLight),
                           label: const Text(
                             'Shuffle',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),

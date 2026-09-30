@@ -24,6 +24,7 @@ import 'services/ai/voice_service.dart';
 import 'services/firebase/auth_service.dart';
 import 'services/firebase/firestore_service.dart';
 import 'services/preferences/preferences_service.dart';
+import 'services/widgets/home_widget_service.dart';
 
 
 void main() async {
@@ -41,8 +42,9 @@ void main() async {
     debugPrint('JustAudioBackground init notice: $e');
   }
 
-  // 2. Initialize SharedPreferences local persistence
+  // 2. Initialize SharedPreferences local persistence & Home Screen Widgets
   final prefsService = await PreferencesService.create();
+  await HomeWidgetService.initialize();
 
   // 3. Initialize Firebase (safely wrapped)
   try {

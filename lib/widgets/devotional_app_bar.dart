@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
@@ -36,7 +37,38 @@ class DevotionalAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       automaticallyImplyLeading: showBackButton,
       elevation: 0,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Colors.transparent,
+      flexibleSpace: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFFAF6F0).withOpacity(0.82),
+              border: const Border(
+                bottom: BorderSide(
+                  color: Color(0x38D4AF37),
+                  width: 1.2,
+                ),
+              ),
+            ),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                height: 1.0,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      Colors.white.withOpacity(0.6),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       titleSpacing: 16,
       title: showLogo
           ? Row(
@@ -138,7 +170,7 @@ class DevotionalAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: isSelected
-                                    ? AppColors.goldLight
+                                     ? AppColors.goldLight
                                     : AppColors.maroonPrimary,
                               ),
                             ),

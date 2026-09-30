@@ -13,7 +13,9 @@ import '../../services/analytics/analytics_service.dart';
 import '../../services/audio/audio_player_service.dart';
 import '../../services/preferences/preferences_service.dart';
 import '../../widgets/ambient_diya_particles.dart';
+import '../../widgets/adaptive_button.dart';
 import '../../widgets/divine_music_visualizer.dart';
+import '../../widgets/sacred_filigree_border.dart';
 import '../player/full_player_screen.dart';
 
 class SongDetailsScreen extends StatefulWidget {
@@ -109,12 +111,13 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: Icon(
-              isFav ? Icons.favorite : Icons.favorite_border,
-              color: isFav ? AppColors.error : AppColors.maroonPrimary,
-            ),
-            onPressed: () async {
+          FavoriteSparkleBurst(
+            key: ValueKey('detail_fav_${widget.song.id}'),
+            isFavorited: isFav,
+            size: 24,
+            activeColor: AppColors.error,
+            inactiveColor: AppColors.maroonPrimary,
+            onTap: () async {
               await prefs.toggleFavorite(widget.song.id);
               AnalyticsService.instance.logSongFavorited(widget.song.id, !isFav);
             },
@@ -215,46 +218,28 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
                       ],
                     ),
                   ),
-                  // Hero Floating Play Button
+                  // Hero Floating Play Button (Adaptive Liquid Glass on iOS, M3 on Android)
                   Positioned(
                     bottom: 16,
                     right: 20,
-                    child: Container(
-                      width: 54,
-                      height: 54,
-                      decoration: BoxDecoration(
-                        gradient: AppColors.goldGradient,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.4),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                    child: AdaptiveIconButton(
+                      size: 54,
+                      isPrimary: true,
+                      backgroundColor: AppColors.goldPrimary,
+                      iconColor: AppColors.maroonDark,
+                      icon: Icon(
+                        isPlayingThis ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                        size: 30,
                       ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          customBorder: const CircleBorder(),
-                          onTap: () {
-                            if (isPlayingThis) {
-                              player.pause();
-                            } else if (player.currentSong?.id == widget.song.id) {
-                              player.resume();
-                            } else {
-                              player.playSong(widget.song);
-                            }
-                          },
-                          child: Center(
-                            child: Icon(
-                              isPlayingThis ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                              color: AppColors.maroonDark,
-                              size: 32,
-                            ),
-                          ),
-                        ),
-                      ),
+                      onPressed: () {
+                        if (isPlayingThis) {
+                          player.pause();
+                        } else if (player.currentSong?.id == widget.song.id) {
+                          player.resume();
+                        } else {
+                          player.playSong(widget.song);
+                        }
+                      },
                     ),
                   ),
                 ],
@@ -284,112 +269,80 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
                           ),
                         ],
                       ),
-                      child: Column(
-                        children: [
-                          Row(
+                      child: SacredCornerFiligree(
+                        borderRadius: BorderRadius.circular(20),
+                        color: AppColors.goldPrimary,
+                        cornerSize: 20,
+                        strokeWidth: 1.4,
+                        child: Column(
                             children: [
-                              // Main Primary Play/Pause Button
-                              Expanded(
+                              Row(
+                                children: [
+                                  // Main Primary Play/Pause Button
+                                  Expanded(
                                 flex: 3,
-                                child: Container(
+                                child: AdaptiveButton.icon(
                                   height: 52,
-                                  decoration: BoxDecoration(
-                                    gradient: AppColors.heroMaroonGradient,
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.maroonPrimary.withOpacity(0.35),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
+                                  variant: AdaptiveButtonVariant.primary,
+                                  color: AppColors.maroonPrimary,
+                                  borderRadius: BorderRadius.circular(16),
+                                  onPressed: () {
+                                    if (isPlayingThis) {
+                                      player.pause();
+                                    } else if (player.currentSong?.id == widget.song.id) {
+                                      player.resume();
+                                    } else {
+                                      player.playSong(widget.song);
+                                    }
+                                  },
+                                  icon: Icon(
+                                    isPlayingThis ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
+                                    color: AppColors.goldLight,
+                                    size: 24,
                                   ),
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(16),
-                                      onTap: () {
-                                        if (isPlayingThis) {
-                                          player.pause();
-                                        } else if (player.currentSong?.id == widget.song.id) {
-                                          player.resume();
-                                        } else {
-                                          player.playSong(widget.song);
-                                        }
-                                      },
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            isPlayingThis ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
-                                            color: AppColors.goldLight,
-                                            size: 26,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            isPlayingThis
-                                                ? (currentLang == 'kn' ? 'ವಿರಾಮ (Pause)' : 'Pause Chanting')
-                                                : (currentLang == 'kn' ? 'ಈಗ ಆಲಿಸಿ (Play Now)' : 'Listen Now'),
-                                            style: const TextStyle(
-                                              fontSize: 15.5,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                              letterSpacing: 0.3,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                  label: Text(
+                                    isPlayingThis
+                                        ? (currentLang == 'kn' ? 'ವಿರಾಮ (Pause)' : 'Pause Chanting')
+                                        : (currentLang == 'kn' ? 'ಈಗ ಆಲಿಸಿ (Play Now)' : 'Listen Now'),
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.3,
                                     ),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 10),
                               // Full Player Screen Launcher Button
-                              Container(
-                                height: 52,
-                                width: 52,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: const Color(0xFFE2D7C7)),
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.open_in_full_rounded, color: AppColors.maroonPrimary, size: 20),
-                                  tooltip: 'Open Full Player',
-                                  onPressed: () {
-                                    if (!isPlayingThis && player.currentSong?.id != widget.song.id) {
-                                      player.playSong(widget.song);
-                                    }
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (_) => const FullPlayerScreen()),
-                                    );
-                                  },
-                                ),
+                              AdaptiveIconButton(
+                                size: 50,
+                                icon: const Icon(Icons.open_in_full_rounded, size: 20),
+                                tooltip: 'Open Full Player',
+                                onPressed: () {
+                                  if (!isPlayingThis && player.currentSong?.id != widget.song.id) {
+                                    player.playSong(widget.song);
+                                  }
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (_) => const FullPlayerScreen()),
+                                  );
+                                },
                               ),
                               const SizedBox(width: 8),
                               // Add to Queue Button
-                              Container(
-                                height: 52,
-                                width: 52,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: const Color(0xFFE2D7C7)),
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.queue_music_rounded, color: AppColors.maroonPrimary, size: 22),
-                                  tooltip: 'Add to Queue',
-                                  onPressed: () {
-                                    player.addToQueue(widget.song);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Added to Queue: ${widget.song.getLocalizedTitle(currentLang)}'),
-                                        duration: const Duration(seconds: 2),
-                                        backgroundColor: AppColors.maroonPrimary,
-                                      ),
-                                    );
-                                  },
-                                ),
+                              AdaptiveIconButton(
+                                size: 50,
+                                icon: const Icon(Icons.queue_music_rounded, size: 22),
+                                tooltip: 'Add to Queue',
+                                onPressed: () {
+                                  player.addToQueue(widget.song);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Added to Queue: ${widget.song.getLocalizedTitle(currentLang)}'),
+                                      duration: const Duration(seconds: 2),
+                                      backgroundColor: AppColors.maroonPrimary,
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -447,7 +400,8 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                  ),
+                  const SizedBox(height: 20),
 
                     // Metadata Cards (Deity, Duration, Artist)
                     Container(

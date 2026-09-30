@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../core/constants/app_colors.dart';
 
 class AmbientDiyaParticles extends StatefulWidget {
   final Widget child;
@@ -11,7 +10,7 @@ class AmbientDiyaParticles extends StatefulWidget {
   const AmbientDiyaParticles({
     super.key,
     required this.child,
-    this.particleCount = 18,
+    this.particleCount = 6,
     this.particleColor,
     this.enabled = true,
   });
@@ -23,16 +22,16 @@ class AmbientDiyaParticles extends StatefulWidget {
 class _AmbientDiyaParticlesState extends State<AmbientDiyaParticles>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late List<_Particle> _particles;
+  late List<_DiyaParticle> _particles;
   final Random _random = Random();
 
   @override
   void initState() {
     super.initState();
-    _particles = List.generate(widget.particleCount, (_) => _Particle(_random));
+    _particles = List.generate(widget.particleCount, (_) => _DiyaParticle(_random));
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 10),
+      duration: const Duration(seconds: 16),
     )..repeat();
   }
 
@@ -47,7 +46,12 @@ class _AmbientDiyaParticlesState extends State<AmbientDiyaParticles>
     if (!widget.enabled) return widget.child;
 
     return Stack(
+      fit: StackFit.passthrough,
       children: [
+        // 1. Underlying Main Screen Content
+        widget.child,
+
+        // 2. Subtle, Calming Ambient Warm Glow Embers (Non-intrusive)
         Positioned.fill(
           child: IgnorePointer(
             child: RepaintBoundary(
@@ -55,10 +59,10 @@ class _AmbientDiyaParticlesState extends State<AmbientDiyaParticles>
                 animation: _controller,
                 builder: (context, _) {
                   return CustomPaint(
-                    painter: _ParticlePainter(
+                    painter: _DiyaParticlePainter(
                       particles: _particles,
                       progress: _controller.value,
-                      baseColor: widget.particleColor ?? AppColors.goldLight,
+                      baseColor: widget.particleColor ?? const Color(0xFFFFB300),
                     ),
                   );
                 },
@@ -66,13 +70,12 @@ class _AmbientDiyaParticlesState extends State<AmbientDiyaParticles>
             ),
           ),
         ),
-        widget.child,
       ],
     );
   }
 }
 
-class _Particle {
+class _DiyaParticle {
   double x;
   double y;
   double radius;
@@ -80,12 +83,12 @@ class _Particle {
   double opacity;
   double waveOffset;
 
-  _Particle(Random random)
+  _DiyaParticle(Random random)
       : x = random.nextDouble(),
         y = random.nextDouble(),
-        radius = random.nextDouble() * 2.2 + 1.0,
-        speed = random.nextDouble() * 0.15 + 0.08,
-        opacity = random.nextDouble() * 0.45 + 0.15,
+        radius = random.nextDouble() * 1.6 + 0.9,
+        speed = random.nextDouble() * 0.06 + 0.03,
+        opacity = random.nextDouble() * 0.22 + 0.10,
         waveOffset = random.nextDouble() * 2 * pi;
 
   void advance(double delta) {
@@ -97,12 +100,12 @@ class _Particle {
   }
 }
 
-class _ParticlePainter extends CustomPainter {
-  final List<_Particle> particles;
+class _DiyaParticlePainter extends CustomPainter {
+  final List<_DiyaParticle> particles;
   final double progress;
   final Color baseColor;
 
-  _ParticlePainter({
+  _DiyaParticlePainter({
     required this.particles,
     required this.progress,
     required this.baseColor,
@@ -110,19 +113,30 @@ class _ParticlePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (final p in particles) {
-      p.advance(0.016);
+    if (size.width <= 0 || size.height <= 0) return;
+
+    for (int i = 0; i < particles.length; i++) {
+      final p = particles[i];
+      p.advance(0.012);
+
       final currentX = (p.x * size.width) + sin(progress * 2 * pi + p.waveOffset) * 8;
       final currentY = p.y * size.height;
+      final center = Offset(currentX, currentY);
 
-      final paint = Paint()
-        ..color = baseColor.withOpacity(p.opacity)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.0);
+      // Soft Warm Halo
+      final haloPaint = Paint()
+        ..color = baseColor.withOpacity(p.opacity * 0.35)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, p.radius * 2.0);
+      canvas.drawCircle(center, p.radius * 2.0, haloPaint);
 
-      canvas.drawCircle(Offset(currentX, currentY), p.radius, paint);
+      // Delicate Core
+      final corePaint = Paint()
+        ..color = Colors.white.withOpacity(p.opacity * 0.50)
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(center, p.radius * 0.7, corePaint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _ParticlePainter oldDelegate) => true;
+  bool shouldRepaint(covariant _DiyaParticlePainter oldDelegate) => true;
 }

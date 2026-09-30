@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../core/constants/app_colors.dart';
 
 class DivineMusicVisualizer extends StatefulWidget {
   final bool isPlaying;
@@ -11,8 +10,8 @@ class DivineMusicVisualizer extends StatefulWidget {
     super.key,
     required this.isPlaying,
     this.barColor,
-    this.height = 16,
-    this.width = 18,
+    this.height = 18,
+    this.width = 22,
   });
 
   @override
@@ -24,7 +23,7 @@ class _DivineMusicVisualizerState extends State<DivineMusicVisualizer>
   late List<AnimationController> _controllers;
   late List<Animation<double>> _animations;
 
-  final List<int> _durations = [480, 620, 540, 700];
+  final List<int> _durations = [380, 520, 440, 600];
 
   @override
   void initState() {
@@ -37,8 +36,8 @@ class _DivineMusicVisualizerState extends State<DivineMusicVisualizer>
     });
 
     _animations = _controllers.map((controller) {
-      return Tween<double>(begin: 0.25, end: 1.0).animate(
-        CurvedAnimation(parent: controller, curve: Curves.easeInOut),
+      return Tween<double>(begin: 0.20, end: 1.0).animate(
+        CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic),
       );
     }).toList();
 
@@ -49,7 +48,7 @@ class _DivineMusicVisualizerState extends State<DivineMusicVisualizer>
 
   void _startAnimations() {
     for (var i = 0; i < _controllers.length; i++) {
-      Future.delayed(Duration(milliseconds: i * 110), () {
+      Future.delayed(Duration(milliseconds: i * 85), () {
         if (mounted && widget.isPlaying) {
           _controllers[i].repeat(reverse: true);
         }
@@ -60,7 +59,7 @@ class _DivineMusicVisualizerState extends State<DivineMusicVisualizer>
   void _stopAnimations() {
     for (var controller in _controllers) {
       controller.stop();
-      controller.animateTo(0.25, duration: const Duration(milliseconds: 200));
+      controller.animateTo(0.20, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
     }
   }
 
@@ -86,7 +85,7 @@ class _DivineMusicVisualizerState extends State<DivineMusicVisualizer>
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.barColor ?? AppColors.goldPrimary;
+    final primaryColor = widget.barColor ?? const Color(0xFFFFD700);
 
     return SizedBox(
       height: widget.height,
@@ -98,17 +97,28 @@ class _DivineMusicVisualizerState extends State<DivineMusicVisualizer>
           return AnimatedBuilder(
             animation: _animations[index],
             builder: (context, _) {
+              final barVal = _animations[index].value;
+              final currentHeight = (widget.height * barVal).clamp(3.5, widget.height);
+
               return Container(
-                width: (widget.width / 4) - 1.5,
-                height: widget.height * _animations[index].value,
+                width: (widget.width / 4) - 1.8,
+                height: currentHeight,
                 decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(3),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      primaryColor,
+                      const Color(0xFFFF9933),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(4),
                   boxShadow: [
                     if (widget.isPlaying)
                       BoxShadow(
-                        color: color.withOpacity(0.4),
-                        blurRadius: 4,
+                        color: primaryColor.withOpacity(0.65),
+                        blurRadius: 6,
+                        spreadRadius: 1.0,
                         offset: const Offset(0, -1),
                       ),
                   ],

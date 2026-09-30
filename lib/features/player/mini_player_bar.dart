@@ -2,18 +2,62 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../services/audio/audio_player_service.dart';
 import '../../services/preferences/preferences_service.dart';
 import '../../widgets/divine_music_visualizer.dart';
+import '../../widgets/adaptive_button.dart';
 import '../../widgets/liquid_glass/glass_style.dart';
 import '../../widgets/liquid_glass/liquid_glass.dart';
+import '../../widgets/favorite_sparkle_burst.dart';
 import 'full_player_screen.dart';
 
-class MiniPlayerBar extends StatelessWidget {
+class MiniPlayerBar extends StatefulWidget {
   const MiniPlayerBar({super.key});
+
+  @override
+  State<MiniPlayerBar> createState() => _MiniPlayerBarState();
+}
+
+class _MiniPlayerBarState extends State<MiniPlayerBar> {
+  double _verticalDragOffset = 0;
+  bool _isNavigating = false;
+
+  void _openFullPlayer() {
+    if (_isNavigating || !mounted) return;
+    _isNavigating = true;
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.transparent,
+        pageBuilder: (_, __, ___) => const FullPlayerScreen(),
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.08),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+              ),
+              child: child,
+            ),
+          );
+        },
+      ),
+    ).then((_) {
+      if (mounted) {
+        setState(() {
+          _isNavigating = false;
+        });
+      }
+    });
+  }
 
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes;
@@ -133,39 +177,27 @@ class MiniPlayerBar extends StatelessWidget {
     final isFav = prefs.isFavorite(song.id);
     final currentLang = prefs.getSelectedLanguage();
 
-    void openFullPlayer() {
-      Navigator.of(context).push(
-        PageRouteBuilder(
-          opaque: false,
-          barrierColor: Colors.transparent,
-          pageBuilder: (_, __, ___) => const FullPlayerScreen(),
-          transitionsBuilder: (_, animation, __, child) {
-            return FadeTransition(
-              opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.08),
-                  end: Offset.zero,
-                ).animate(
-                  CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
-                ),
-                child: child,
-              ),
-            );
-          },
-        ),
-      );
-    }
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 700;
 
         return GestureDetector(
-          onVerticalDragEnd: (details) {
-            if (details.primaryVelocity != null && details.primaryVelocity! < -120) {
-              openFullPlayer();
+          behavior: HitTestBehavior.opaque,
+          onTap: _openFullPlayer,
+          onVerticalDragStart: (_) {
+            _verticalDragOffset = 0;
+          },
+          onVerticalDragUpdate: (details) {
+            _verticalDragOffset += details.primaryDelta ?? 0;
+            if (_verticalDragOffset < -10 && !_isNavigating) {
+              _openFullPlayer();
             }
+          },
+          onVerticalDragEnd: (details) {
+            if ((details.primaryVelocity ?? 0) < -60 && !_isNavigating) {
+              _openFullPlayer();
+            }
+            _verticalDragOffset = 0;
           },
           child: LiquidGlass(
             style: isDesktop ? GlassStyle.toolbar : GlassStyle.sheet,
@@ -221,29 +253,16 @@ class MiniPlayerBar extends StatelessWidget {
                               tooltip: 'Previous Track',
                               onPressed: () => player.playPrevious(),
                             ),
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                gradient: AppColors.heroMaroonGradient,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.maroonPrimary.withOpacity(0.35),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                            AdaptiveIconButton(
+                              size: 44,
+                              isPrimary: true,
+                              backgroundColor: AppColors.maroonPrimary,
+                              icon: Icon(
+                                player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                size: 28,
                               ),
-                              child: IconButton(
-                                icon: Icon(
-                                  player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                                  color: Colors.white,
-                                  size: 28,
-                                ),
-                                tooltip: player.isPlaying ? 'Pause' : 'Play',
-                                onPressed: () => player.togglePlayPause(),
-                              ),
+                              tooltip: player.isPlaying ? 'Pause' : 'Play',
+                              onPressed: () => player.togglePlayPause(),
                             ),
                             IconButton(
                               icon: const Icon(Icons.skip_next_rounded, color: AppColors.maroonPrimary, size: 28),
@@ -274,7 +293,7 @@ class MiniPlayerBar extends StatelessWidget {
                         // --- CENTER: Artwork & Title & Details ---
                         Expanded(
                           child: InkWell(
-                            onTap: openFullPlayer,
+                            onTap: _openFullPlayer,
                             borderRadius: BorderRadius.circular(12),
                             child: Row(
                               children: [
@@ -338,14 +357,13 @@ class MiniPlayerBar extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                IconButton(
-                                  icon: Icon(
-                                    isFav ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
-                                    color: isFav ? AppColors.maroonPrimary : const Color(0xFF8B776A),
-                                    size: 24,
-                                  ),
-                                  tooltip: 'Favorite',
-                                  onPressed: () async {
+                                FavoriteSparkleBurst(
+                                  key: ValueKey('mini_d_fav_${song.id}'),
+                                  isFavorited: isFav,
+                                  size: 22,
+                                  activeColor: AppColors.error,
+                                  inactiveColor: const Color(0xFF8B776A),
+                                  onTap: () async {
                                     await prefs.toggleFavorite(song.id);
                                   },
                                 ),
@@ -381,7 +399,7 @@ class MiniPlayerBar extends StatelessWidget {
                             IconButton(
                               icon: const Icon(Icons.keyboard_arrow_up_rounded, color: AppColors.maroonPrimary, size: 28),
                               tooltip: 'Expand Player',
-                              onPressed: openFullPlayer,
+                              onPressed: _openFullPlayer,
                             ),
                           ],
                         ),
@@ -392,7 +410,7 @@ class MiniPlayerBar extends StatelessWidget {
                         // Mobile Layout: [Artwork + Title/Artist in Expanded] + [Favorite] + [Play/Pause] + [Expand]
                         Expanded(
                           child: InkWell(
-                            onTap: openFullPlayer,
+                            onTap: _openFullPlayer,
                             borderRadius: BorderRadius.circular(10),
                             child: Row(
                               children: [
@@ -460,44 +478,27 @@ class MiniPlayerBar extends StatelessWidget {
                             ),
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(
-                            isFav ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
-                            color: isFav ? AppColors.maroonPrimary : const Color(0xFF8B776A),
-                            size: 22,
-                          ),
-                          tooltip: 'Favorite',
-                          padding: const EdgeInsets.all(6),
-                          constraints: const BoxConstraints(),
-                          onPressed: () async {
+                        FavoriteSparkleBurst(
+                          key: ValueKey('mini_fav_${song.id}'),
+                          isFavorited: isFav,
+                          size: 22,
+                          activeColor: AppColors.error,
+                          inactiveColor: const Color(0xFF8D7B70),
+                          onTap: () async {
                             await prefs.toggleFavorite(song.id);
                           },
                         ),
                         const SizedBox(width: 6),
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            gradient: AppColors.heroMaroonGradient,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.maroonPrimary.withOpacity(0.35),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                        AdaptiveIconButton(
+                          size: 40,
+                          isPrimary: true,
+                          backgroundColor: AppColors.maroonPrimary,
+                          icon: Icon(
+                            player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                            size: 24,
                           ),
-                          child: IconButton(
-                            icon: Icon(
-                              player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            padding: EdgeInsets.zero,
-                            tooltip: player.isPlaying ? 'Pause' : 'Play',
-                            onPressed: () => player.togglePlayPause(),
-                          ),
+                          tooltip: player.isPlaying ? 'Pause' : 'Play',
+                          onPressed: () => player.togglePlayPause(),
                         ),
                         const SizedBox(width: 2),
                         IconButton(
@@ -505,7 +506,7 @@ class MiniPlayerBar extends StatelessWidget {
                           tooltip: 'Expand Player',
                           padding: const EdgeInsets.all(4),
                           constraints: const BoxConstraints(),
-                          onPressed: openFullPlayer,
+                          onPressed: _openFullPlayer,
                         ),
                       ],
                     ),

@@ -12,6 +12,7 @@ import '../../services/preferences/preferences_service.dart';
 import '../../widgets/devotional_app_bar.dart';
 import '../../widgets/devotional_card.dart';
 import '../../widgets/empty_state_view.dart';
+import '../../widgets/adaptive_button.dart';
 import '../../widgets/deepam_loader.dart';
 import '../player/full_player_screen.dart';
 import '../search/search_screen.dart';
@@ -64,7 +65,40 @@ class _SongLibraryScreenState extends State<SongLibraryScreen> {
     } else {
       displayedSongs = songRepo.allSongs;
       if (_selectedCategory != null && _selectedCategory!.isNotEmpty) {
-        displayedSongs = displayedSongs.where((s) => s.categoryId == _selectedCategory).toList();
+        final selLower = _selectedCategory!.toLowerCase();
+        if (selLower == 'sahasranamam') {
+          displayedSongs = displayedSongs.where((s) =>
+            s.categoryId == 'sahasranamam' ||
+            s.categoryId == 'sahasranama' ||
+            s.title.toLowerCase().contains('sahasranama') ||
+            s.title.toLowerCase().contains('sahasranamam')
+          ).toList();
+        } else if (selLower == 'daily chants' || selLower == 'daily-chants' || selLower == 'daily') {
+          displayedSongs = displayedSongs.where((s) =>
+            s.categoryId == 'daily-chants' ||
+            s.categoryId == 'daily' ||
+            s.title.toLowerCase().contains('gayatri') ||
+            s.title.toLowerCase().contains('suprabhatam') ||
+            s.title.toLowerCase().contains('daily')
+          ).toList();
+        } else if (selLower == 'meditation') {
+          displayedSongs = displayedSongs.where((s) =>
+            s.categoryId == 'meditation' ||
+            s.title.toLowerCase().contains('meditation') ||
+            s.title.toLowerCase().contains('dhyana') ||
+            s.title.toLowerCase().contains('peace')
+          ).toList();
+        } else if (selLower == 'stotras') {
+          displayedSongs = displayedSongs.where((s) =>
+            s.categoryId == 'stotras' ||
+            s.categoryId == 'stotra' ||
+            s.title.toLowerCase().contains('stotra') ||
+            s.title.toLowerCase().contains('stotram') ||
+            s.title.toLowerCase().contains('ashtakam')
+          ).toList();
+        } else {
+          displayedSongs = displayedSongs.where((s) => s.categoryId == _selectedCategory).toList();
+        }
       }
       if (_selectedLanguage != null && _selectedLanguage!.isNotEmpty) {
         displayedSongs = displayedSongs.where((s) => s.language == _selectedLanguage).toList();
@@ -74,7 +108,19 @@ class _SongLibraryScreenState extends State<SongLibraryScreen> {
     final playAllLabel = (currentLang == 'kn') ? 'ಎಲ್ಲವನ್ನೂ ಪ್ಲೇ ಮಾಡಿ' : 'Play All';
     final shuffleLabel = (currentLang == 'kn') ? 'ಷಫಲ್' : 'Shuffle';
     final downloadsLabel = (currentLang == 'kn') ? 'ಡೌನ್‌ಲೋಡ್‌ಗಳು' : 'Downloads';
-    final allSongsLabel = (currentLang == 'kn') ? 'ಎಲ್ಲಾ ಸ್ತೋತ್ರಗಳು' : 'All Songs';
+    final allSongsLabel = (currentLang == 'kn') ? 'ಎಲ್ಲಾ ಸ್ತೋತ್ರಗಳು' : 'All';
+
+    final categoryPills = <Map<String, dynamic>>[
+      {'id': null, 'name': allSongsLabel, 'isDownload': false},
+      {'id': 'Sahasranamam', 'name': currentLang == 'kn' ? 'ಸಹಸ್ರನಾಮ' : 'Sahasranamam', 'isDownload': false},
+      {'id': 'Daily Chants', 'name': currentLang == 'kn' ? 'ದೈನಂದಿನ ಮಂತ್ರ' : 'Daily Chants', 'isDownload': false},
+      {'id': 'Meditation', 'name': currentLang == 'kn' ? 'ಧ್ಯಾನ' : 'Meditation', 'isDownload': false},
+      {'id': 'Stotras', 'name': currentLang == 'kn' ? 'ಸ್ತೋತ್ರಗಳು' : 'Stotras', 'isDownload': false},
+      {'id': 'downloads', 'name': downloadedSongsList.isNotEmpty ? '$downloadsLabel (${downloadedSongsList.length})' : downloadsLabel, 'isDownload': true},
+      ...catRepo.categories
+          .where((c) => !['sahasranamam', 'daily-chants', 'meditation', 'stotras'].contains(c.id.toLowerCase()))
+          .map((c) => {'id': c.id, 'name': c.getLocalizedName(currentLang), 'isDownload': false}),
+    ];
 
     return Scaffold(
       backgroundColor: templeTheme.backgroundColor,
@@ -106,94 +152,84 @@ class _SongLibraryScreenState extends State<SongLibraryScreen> {
       ),
       body: Column(
         children: [
-          // Filter Chips (All, Downloads, Categories)
+          // Filter Pills Row
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             child: Row(
-              children: [
-                // All Songs Chip
-                FilterChip(
-                  label: Text(allSongsLabel),
-                  selected: !_isDownloadsTab && _selectedCategory == null,
-                  selectedColor: templeTheme.primaryColor,
-                  backgroundColor: Colors.white,
-                  side: BorderSide(
-                    color: (!_isDownloadsTab && _selectedCategory == null)
-                        ? templeTheme.primaryColor
-                        : templeTheme.borderColor,
-                  ),
-                  labelStyle: TextStyle(
-                    color: (!_isDownloadsTab && _selectedCategory == null) ? Colors.white : AppColors.textDark,
-                    fontWeight: (!_isDownloadsTab && _selectedCategory == null) ? FontWeight.bold : FontWeight.w600,
-                  ),
-                  onSelected: (_) {
-                    setState(() {
-                      _isDownloadsTab = false;
-                      _selectedCategory = null;
-                    });
-                  },
-                ),
-                const SizedBox(width: 8),
+              children: categoryPills.map((pill) {
+                final isDownload = pill['isDownload'] as bool;
+                final pillId = pill['id'] as String?;
+                final pillName = pill['name'] as String;
 
-                // Downloads Section Chip
-                FilterChip(
-                  avatar: Icon(
-                    Icons.cloud_download_rounded,
-                    size: 16,
-                    color: _isDownloadsTab ? Colors.white : templeTheme.primaryColor,
-                  ),
-                  label: Text(
-                    downloadedSongsList.isNotEmpty
-                        ? '$downloadsLabel (${downloadedSongsList.length})'
-                        : downloadsLabel,
-                  ),
-                  selected: _isDownloadsTab,
-                  selectedColor: templeTheme.primaryColor,
-                  backgroundColor: Colors.white,
-                  side: BorderSide(
-                    color: _isDownloadsTab ? templeTheme.primaryColor : templeTheme.borderColor,
-                  ),
-                  labelStyle: TextStyle(
-                    color: _isDownloadsTab ? Colors.white : AppColors.textDark,
-                    fontWeight: _isDownloadsTab ? FontWeight.bold : FontWeight.w600,
-                  ),
-                  onSelected: (_) {
-                    setState(() {
-                      _isDownloadsTab = true;
-                      _selectedCategory = null;
-                    });
-                  },
-                ),
-                const SizedBox(width: 8),
+                final isSelected = isDownload
+                    ? _isDownloadsTab
+                    : (!_isDownloadsTab && _selectedCategory == pillId);
 
-                // Category Chips
-                ...catRepo.categories.map((cat) {
-                  final isSel = !_isDownloadsTab && _selectedCategory == cat.id;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      label: Text(cat.getLocalizedName(currentLang)),
-                      selected: isSel,
-                      selectedColor: templeTheme.primaryColor,
-                      backgroundColor: Colors.white,
-                      side: BorderSide(
-                        color: isSel ? templeTheme.primaryColor : templeTheme.borderColor,
-                      ),
-                      labelStyle: TextStyle(
-                        color: isSel ? Colors.white : AppColors.textDark,
-                        fontWeight: isSel ? FontWeight.bold : FontWeight.w600,
-                      ),
-                      onSelected: (val) {
-                        setState(() {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        if (isDownload) {
+                          _isDownloadsTab = true;
+                          _selectedCategory = null;
+                        } else {
                           _isDownloadsTab = false;
-                          _selectedCategory = val ? cat.id : null;
-                        });
-                      },
+                          _selectedCategory = pillId;
+                        }
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? templeTheme.primaryColor : Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isSelected ? templeTheme.primaryColor : templeTheme.borderColor,
+                        ),
+                        boxShadow: [
+                          if (isSelected)
+                            BoxShadow(
+                              color: templeTheme.primaryColor.withOpacity(0.25),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            )
+                          else
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.02),
+                              blurRadius: 3,
+                              offset: const Offset(0, 1),
+                            ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isDownload) ...[
+                            Icon(
+                              Icons.cloud_download_rounded,
+                              size: 15,
+                              color: isSelected ? Colors.white : templeTheme.primaryColor,
+                            ),
+                            const SizedBox(width: 5),
+                          ],
+                          Text(
+                            pillName,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                              color: isSelected ? Colors.white : AppColors.textDark,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  );
-                }),
-              ],
+                  ),
+                );
+              }).toList(),
             ),
           ),
 
@@ -263,8 +299,8 @@ class _SongLibraryScreenState extends State<SongLibraryScreen> {
                   ),
                   const SizedBox(width: 8),
 
-                  // Shuffle Button
-                  OutlinedButton.icon(
+                  // Adaptive Shuffle Button (Liquid Glass on iOS, M3 Tonal on Android)
+                  AdaptiveButton.icon(
                     onPressed: () {
                       player.playAll(displayedSongs, shuffle: true);
                       Navigator.of(context).push(
@@ -273,18 +309,16 @@ class _SongLibraryScreenState extends State<SongLibraryScreen> {
                     },
                     icon: const Icon(Icons.shuffle_rounded, size: 16),
                     label: Text(shuffleLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: templeTheme.primaryColor,
-                      side: BorderSide(color: templeTheme.borderColor),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      minimumSize: Size.zero,
-                    ),
+                    variant: AdaptiveButtonVariant.secondary,
+                    color: templeTheme.primaryColor,
+                    height: 38,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   const SizedBox(width: 6),
 
-                  // Play All Button
-                  ElevatedButton.icon(
+                  // Adaptive Play All Button (Liquid Glass Primary on iOS, M3 Filled on Android)
+                  AdaptiveButton.icon(
                     onPressed: () {
                       player.playAll(displayedSongs, shuffle: false);
                       Navigator.of(context).push(
@@ -293,14 +327,11 @@ class _SongLibraryScreenState extends State<SongLibraryScreen> {
                     },
                     icon: const Icon(Icons.play_arrow_rounded, size: 18),
                     label: Text(playAllLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: templeTheme.primaryColor,
-                      foregroundColor: Colors.white,
-                      elevation: 1,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      minimumSize: Size.zero,
-                    ),
+                    variant: AdaptiveButtonVariant.primary,
+                    color: templeTheme.primaryColor,
+                    height: 38,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ],
               ),

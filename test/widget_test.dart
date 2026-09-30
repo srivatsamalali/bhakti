@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bhakti/features/language/language_selection_screen.dart';
 import 'package:bhakti/features/settings/settings_screen.dart';
@@ -8,6 +9,7 @@ import 'package:bhakti/repositories/song_repository.dart';
 import 'package:bhakti/services/firebase/firestore_service.dart';
 import 'package:bhakti/services/firebase/auth_service.dart';
 import 'package:bhakti/services/audio/audio_player_service.dart';
+import 'package:bhakti/services/notifications/devotional_reminder_service.dart';
 import 'package:bhakti/services/preferences/preferences_service.dart';
 import 'package:bhakti/core/localization/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -77,13 +79,21 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byType(FavoritesScreen), findsOneWidget);
   });
 
   testWidgets('SettingsScreen renders options and preferences', (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({});
+    PackageInfo.setMockInitialValues(
+      appName: 'Bhakti',
+      packageName: 'com.bhakti.bhakti',
+      version: '1.0.0',
+      buildNumber: '1',
+      buildSignature: '',
+    );
     final prefsService = await PreferencesService.create();
 
     await tester.pumpWidget(
@@ -92,6 +102,9 @@ void main() {
           ChangeNotifierProvider<PreferencesService>.value(value: prefsService),
           ChangeNotifierProvider<AuthService>(
             create: (_) => AuthService(prefsService),
+          ),
+          ChangeNotifierProvider<DevotionalReminderService>(
+            create: (_) => DevotionalReminderService(),
           ),
         ],
         child: const MaterialApp(
@@ -102,7 +115,8 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byType(SettingsScreen), findsOneWidget);
   });

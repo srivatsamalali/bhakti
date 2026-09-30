@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:just_audio/just_audio.dart';
@@ -7,6 +8,7 @@ import '../../models/song_model.dart';
 import '../../repositories/song_repository.dart';
 import '../firebase/firestore_service.dart';
 import '../preferences/preferences_service.dart';
+import '../widgets/home_widget_service.dart';
 
 enum SleepTimerDuration {
   off,
@@ -219,6 +221,7 @@ class AudioPlayerService extends ChangeNotifier {
 
       await _player.setSpeed(_playbackSpeed);
       await _player.play();
+      HomeWidgetService.updateCurrentPlayingSong(song, isPlaying: true);
       notifyListeners();
     } catch (e) {
       debugPrint('Error playing audio for ${song.title} (${song.audioUrl}): $e');
@@ -228,11 +231,17 @@ class AudioPlayerService extends ChangeNotifier {
 
   Future<void> resume() async {
     await _player.play();
+    if (_currentSong != null) {
+      HomeWidgetService.updateCurrentPlayingSong(_currentSong!, isPlaying: true);
+    }
     notifyListeners();
   }
 
   Future<void> pause() async {
     await _player.pause();
+    if (_currentSong != null) {
+      HomeWidgetService.updateCurrentPlayingSong(_currentSong!, isPlaying: false);
+    }
     notifyListeners();
   }
 
@@ -247,6 +256,23 @@ class AudioPlayerService extends ChangeNotifier {
       }
     }
     notifyListeners();
+  }
+
+  Future<void> skipToNext() async {
+    if (_queue.isEmpty) return;
+    if (_isShuffleEnabled && _queue.length > 1) {
+      final randomIndex = Random().nextInt(_queue.length);
+      await playSong(_queue[randomIndex]);
+      return;
+    }
+    final nextIndex = (_currentIndex + 1) % _queue.length;
+    await playSong(_queue[nextIndex]);
+  }
+
+  Future<void> skipToPrevious() async {
+    if (_queue.isEmpty) return;
+    final prevIndex = (_currentIndex - 1 + _queue.length) % _queue.length;
+    await playSong(_queue[prevIndex]);
   }
 
   Future<void> seek(Duration position) async {

@@ -7,6 +7,7 @@ import '../../../core/theme/temple_theme.dart';
 import '../../../services/preferences/preferences_service.dart';
 
 import '../../../widgets/interactive_flower_offering.dart';
+import '../../../widgets/sacred_filigree_border.dart';
 import '../../wallpaper/sacred_wallpaper_generator_dialog.dart';
 
 class DailyShlokaCard extends StatefulWidget {
@@ -148,18 +149,23 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
             ),
           ],
         ),
-        child: Stack(
-          children: [
-            // Subtle Decorative Corner Diya Accent
-            Positioned(
-              top: -10,
-              right: -10,
-              child: Icon(
-                Icons.wb_sunny_rounded,
-                size: 70,
-                color: templeTheme.accentGold.withOpacity(0.12),
-              ),
-            ),
+        child: SacredCornerFiligree(
+          borderRadius: BorderRadius.circular(24),
+          color: templeTheme.accentGold,
+          cornerSize: 22,
+          strokeWidth: 1.5,
+          child: Stack(
+              children: [
+                // Subtle Decorative Corner Diya Accent
+                Positioned(
+                  top: -10,
+                  right: -10,
+                  child: Icon(
+                    Icons.wb_sunny_rounded,
+                    size: 70,
+                    color: templeTheme.accentGold.withOpacity(0.10),
+                  ),
+                ),
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -340,8 +346,9 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
           ),
         ],
       ),
-      ),
-    );
-  }
+    ),
+  ),
+);
+}
 }
 

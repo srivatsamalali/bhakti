@@ -9,15 +9,20 @@
 /* Begin PBXBuildFile section */
 		11760C2071B2821D7B162F2C /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 493FD3D4D1D467D1E3BEC2B0 /* Pods_Runner.framework */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
+		1BB965E23F3AC281AFD06812 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 010C72EA54B01D0E1D23B950 /* WidgetKit.framework */; };
+		2FEB98665FAFF6EF4CDF78D9 /* BhaktiWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = BD1E26EA3BDACBD227D20E21 /* BhaktiWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		4E219C75B4022B40D04E78A2 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 44F852300A33D99B3B869F62 /* GoogleService-Info.plist */; };
+		5AFD51E1C35E2DC9D83BA014 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 441CA827D3FBA721F8458447 /* SwiftUI.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
 		8073B88A3AA50662C370B06A /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A74B9B01F8103173050CEA56 /* Pods_RunnerTests.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		C55326F98754DFA42AB0FA16 /* BhaktiWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5448DAD3B43F6DC8E15C0DB9 /* BhaktiWidgets.swift */; };
+		CC8909A3CAD0CE099A29CF0F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C8E8D39DDF17B7C0E1DD0ED /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,6 +32,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 97C146ED1CF9000F007C117D;
 			remoteInfo = Runner;
+		};
+		B99205242A1CF3259C06B773 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B933AFF86DEB9EEAE65BE676;
+			remoteInfo = BhaktiWidgets;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -41,17 +53,33 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D98EEB670B236A680E4BD091 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2FEB98665FAFF6EF4CDF78D9 /* BhaktiWidgets.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		010C72EA54B01D0E1D23B950 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WidgetKit.framework; sourceTree = SDKROOT; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		441CA827D3FBA721F8458447 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftUI.framework; sourceTree = SDKROOT; };
 		44F852300A33D99B3B869F62 /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Runner/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		493FD3D4D1D467D1E3BEC2B0 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5448DAD3B43F6DC8E15C0DB9 /* BhaktiWidgets.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BhaktiWidgets.swift; sourceTree = "<group>"; };
 		670CE0E01F072F0380A5E029 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		6C8E8D39DDF17B7C0E1DD0ED /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		6D7F0FD37EEFCEBC1DF14E4E /* BhaktiWidgets.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = BhaktiWidgets.entitlements; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		76953D8223E0172E62FECF75 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
@@ -67,6 +95,8 @@
 		A144DC89002615BC942FD17A /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		A74B9B01F8103173050CEA56 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9A12D5487476D5330869A74 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		BD1E26EA3BDACBD227D20E21 /* BhaktiWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; name = BhaktiWidgets.appex; path = BhaktiWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E5C916C1C4CABDC4D0E78307 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ECA35E9236792BD0A23BD100 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		F14C02DD04BCC4A56F457758 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -86,6 +116,16 @@
 			files = (
 				78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */,
 				11760C2071B2821D7B162F2C /* Pods_Runner.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D81DA3D09CCE1C30CEEF5C1D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC8909A3CAD0CE099A29CF0F /* Foundation.framework in Frameworks */,
+				1BB965E23F3AC281AFD06812 /* WidgetKit.framework in Frameworks */,
+				5AFD51E1C35E2DC9D83BA014 /* SwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,6 +175,7 @@
 				44F852300A33D99B3B869F62 /* GoogleService-Info.plist */,
 				6188158BCC2E2D7133CE6F8E /* Pods */,
 				9CA43DA20A0C0EE7393A15FD /* Frameworks */,
+				C77A6276BF87347284C35C70 /* BhaktiWidgets */,
 			);
 			sourceTree = "<group>";
 		};
@@ -143,6 +184,7 @@
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
+				BD1E26EA3BDACBD227D20E21 /* BhaktiWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -167,8 +209,30 @@
 			children = (
 				493FD3D4D1D467D1E3BEC2B0 /* Pods_Runner.framework */,
 				A74B9B01F8103173050CEA56 /* Pods_RunnerTests.framework */,
+				C2A04F6749337F315BE31CF3 /* iOS */,
+				010C72EA54B01D0E1D23B950 /* WidgetKit.framework */,
+				441CA827D3FBA721F8458447 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C2A04F6749337F315BE31CF3 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				6C8E8D39DDF17B7C0E1DD0ED /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		C77A6276BF87347284C35C70 /* BhaktiWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				5448DAD3B43F6DC8E15C0DB9 /* BhaktiWidgets.swift */,
+				E5C916C1C4CABDC4D0E78307 /* Info.plist */,
+				6D7F0FD37EEFCEBC1DF14E4E /* BhaktiWidgets.entitlements */,
+			);
+			name = BhaktiWidgets;
+			path = BhaktiWidgets;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -202,6 +266,7 @@
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
+				D98EEB670B236A680E4BD091 /* Embed App Extensions */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				6B6C8451779C9E719F006F65 /* [CP] Embed Pods Frameworks */,
@@ -210,6 +275,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				814650FBF73D4560078E83BB /* PBXTargetDependency */,
 			);
 			name = Runner;
 			packageProductDependencies = (
@@ -218,6 +284,23 @@
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
+		};
+		B933AFF86DEB9EEAE65BE676 /* BhaktiWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 37BF05DF097425ACE8E664A2 /* Build configuration list for PBXNativeTarget "BhaktiWidgets" */;
+			buildPhases = (
+				FE2EADA54C0DD9EB2CD6A505 /* Sources */,
+				D81DA3D09CCE1C30CEEF5C1D /* Frameworks */,
+				DC701C9BE167BF88F314E793 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BhaktiWidgets;
+			productName = BhaktiWidgets;
+			productReference = BD1E26EA3BDACBD227D20E21 /* BhaktiWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -236,6 +319,11 @@
 					97C146ED1CF9000F007C117D = {
 						CreatedOnToolsVersion = 7.3.1;
 						LastSwiftMigration = 1100;
+					};
+					B933AFF86DEB9EEAE65BE676 = {
+						CreatedOnToolsVersion = 15.0;
+						DevelopmentTeam = ZJ62CL6SAN;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -257,6 +345,7 @@
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
+				B933AFF86DEB9EEAE65BE676 /* BhaktiWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -278,6 +367,13 @@
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				4E219C75B4022B40D04E78A2 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DC701C9BE167BF88F314E793 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -413,6 +509,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FE2EADA54C0DD9EB2CD6A505 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C55326F98754DFA42AB0FA16 /* BhaktiWidgets.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -420,6 +524,12 @@
 			isa = PBXTargetDependency;
 			target = 97C146ED1CF9000F007C117D /* Runner */;
 			targetProxy = 331C8085294A63A400263BE5 /* PBXContainerItemProxy */;
+		};
+		814650FBF73D4560078E83BB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = BhaktiWidgets;
+			target = B933AFF86DEB9EEAE65BE676 /* BhaktiWidgets */;
+			targetProxy = B99205242A1CF3259C06B773 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -443,6 +553,29 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		2053845F00F56C883B2BE5C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BhaktiWidgets/BhaktiWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZJ62CL6SAN;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BhaktiWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bhakti.bhakti.BhaktiWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		249021D3217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -502,6 +635,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = ZJ62CL6SAN;
 				ENABLE_BITCODE = NO;
@@ -690,6 +824,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = ZJ62CL6SAN;
 				ENABLE_BITCODE = NO;
@@ -713,6 +848,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = ZJ62CL6SAN;
 				ENABLE_BITCODE = NO;
@@ -729,6 +865,51 @@
 			};
 			name = Release;
 		};
+		9A42B7E0C2CBD6EAD25D4573 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BhaktiWidgets/BhaktiWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZJ62CL6SAN;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BhaktiWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bhakti.bhakti.BhaktiWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
+		};
+		CF2070CE18BA2DA3F2ABC618 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BhaktiWidgets/BhaktiWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZJ62CL6SAN;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BhaktiWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bhakti.bhakti.BhaktiWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -738,6 +919,16 @@
 				331C8088294A63A400263BE5 /* Debug */,
 				331C8089294A63A400263BE5 /* Release */,
 				331C808A294A63A400263BE5 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		37BF05DF097425ACE8E664A2 /* Build configuration list for PBXNativeTarget "BhaktiWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2053845F00F56C883B2BE5C6 /* Release */,
+				CF2070CE18BA2DA3F2ABC618 /* Debug */,
+				9A42B7E0C2CBD6EAD25D4573 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

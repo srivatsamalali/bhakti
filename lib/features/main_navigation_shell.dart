@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../core/localization/app_localizations.dart';
@@ -347,104 +348,116 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 750;
 
-        if (isDesktop) {
-          return Scaffold(
-            backgroundColor: AppColors.subtleBackground,
-            body: Column(
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      // Desktop Left Navigation Sidebar with Liquid Glass
-                      _buildDesktopSidebar(context, player, songRepo),
-
-                      // Desktop Main Screen Content
-                      Expanded(
-                        child: PageView(
-                          controller: _pageController,
-                          physics: const BouncingScrollPhysics(),
-                          onPageChanged: (index) {
-                            setState(() {
-                              _currentIndex = index;
-                            });
-                          },
-                          children: _screens,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Persistent Liquid Glass Bottom Player Bar
-                if (hasActiveTrack) const MiniPlayerBar(),
-              ],
-            ),
-          );
-        }
-
         final favCount = songRepo.getFavoriteSongs().length;
 
-        // Mobile Layout with GlassTabBar and GlassBottomAccessory
-        return Scaffold(
-          extendBody: true,
-          backgroundColor: AppColors.subtleBackground,
-          body: PageView(
-            controller: _pageController,
-            physics: const BouncingScrollPhysics(),
-            onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            children: _screens,
-          ),
-          bottomNavigationBar: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Persistent Liquid Glass Mini Player above navigation bar
-              if (hasActiveTrack) const MiniPlayerBar(),
+        final Widget mainShell = isDesktop
+            ? Scaffold(
+                backgroundColor: AppColors.subtleBackground,
+                body: Column(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          // Desktop Left Navigation Sidebar with Liquid Glass
+                          _buildDesktopSidebar(context, player, songRepo),
 
-              // Floating Liquid Glass Tab Bar matching WhatsApp / iOS 26 Liquid Glass
-              GlassTabBar(
-                currentIndex: _currentIndex,
-                tint: AppColors.goldPrimary,
-                onTap: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                  if (_pageController.hasClients) {
-                    _pageController.animateToPage(
-                      index,
-                      duration: const Duration(milliseconds: 280),
-                      curve: Curves.easeOutCubic,
-                    );
-                  }
-                },
-                items: [
-                  GlassTabItem(
-                    icon: Icons.home_outlined,
-                    activeIcon: Icons.home_rounded,
-                    label: context.tr('navHome'),
-                  ),
-                  GlassTabItem(
-                    icon: Icons.library_music_outlined,
-                    activeIcon: Icons.library_music_rounded,
-                    label: context.tr('navSongs'),
-                  ),
-                  GlassTabItem(
-                    icon: Icons.favorite_outline_rounded,
-                    activeIcon: Icons.favorite_rounded,
-                    label: context.tr('navFavorites'),
-                    badgeText: favCount > 0 ? '$favCount' : null,
-                  ),
-                  GlassTabItem(
-                    icon: Icons.settings_outlined,
-                    activeIcon: Icons.settings_rounded,
-                    label: context.tr('navSettings'),
-                  ),
-                ],
-              ),
-            ],
+                          // Desktop Main Screen Content
+                          Expanded(
+                            child: PageView(
+                              controller: _pageController,
+                              physics: const BouncingScrollPhysics(),
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _currentIndex = index;
+                                });
+                              },
+                              children: _screens,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Persistent Liquid Glass Bottom Player Bar
+                    if (hasActiveTrack) const MiniPlayerBar(),
+                  ],
+                ),
+              )
+            : Scaffold(
+                extendBody: true,
+                backgroundColor: AppColors.subtleBackground,
+                body: PageView(
+                  controller: _pageController,
+                  physics: const BouncingScrollPhysics(),
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  children: _screens,
+                ),
+                bottomNavigationBar: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Persistent Liquid Glass Mini Player above navigation bar
+                    if (hasActiveTrack) const MiniPlayerBar(),
+
+                    // Floating Liquid Glass Tab Bar matching WhatsApp / iOS 26 Liquid Glass
+                    GlassTabBar(
+                      currentIndex: _currentIndex,
+                      pageController: _pageController,
+                      tint: AppColors.goldPrimary,
+                      onTap: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                        if (_pageController.hasClients) {
+                          _pageController.animateToPage(
+                            index,
+                            duration: const Duration(milliseconds: 280),
+                            curve: Curves.easeOutCubic,
+                          );
+                        }
+                      },
+                      items: [
+                        GlassTabItem(
+                          icon: Icons.home_outlined,
+                          activeIcon: Icons.home_rounded,
+                          label: context.tr('navHome'),
+                        ),
+                        GlassTabItem(
+                          icon: Icons.library_music_outlined,
+                          activeIcon: Icons.library_music_rounded,
+                          label: context.tr('navSongs'),
+                        ),
+                        GlassTabItem(
+                          icon: Icons.favorite_outline_rounded,
+                          activeIcon: Icons.favorite_rounded,
+                          label: context.tr('navFavorites'),
+                          badgeText: favCount > 0 ? '$favCount' : null,
+                        ),
+                        GlassTabItem(
+                          icon: Icons.settings_outlined,
+                          activeIcon: Icons.settings_rounded,
+                          label: context.tr('navSettings'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+
+        return CallbackShortcuts(
+          bindings: <ShortcutActivator, VoidCallback>{
+            const SingleActivator(LogicalKeyboardKey.mediaPlayPause): () => player.togglePlayPause(),
+            const SingleActivator(LogicalKeyboardKey.mediaPlay): () => player.resume(),
+            const SingleActivator(LogicalKeyboardKey.mediaPause): () => player.pause(),
+            const SingleActivator(LogicalKeyboardKey.mediaTrackNext): () => player.skipToNext(),
+            const SingleActivator(LogicalKeyboardKey.mediaTrackPrevious): () => player.skipToPrevious(),
+          },
+          child: Focus(
+            autofocus: true,
+            child: mainShell,
           ),
         );
       },
