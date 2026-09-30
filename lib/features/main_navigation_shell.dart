@@ -24,6 +24,7 @@ class MainNavigationShell extends StatefulWidget {
 
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
+  late final PageController _pageController;
 
   final List<Widget> _screens = const [
     HomeScreen(),
@@ -31,6 +32,18 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     FavoritesScreen(),
     SettingsScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   Widget _buildDesktopSidebar(BuildContext context, AudioPlayerService player, SongRepository songRepo) {
     final allSongs = songRepo.allSongs;
@@ -347,8 +360,14 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
                       // Desktop Main Screen Content
                       Expanded(
-                        child: IndexedStack(
-                          index: _currentIndex,
+                        child: PageView(
+                          controller: _pageController,
+                          physics: const BouncingScrollPhysics(),
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentIndex = index;
+                            });
+                          },
                           children: _screens,
                         ),
                       ),
@@ -369,8 +388,14 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         return Scaffold(
           extendBody: true,
           backgroundColor: AppColors.subtleBackground,
-          body: IndexedStack(
-            index: _currentIndex,
+          body: PageView(
+            controller: _pageController,
+            physics: const BouncingScrollPhysics(),
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
             children: _screens,
           ),
           bottomNavigationBar: Column(
@@ -387,6 +412,13 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                   setState(() {
                     _currentIndex = index;
                   });
+                  if (_pageController.hasClients) {
+                    _pageController.animateToPage(
+                      index,
+                      duration: const Duration(milliseconds: 280),
+                      curve: Curves.easeOutCubic,
+                    );
+                  }
                 },
                 items: [
                   GlassTabItem(

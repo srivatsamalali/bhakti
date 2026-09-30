@@ -13,6 +13,7 @@ import '../../services/analytics/analytics_service.dart';
 import '../../services/audio/audio_player_service.dart';
 import '../../services/preferences/preferences_service.dart';
 import '../../widgets/ambient_diya_particles.dart';
+import '../../widgets/divine_music_visualizer.dart';
 import '../player/full_player_screen.dart';
 
 class SongDetailsScreen extends StatefulWidget {
@@ -167,7 +168,7 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
                   Positioned(
                     bottom: 16,
                     left: 20,
-                    right: 20,
+                    right: 80,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -214,6 +215,48 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
                       ],
                     ),
                   ),
+                  // Hero Floating Play Button
+                  Positioned(
+                    bottom: 16,
+                    right: 20,
+                    child: Container(
+                      width: 54,
+                      height: 54,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.goldGradient,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.4),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () {
+                            if (isPlayingThis) {
+                              player.pause();
+                            } else if (player.currentSong?.id == widget.song.id) {
+                              player.resume();
+                            } else {
+                              player.playSong(widget.song);
+                            }
+                          },
+                          child: Center(
+                            child: Icon(
+                              isPlayingThis ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                              color: AppColors.maroonDark,
+                              size: 32,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
 
@@ -222,51 +265,187 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Play Now & Add to Queue Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              player.playSong(widget.song);
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const FullPlayerScreen()),
-                              );
-                            },
-                            icon: Icon(isPlayingThis ? Icons.pause : Icons.play_arrow),
-                            label: Text(
-                              isPlayingThis ? context.tr('pause') : context.tr('play'),
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.maroonPrimary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              elevation: 2,
-                            ),
-                          ),
+                    // Grand Devotional Playback Action Bar
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFFFDF9), Color(0xFFFFF8EE)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        const SizedBox(width: 12),
-                        OutlinedButton(
-                          onPressed: () {
-                            player.addToQueue(widget.song);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Added to Queue: ${widget.song.getLocalizedTitle(currentLang)}'),
-                                duration: const Duration(seconds: 2),
-                                backgroundColor: AppColors.maroonPrimary,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFEADBCE), width: 1.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.maroonPrimary.withOpacity(0.06),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              // Main Primary Play/Pause Button
+                              Expanded(
+                                flex: 3,
+                                child: Container(
+                                  height: 52,
+                                  decoration: BoxDecoration(
+                                    gradient: AppColors.heroMaroonGradient,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.maroonPrimary.withOpacity(0.35),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(16),
+                                      onTap: () {
+                                        if (isPlayingThis) {
+                                          player.pause();
+                                        } else if (player.currentSong?.id == widget.song.id) {
+                                          player.resume();
+                                        } else {
+                                          player.playSong(widget.song);
+                                        }
+                                      },
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            isPlayingThis ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
+                                            color: AppColors.goldLight,
+                                            size: 26,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            isPlayingThis
+                                                ? (currentLang == 'kn' ? 'ವಿರಾಮ (Pause)' : 'Pause Chanting')
+                                                : (currentLang == 'kn' ? 'ಈಗ ಆಲಿಸಿ (Play Now)' : 'Listen Now'),
+                                            style: const TextStyle(
+                                              fontSize: 15.5,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              letterSpacing: 0.3,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            );
-                          },
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                            side: const BorderSide(color: Color(0xFFE2D7C7)),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              const SizedBox(width: 10),
+                              // Full Player Screen Launcher Button
+                              Container(
+                                height: 52,
+                                width: 52,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: const Color(0xFFE2D7C7)),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.open_in_full_rounded, color: AppColors.maroonPrimary, size: 20),
+                                  tooltip: 'Open Full Player',
+                                  onPressed: () {
+                                    if (!isPlayingThis && player.currentSong?.id != widget.song.id) {
+                                      player.playSong(widget.song);
+                                    }
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (_) => const FullPlayerScreen()),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // Add to Queue Button
+                              Container(
+                                height: 52,
+                                width: 52,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: const Color(0xFFE2D7C7)),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.queue_music_rounded, color: AppColors.maroonPrimary, size: 22),
+                                  tooltip: 'Add to Queue',
+                                  onPressed: () {
+                                    player.addToQueue(widget.song);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Added to Queue: ${widget.song.getLocalizedTitle(currentLang)}'),
+                                        duration: const Duration(seconds: 2),
+                                        backgroundColor: AppColors.maroonPrimary,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
-                          child: const Icon(Icons.queue_music, color: AppColors.maroonPrimary),
-                        ),
-                      ],
+                          // Live playback status if current track is playing
+                          if (player.currentSong?.id == widget.song.id) ...[
+                            const SizedBox(height: 12),
+                            Divider(color: const Color(0xFFEADBCE).withOpacity(0.6), height: 1),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                DivineMusicVisualizer(
+                                  isPlaying: isPlayingThis,
+                                  height: 12,
+                                  width: 16,
+                                  barColor: AppColors.maroonPrimary,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: StreamBuilder<Duration>(
+                                    stream: player.positionStream,
+                                    builder: (context, snapshot) {
+                                      final position = snapshot.data ?? Duration.zero;
+                                      final total = player.totalDuration ?? Duration.zero;
+                                      final posText = '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}';
+                                      final totalText = '${total.inMinutes}:${(total.inSeconds % 60).toString().padLeft(2, '0')}';
+                                      final progress = total.inMilliseconds > 0 ? (position.inMilliseconds / total.inMilliseconds).clamp(0.0, 1.0) : 0.0;
+
+                                      return Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(posText, style: const TextStyle(fontSize: 11, color: Color(0xFF7A685D), fontWeight: FontWeight.w600)),
+                                              Text(totalText, style: const TextStyle(fontSize: 11, color: Color(0xFF7A685D), fontWeight: FontWeight.w600)),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(4),
+                                            child: LinearProgressIndicator(
+                                              value: progress,
+                                              minHeight: 4,
+                                              backgroundColor: const Color(0xFFEDE3D5),
+                                              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.maroonPrimary),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 20),
 

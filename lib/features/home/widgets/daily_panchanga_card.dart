@@ -811,44 +811,64 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     final days = service.getMonthCalendarDays(_calendarMonth, lang);
     final monthTitle = DateFormat('MMMM yyyy').format(_calendarMonth);
 
-    return Column(
-      key: const ValueKey(1),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Month Navigation Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: Icon(Icons.chevron_left_rounded, color: templeTheme.primaryColor),
-              visualDensity: VisualDensity.compact,
-              onPressed: () {
-                setState(() {
-                  _calendarMonth = DateTime(_calendarMonth.year, _calendarMonth.month - 1, 1);
-                });
-              },
-            ),
-            Text(
-              monthTitle,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: templeTheme.primaryColor,
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity != null) {
+          if (details.primaryVelocity! < -180) {
+            // Swipe Left -> Next Month
+            HapticFeedback.selectionClick();
+            setState(() {
+              _calendarMonth = DateTime(_calendarMonth.year, _calendarMonth.month + 1, 1);
+            });
+          } else if (details.primaryVelocity! > 180) {
+            // Swipe Right -> Previous Month
+            HapticFeedback.selectionClick();
+            setState(() {
+              _calendarMonth = DateTime(_calendarMonth.year, _calendarMonth.month - 1, 1);
+            });
+          }
+        }
+      },
+      child: Column(
+        key: ValueKey('calendar_${_calendarMonth.year}_${_calendarMonth.month}'),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Month Navigation Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: Icon(Icons.chevron_left_rounded, color: templeTheme.primaryColor),
+                visualDensity: VisualDensity.compact,
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    _calendarMonth = DateTime(_calendarMonth.year, _calendarMonth.month - 1, 1);
+                  });
+                },
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.chevron_right_rounded, color: templeTheme.primaryColor),
-              visualDensity: VisualDensity.compact,
-              onPressed: () {
-                setState(() {
-                  _calendarMonth = DateTime(_calendarMonth.year, _calendarMonth.month + 1, 1);
-                });
-              },
-            ),
-          ],
-        ),
+              Text(
+                monthTitle,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: templeTheme.primaryColor,
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.chevron_right_rounded, color: templeTheme.primaryColor),
+                visualDensity: VisualDensity.compact,
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    _calendarMonth = DateTime(_calendarMonth.year, _calendarMonth.month + 1, 1);
+                  });
+                },
+              ),
+            ],
+          ),
 
-        const SizedBox(height: 6),
+          const SizedBox(height: 6),
 
         // Grid of Month Days
         GridView.builder(
@@ -1049,8 +1069,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
 
   void _showDayPanchangaPopup(BuildContext context, VedicDayInfo day, PanchangaService service, String lang, TempleTheme templeTheme) {
     final dayData = service.getPanchangaForDate(day.date, lang);
