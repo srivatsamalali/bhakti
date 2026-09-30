@@ -53,5 +53,40 @@ void main() {
         expect(data.upcomingFestivals, isNotEmpty);
       }
     });
+
+    test('Dynamic Rashi Bhavishya updates per day and language', () {
+      final wednesday = DateTime(2026, 9, 30); // Wednesday
+      final thursday = DateTime(2026, 10, 1); // Thursday
+
+      final rashisWed = service.getAllRashiDetails('kn', date: wednesday);
+      final rashisThu = service.getAllRashiDetails('kn', date: thursday);
+
+      expect(rashisWed.length, 12);
+      expect(rashisThu.length, 12);
+
+      // Predictions change dynamically across days
+      expect(rashisWed.first.prediction, isNot(equals(rashisThu.first.prediction)));
+      expect(rashisWed.first.prediction, isNotEmpty);
+      expect(rashisWed.first.luckyColor, isNotEmpty);
+      expect(rashisWed.first.luckyNumber, isNotEmpty);
+      expect(rashisWed.first.mantra, isNotEmpty);
+    });
+
+    test('Calendar Days detect Amavasye, Hunnime, and Grahana', () {
+      final days = service.getMonthCalendarDays(DateTime(2026, 9, 1), 'kn');
+      expect(days, isNotEmpty);
+
+      final hasAmavasya = days.any((d) => d.isAmavasya || d.tithi.contains('ಅಮಾವಾಸ್ಯೆ'));
+      final hasHunnime = days.any((d) => d.isHunnime || d.tithi.contains('ಹುಣ್ಣಿಮೆ') || d.tithi.contains('ಪೌರ್ಣಮಿ'));
+      
+      expect(hasAmavasya, isTrue);
+      expect(hasHunnime, isTrue);
+
+      // Check Grahana on eclipse date (March 3, 2026 Lunar eclipse)
+      final marchDays = service.getMonthCalendarDays(DateTime(2026, 3, 1), 'kn');
+      final eclipseDay = marchDays.firstWhere((d) => d.day == 3);
+      expect(eclipseDay.isGrahana, isTrue);
+      expect(eclipseDay.grahanaName, isNotNull);
+    });
   });
 }

@@ -856,13 +856,37 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 7,
-            childAspectRatio: 0.85,
+            childAspectRatio: 0.82,
             crossAxisSpacing: 4,
             mainAxisSpacing: 4,
           ),
           itemCount: days.length,
           itemBuilder: (context, index) {
             final day = days[index];
+            final isSpecial = day.isGrahana || day.isHunnime || day.isAmavasya || day.isAuspicious;
+            
+            Color cellBg;
+            Color cellBorder;
+            if (day.isToday) {
+              cellBg = templeTheme.primaryColor;
+              cellBorder = templeTheme.accentGold;
+            } else if (day.isGrahana) {
+              cellBg = const Color(0xFFFFEBEE);
+              cellBorder = const Color(0xFFE53935);
+            } else if (day.isHunnime) {
+              cellBg = const Color(0xFFFFF9C4);
+              cellBorder = const Color(0xFFFFB300);
+            } else if (day.isAmavasya) {
+              cellBg = const Color(0xFFECEFF1);
+              cellBorder = const Color(0xFF78909C);
+            } else if (day.isAuspicious) {
+              cellBg = const Color(0xFFFFF8E1);
+              cellBorder = const Color(0xFFFFCA28);
+            } else {
+              cellBg = const Color(0xFFFAF7F2);
+              cellBorder = const Color(0xFFE8DECF);
+            }
+
             return InkWell(
               borderRadius: BorderRadius.circular(8),
               onTap: () {
@@ -871,46 +895,67 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: day.isToday
-                      ? templeTheme.primaryColor
-                      : (day.isAuspicious ? const Color(0xFFFFF8E1) : const Color(0xFFFAF7F2)),
+                  color: cellBg,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: day.isToday
-                        ? templeTheme.accentGold
-                        : (day.isAuspicious ? const Color(0xFFFFB300) : const Color(0xFFE8DECF)),
-                    width: day.isToday || day.isAuspicious ? 1.4 : 0.8,
+                    color: cellBorder,
+                    width: (day.isToday || day.isGrahana || day.isHunnime || day.isAmavasya) ? 1.5 : 0.8,
                   ),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      '${day.day}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: day.isToday ? Colors.white : const Color(0xFF3E2723),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${day.day}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: day.isToday
+                                ? Colors.white
+                                : (day.isGrahana ? const Color(0xFFC62828) : const Color(0xFF3E2723)),
+                          ),
+                        ),
+                        if (day.isGrahana) ...[
+                          const SizedBox(width: 2),
+                          const Text('🌘', style: TextStyle(fontSize: 8)),
+                        ] else if (day.isHunnime) ...[
+                          const SizedBox(width: 2),
+                          const Text('🌕', style: TextStyle(fontSize: 8)),
+                        ] else if (day.isAmavasya) ...[
+                          const SizedBox(width: 2),
+                          const Text('🌑', style: TextStyle(fontSize: 8)),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 1),
                     Text(
                       day.tithi,
                       style: TextStyle(
-                        fontSize: 7.5,
+                        fontSize: 7.2,
                         fontWeight: FontWeight.w600,
-                        color: day.isToday ? Colors.white70 : const Color(0xFF795548),
+                        color: day.isToday
+                            ? Colors.white70
+                            : (day.isGrahana ? const Color(0xFFB71C1C) : const Color(0xFF795548)),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (day.festivalName != null) ...[
+                    if (day.festivalName != null || isSpecial) ...[
                       const SizedBox(height: 1),
                       Container(
                         width: 5,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: day.isToday ? Colors.amberAccent : const Color(0xFFE65100),
+                          color: day.isToday
+                              ? Colors.amberAccent
+                              : (day.isGrahana
+                                  ? const Color(0xFFD32F2F)
+                                  : (day.isHunnime
+                                      ? const Color(0xFFFFA000)
+                                      : (day.isAmavasya ? const Color(0xFF455A64) : const Color(0xFFE65100)))),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -924,7 +969,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
 
         const SizedBox(height: 10),
 
-        // Festival Legend / List in this month
+        // Festival & Sacred Days Legend in this month
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -940,7 +985,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                   const Icon(Icons.celebration_rounded, color: Color(0xFFE65100), size: 16),
                   const SizedBox(width: 6),
                   Text(
-                    (lang == 'kn') ? 'ಈ ತಿಂಗಳ ಪವಿತ್ರ ವ್ರತಗಳು' : 'Vratas in this Month',
+                    (lang == 'kn') ? 'ಈ ತಿಂಗಳ ಪವಿತ್ರ ವ್ರತಗಳು & ವಿಶೇಷ ದಿನಗಳು' : 'Vratas & Special Days This Month',
                     style: const TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.bold,
@@ -950,26 +995,49 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                 ],
               ),
               const SizedBox(height: 6),
-              ...days.where((d) => d.festivalName != null).map((d) {
+              ...days.where((d) => d.festivalName != null || d.isGrahana || d.isHunnime || d.isAmavasya).map((d) {
+                String eventTitle = d.festivalName ?? '';
+                String eventIcon = '🚩';
+                Color tagColor = templeTheme.primaryColor;
+
+                if (d.isGrahana) {
+                  eventIcon = '🌘';
+                  tagColor = const Color(0xFFC62828);
+                  eventTitle = d.grahanaName ?? ((lang == 'kn') ? 'ಗ್ರಹಣ ಕಾಲ' : 'Eclipse');
+                  if (d.festivalName != null && d.festivalName != d.grahanaName) {
+                    eventTitle += ' • ${d.festivalName}';
+                  }
+                } else if (d.isHunnime) {
+                  eventIcon = '🌕';
+                  tagColor = const Color(0xFFE65100);
+                  final hunnimeTitle = (lang == 'kn') ? 'ಹುಣ್ಣಿಮೆ (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)' : 'Purnima / Full Moon';
+                  eventTitle = d.festivalName != null ? '${d.festivalName!} • $hunnimeTitle' : hunnimeTitle;
+                } else if (d.isAmavasya) {
+                  eventIcon = '🌑';
+                  tagColor = const Color(0xFF455A64);
+                  final amavasyaTitle = (lang == 'kn') ? 'ಅಮಾವಾಸ್ಯೆ (ಪಿತೃ ತರ್ಪಣ/ಶಾಂತಿ)' : 'Amavasya / New Moon';
+                  eventTitle = d.festivalName != null ? '${d.festivalName!} • $amavasyaTitle' : amavasyaTitle;
+                }
+
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 2.5),
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                         decoration: BoxDecoration(
-                          color: templeTheme.primaryColor,
+                          color: tagColor,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '${d.day}',
+                          '$eventIcon ${d.day}',
                           style: const TextStyle(fontSize: 9.5, color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '${d.festivalName!} (${d.tithi})',
+                          '$eventTitle (${d.tithi})',
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF3E2723)),
                         ),
                       ),
@@ -1082,6 +1150,135 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
             const SizedBox(height: 12),
             Divider(color: templeTheme.borderColor, height: 1),
             const SizedBox(height: 12),
+
+            // Grahana (Eclipse) Special Banner if applicable
+            if (day.isGrahana) ...[
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFEBEE),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFEF5350), width: 1.2),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('🌘', style: TextStyle(fontSize: 18)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            day.grahanaName ?? ((lang == 'kn') ? 'ಗ್ರಹಣ ಕಾಲ' : 'Eclipse Period'),
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFC62828),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            (lang == 'kn')
+                                ? 'ಗ್ರಹಣ ಸಮಯದಲ್ಲಿ ಜಪ-ಧ್ಯಾನ ಮತ್ತು ಈಶ್ವರ ಸ್ಮರಣೆ ಶ್ರೇಷ್ಠ. ಆಹಾರ ಸೇವನೆ ವರ್ಜಿಸಿ.'
+                                : 'Chanting and meditation during eclipse brings highest spiritual merit.',
+                            style: const TextStyle(fontSize: 10.5, color: Color(0xFF5D4037)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            // Hunnime (Full Moon) Special Banner
+            if (day.isHunnime) ...[
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFDE7),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFFD54F), width: 1.2),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('🌕', style: TextStyle(fontSize: 18)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (lang == 'kn') ? 'ಹುಣ್ಣಿಮೆ (ಪೌರ್ಣಮಿ)' : 'Purnima (Full Moon)',
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFE65100),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            (lang == 'kn')
+                                ? 'ಶ್ರೀ ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ, ಲಕ್ಷ್ಮೀ ಆರಾಧನೆ ಹಾಗೂ ದೇವಸ್ಥಾನ ದರ್ಶನಕ್ಕೆ ಅತ್ಯಂತ ಶುಭದಾಯಕ.'
+                                : 'Auspicious day for Sri Satyanarayana Vrata, Lakshmi Puja, and divine blessings.',
+                            style: const TextStyle(fontSize: 10.5, color: Color(0xFF5D4037)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            // Amavasya (New Moon) Special Banner
+            if (day.isAmavasya) ...[
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFECEFF1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF90A4AE), width: 1.2),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('🌑', style: TextStyle(fontSize: 18)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (lang == 'kn') ? 'ಅಮಾವಾಸ್ಯೆ' : 'Amavasya (New Moon)',
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF37474F),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            (lang == 'kn')
+                                ? 'ಪಿತೃ ತರ್ಪಣ, ಶಾಂತಿ ಪೂಜೆ ಮತ್ತು ನವಗ್ರಹ ಪ್ರಾರ್ಥನೆಗೆ ವಿಶೇಷ ಪ್ರಶಸ್ತ ದಿನ.'
+                                : 'Dedicated day for Pitru Tarpanam, charity, and ancestral prayers.',
+                            style: const TextStyle(fontSize: 10.5, color: Color(0xFF5D4037)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
 
             // Tithi & Nakshatra Box
             Container(
@@ -1205,16 +1402,50 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
 
   // --- TAB 3: 12 RASHI CHART & KUNDALI GUIDANCE ---
   Widget _buildRashiChartTab(BuildContext context, PanchangaService service, String lang, TempleTheme templeTheme) {
-    final rashis = service.getAllRashiDetails(lang);
+    final now = DateTime.now();
+    final rashis = service.getAllRashiDetails(lang, date: now);
     if (_selectedRashiIndex >= rashis.length) {
       _selectedRashiIndex = 0;
     }
     final selectedRashi = rashis[_selectedRashiIndex];
 
+    final weekdayName = DateFormat('EEEE').format(now);
+    final dayBhavishyaHeader = (lang == 'kn')
+        ? 'ಇಂದಿನ ಗ್ರಹಬಲ ಭವಿಷ್ಯ ($weekdayName)'
+        : (lang == 'hi' ? 'आज का दैनिक राशिफल ($weekdayName)' : "Today's Daily Rashi Bhavishya ($weekdayName)");
+
     return Column(
       key: const ValueKey(2),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Daily Bhavishya Subtitle Banner
+        Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: templeTheme.primaryColor.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: templeTheme.accentGold.withOpacity(0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.auto_awesome_rounded, color: templeTheme.accentGold, size: 14),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  dayBhavishyaHeader,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: templeTheme.primaryColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         // Horizontal Rashi Selector Carousel
         SizedBox(
           height: 64,

@@ -70,6 +70,10 @@ class VedicDayInfo {
   final String? festivalName;
   final bool isToday;
   final bool isAuspicious;
+  final bool isAmavasya;
+  final bool isHunnime;
+  final bool isGrahana;
+  final String? grahanaName;
 
   const VedicDayInfo({
     required this.day,
@@ -79,6 +83,10 @@ class VedicDayInfo {
     this.festivalName,
     this.isToday = false,
     this.isAuspicious = false,
+    this.isAmavasya = false,
+    this.isHunnime = false,
+    this.isGrahana = false,
+    this.grahanaName,
   });
 }
 
@@ -570,6 +578,50 @@ class PanchangaService with ChangeNotifier {
     }
   }
 
+  Map<String, dynamic>? _checkEclipse(DateTime date, String lang) {
+    final y = date.year;
+    final m = date.month;
+    final d = date.day;
+
+    if (y == 2026) {
+      if (m == 2 && d == 17) {
+        return {
+          'isSolar': true,
+          'name': lang == 'kn' ? 'ಕಂಕಣ ಸೂರ್ಯ ಗ್ರಹಣ ☀️' : (lang == 'hi' ? 'कंकण सूर्य ग्रहण ☀️' : 'Annular Solar Eclipse ☀️'),
+        };
+      }
+      if (m == 3 && d == 3) {
+        return {
+          'isSolar': false,
+          'name': lang == 'kn' ? 'ಸಂಪೂರ್ಣ ಚಂದ್ರ ಗ್ರಹಣ 🌘' : (lang == 'hi' ? 'पूर्ण चंद्र ग्रहण 🌘' : 'Total Lunar Eclipse 🌘'),
+        };
+      }
+      if (m == 8 && d == 12) {
+        return {
+          'isSolar': true,
+          'name': lang == 'kn' ? 'ಸಂಪೂರ್ಣ ಸೂರ್ಯ ಗ್ರಹಣ ☀️' : (lang == 'hi' ? 'पूर्ण सूर्य ग्रहण ☀️' : 'Total Solar Eclipse ☀️'),
+        };
+      }
+      if (m == 8 && d == 28) {
+        return {
+          'isSolar': false,
+          'name': lang == 'kn' ? 'ಭಾಗಶಃ ಚಂದ್ರ ಗ್ರಹಣ 🌘' : (lang == 'hi' ? 'खंडग्रास चंद्र ग्रहण 🌘' : 'Partial Lunar Eclipse 🌘'),
+        };
+      }
+    } else if (y == 2025) {
+      if (m == 3 && d == 14) return {'isSolar': false, 'name': lang == 'kn' ? 'ಚಂದ್ರ ಗ್ರಹಣ 🌘' : 'Lunar Eclipse 🌘'};
+      if (m == 3 && d == 29) return {'isSolar': true, 'name': lang == 'kn' ? 'ಸೂರ್ಯ ಗ್ರಹಣ ☀️' : 'Solar Eclipse ☀️'};
+      if (m == 9 && d == 7) return {'isSolar': false, 'name': lang == 'kn' ? 'ಚಂದ್ರ ಗ್ರಹಣ 🌘' : 'Lunar Eclipse 🌘'};
+      if (m == 9 && d == 21) return {'isSolar': true, 'name': lang == 'kn' ? 'ಸೂರ್ಯ ಗ್ರಹಣ ☀️' : 'Solar Eclipse ☀️'};
+    } else if (y == 2027) {
+      if (m == 2 && d == 6) return {'isSolar': true, 'name': lang == 'kn' ? 'ಸೂರ್ಯ ಗ್ರಹಣ ☀️' : 'Solar Eclipse ☀️'};
+      if (m == 2 && d == 20) return {'isSolar': false, 'name': lang == 'kn' ? 'ಚಂದ್ರ ಗ್ರಹಣ 🌘' : 'Lunar Eclipse 🌘'};
+      if (m == 8 && d == 2) return {'isSolar': true, 'name': lang == 'kn' ? 'ಸೂರ್ಯ ಗ್ರಹಣ ☀️' : 'Solar Eclipse ☀️'};
+      if (m == 8 && d == 17) return {'isSolar': false, 'name': lang == 'kn' ? 'ಚಂದ್ರ ಗ್ರಹಣ 🌘' : 'Lunar Eclipse 🌘'};
+    }
+    return null;
+  }
+
   // --- Monthly Vedic Calendar Generator ---
   List<VedicDayInfo> getMonthCalendarDays(DateTime monthDate, String lang) {
     final int year = monthDate.year;
@@ -588,11 +640,31 @@ class PanchangaService with ChangeNotifier {
       final bool isKrishna = astro['isKrishna'] as bool;
       final int weekday = current.weekday;
 
+      final bool isAmavasya = isKrishna && tithiNum == 15;
+      final bool isHunnime = !isKrishna && tithiNum == 15;
+
+      final eclipseInfo = _checkEclipse(current, lang);
+      final bool isGrahana = eclipseInfo != null;
+      final String? grahanaName = eclipseInfo?['name'] as String?;
+
       String? fest;
       bool isAuspicious = false;
 
-      // Check festivals
-      if (isKrishna && tithiNum == 4) {
+      // Identify major astronomical and sacred events
+      if (isGrahana) {
+        fest = grahanaName;
+        isAuspicious = false;
+      } else if (isHunnime) {
+        fest = (lang == 'kn')
+            ? 'ಹುಣ್ಣಿಮೆ (ಪೂರ್ಣಿಮಾ)'
+            : (lang == 'hi' ? 'पूर्णिमा व्रत' : (lang == 'ta' ? 'பௌர்ணமி' : (lang == 'ml' ? 'പൗർണ്ണമി' : 'Hunnime / Purnima')));
+        isAuspicious = true;
+      } else if (isAmavasya) {
+        fest = (lang == 'kn')
+            ? 'ಅಮಾವಾಸ್ಯೆ'
+            : (lang == 'hi' ? 'अमावस्या' : (lang == 'ta' ? 'அமாவாசை' : (lang == 'ml' ? 'അമാവാസി' : 'Amavasya')));
+        isAuspicious = true;
+      } else if (isKrishna && tithiNum == 4) {
         fest = (weekday == DateTime.tuesday)
             ? (lang == 'kn' ? 'ಅಂಗಾರಕಿ ಸಂಕಷ್ಟಿ' : (lang == 'hi' ? 'अंगारकी संकष्टी' : 'Angarki Sankashti'))
             : (lang == 'kn' ? 'ಸಂಕಷ್ಟಿ ಚತುರ್ಥಿ' : (lang == 'hi' ? 'संकष्टी चतुर्थी' : 'Sankashti'));
@@ -603,15 +675,14 @@ class PanchangaService with ChangeNotifier {
       } else if (tithiNum == 13) {
         fest = (lang == 'kn') ? 'ಪ್ರದೋಷ ವ್ರತ' : (lang == 'hi' ? 'प्रदोष' : 'Pradosha');
         isAuspicious = true;
-      } else if (isKrishna && tithiNum == 15) {
-        fest = (lang == 'kn') ? 'ಅಮಾವಾಸ್ಯೆ' : (lang == 'hi' ? 'अमावस्या' : 'Amavasya');
-        isAuspicious = true;
-      } else if (!isKrishna && tithiNum == 15) {
-        fest = (lang == 'kn') ? 'ಹುಣ್ಣಿಮೆ' : (lang == 'hi' ? 'पूर्णिमा' : 'Purnima');
-        isAuspicious = true;
       }
 
-      final tithiLabel = _getLocalizedTithi(tithiNum, isKrishna: isKrishna, lang: lang);
+      final tithiLabel = isHunnime
+          ? (lang == 'kn' ? 'ಹುಣ್ಣಿಮೆ' : (lang == 'hi' ? 'पूर्णिमा' : 'Purnima'))
+          : (isAmavasya
+              ? (lang == 'kn' ? 'ಅಮಾವಾಸ್ಯೆ' : (lang == 'hi' ? 'अमावस्या' : 'Amavasya'))
+              : _getLocalizedTithi(tithiNum, isKrishna: isKrishna, lang: lang));
+
       final pakshaLabel = isKrishna
           ? (lang == 'kn' ? 'ಕೃಷ್ಣ' : (lang == 'hi' ? 'कृष्ण' : 'Krishna'))
           : (lang == 'kn' ? 'ಶುಕ್ಲ' : (lang == 'hi' ? 'शुक्ल' : 'Shukla'));
@@ -624,491 +695,739 @@ class PanchangaService with ChangeNotifier {
         festivalName: fest,
         isToday: isToday,
         isAuspicious: isAuspicious,
+        isAmavasya: isAmavasya,
+        isHunnime: isHunnime,
+        isGrahana: isGrahana,
+        grahanaName: grahanaName,
       ));
     }
 
     return days;
   }
 
-  // --- 12 Vedic Rashi Bhavishya & Kundali Guidance ---
-  List<RashiInfo> getAllRashiDetails(String lang) {
+  // --- Dynamic Day-by-Day 12 Vedic Rashi Bhavishya Engine ---
+  List<RashiInfo> getAllRashiDetails(String lang, {DateTime? date}) {
+    final d = date ?? DateTime.now();
+    final int weekday = d.weekday;
+    final int daySeed = d.year * 10000 + d.month * 100 + d.day;
+
+    final List<Map<String, dynamic>> rawRashiData = [
+      {
+        'id': 'mesha',
+        'knName': 'ಮೇಷ ರಾಶಿ',
+        'hiName': 'मेष राशि',
+        'taName': 'மேஷ ராசி',
+        'mlName': 'മേടം രാശി',
+        'enName': 'Mesha (Aries)',
+        'symbol': '♈',
+        'rulingPlanetKn': 'ಕುಜ (ಮಂಗಳ)',
+        'rulingPlanetHi': 'मंगल',
+        'rulingPlanetTa': 'செவ்வாய்',
+        'rulingPlanetMl': 'ചൊവ്വ',
+        'rulingPlanetEn': 'Mars (Mangala)',
+        'elementKn': 'ಅಗ್ನಿ ತತ್ವ',
+        'elementHi': 'अग्नि तत्व',
+        'elementTa': 'நெருப்பு',
+        'elementMl': 'അഗ്നി',
+        'elementEn': 'Fire',
+        'luckyColorKn': (weekday == 2 || weekday == 7) ? 'ಕೆಂಪು & ಕಿತ್ತಳೆ' : 'ಕೇಸರಿ & ಹಳದಿ',
+        'luckyColorHi': (weekday == 2 || weekday == 7) ? 'लाल व नारंगी' : 'केसरिया व पीला',
+        'luckyColorEn': (weekday == 2 || weekday == 7) ? 'Red & Orange' : 'Saffron & Gold',
+        'luckyNumber': ((daySeed + 9) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ಹನುಮಾನ್ & ಗಣಪತಿ',
+        'deityHi': 'श्री हनुमान व गणेश जी',
+        'deityTa': 'ஸ்ரீ அனுமன் & விநாயகர்',
+        'deityMl': 'ശ്രീ ഹനുമാൻ & ഗണപതി',
+        'deityEn': 'Lord Hanuman & Ganesha',
+        'mantra': 'ಓಂ ಹಂ ಹನುಮತೇ ನಮಃ / ॐ हं हनुमते नमः',
+        'predictionKn': _getDaySpecificPrediction('mesha', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('mesha', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('mesha', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('mesha', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('mesha', weekday, 'en'),
+      },
+      {
+        'id': 'vrishabha',
+        'knName': 'ವೃಷಭ ರಾಶಿ',
+        'hiName': 'वृषभ राशि',
+        'taName': 'ரிஷப ராசி',
+        'mlName': 'ഇടവം രാശി',
+        'enName': 'Vrishabha (Taurus)',
+        'symbol': '♉',
+        'rulingPlanetKn': 'ಶುಕ್ರ',
+        'rulingPlanetHi': 'शुक्र',
+        'rulingPlanetTa': 'சுக்கிரன்',
+        'rulingPlanetMl': 'ശുക്രൻ',
+        'rulingPlanetEn': 'Venus (Shukra)',
+        'elementKn': 'ಭೂಮಿ ತತ್ವ',
+        'elementHi': 'पृथ्वी तत्व',
+        'elementTa': 'நிலம்',
+        'elementMl': 'ഭൂമി',
+        'elementEn': 'Earth',
+        'luckyColorKn': 'ಬಿಳಿ & ತಿಳಿ ನೀಲಿ',
+        'luckyColorHi': 'सफेद व हल्का नीला',
+        'luckyColorEn': 'White & Pale Blue',
+        'luckyNumber': ((daySeed + 6) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ಮಹಾಲಕ್ಷ್ಮಿ',
+        'deityHi': 'माँ महालक्ष्मी',
+        'deityTa': 'ஸ்ரீ மகாலட்சுமி',
+        'deityMl': 'ശ്രീ മഹാലക്ഷ്മി',
+        'deityEn': 'Goddess Mahalakshmi',
+        'mantra': 'ಓಂ ಶ್ರೀಂ ಮಹಾಲಕ್ಷ್ಮ್ಯೈ ನಮಃ / ॐ श्रीं महालक्ष्म्यै नमः',
+        'predictionKn': _getDaySpecificPrediction('vrishabha', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('vrishabha', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('vrishabha', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('vrishabha', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('vrishabha', weekday, 'en'),
+      },
+      {
+        'id': 'mithuna',
+        'knName': 'ಮಿಥುನ ರಾಶಿ',
+        'hiName': 'मिथुन राशि',
+        'taName': 'மிதுன ராசி',
+        'mlName': 'മിഥുനം രാശി',
+        'enName': 'Mithuna (Gemini)',
+        'symbol': '♊',
+        'rulingPlanetKn': 'ಬುಧ',
+        'rulingPlanetHi': 'बुध',
+        'rulingPlanetTa': 'புதன்',
+        'rulingPlanetMl': 'ബുധൻ',
+        'rulingPlanetEn': 'Mercury (Budha)',
+        'elementKn': 'ವಾಯು ತತ್ವ',
+        'elementHi': 'वायु तत्व',
+        'elementTa': 'காற்று',
+        'elementMl': 'വായു',
+        'elementEn': 'Air',
+        'luckyColorKn': 'ಹಸಿರು & ಹಳದಿ',
+        'luckyColorHi': 'हरा व पीला',
+        'luckyColorEn': 'Emerald Green & Yellow',
+        'luckyNumber': ((daySeed + 5) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ಕೃಷ್ಣ & ಮಹಾವಿಷ್ಣು',
+        'deityHi': 'भगवान कृष्ण व विष्णु',
+        'deityTa': 'ஸ்ரீ கிருஷ்ணர் & விஷ்ணு',
+        'deityMl': 'ശ്രീ കൃഷ്ണൻ & വിഷ്ണു',
+        'deityEn': 'Lord Krishna & Vishnu',
+        'mantra': 'ಓಂ ಕ್ಲೀಂ ಕೃಷ್ಣಾಯ ನಮಃ / ॐ क्लीं कृष्णाय नमः',
+        'predictionKn': _getDaySpecificPrediction('mithuna', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('mithuna', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('mithuna', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('mithuna', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('mithuna', weekday, 'en'),
+      },
+      {
+        'id': 'karka',
+        'knName': 'ಕರ್ಕಾಟಕ ರಾಶಿ',
+        'hiName': 'ಕर्क राशि',
+        'taName': 'கடக ராசி',
+        'mlName': 'കർക്കടകം രാശി',
+        'enName': 'Karka (Cancer)',
+        'symbol': '♋',
+        'rulingPlanetKn': 'ಚಂದ್ರ',
+        'rulingPlanetHi': 'चंद्र',
+        'rulingPlanetTa': 'சந்திரன்',
+        'rulingPlanetMl': 'ചന്ദ്രൻ',
+        'rulingPlanetEn': 'Moon (Chandra)',
+        'elementKn': 'ಜಲ ತತ್ವ',
+        'elementHi': 'जल तत्व',
+        'elementTa': 'நீர்',
+        'elementMl': 'ജലം',
+        'elementEn': 'Water',
+        'luckyColorKn': 'ಹಾಲು ಬಿಳಿ & ಬೆಳ್ಳಿ',
+        'luckyColorHi': 'दूधिया सफेद व चांदी',
+        'luckyColorEn': 'Pearl White & Silver',
+        'luckyNumber': ((daySeed + 2) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ಪರಮೇಶ್ವರ (ಚಂದ್ರಮೌಳೇಶ್ವರ)',
+        'deityHi': 'भगवान शिव (चंद्रमौलेश्वर)',
+        'deityTa': 'ஸ்ரீ சிவபெருமான்',
+        'deityMl': 'ശ്രീ പരമേശ്വരൻ',
+        'deityEn': 'Lord Shiva (Chandramouleshwara)',
+        'mantra': 'ಓಂ ನಮಃ ಶಿವಾಯ / ॐ नमः शिवाय',
+        'predictionKn': _getDaySpecificPrediction('karka', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('karka', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('karka', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('karka', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('karka', weekday, 'en'),
+      },
+      {
+        'id': 'simha',
+        'knName': 'ಸಿಂಹ ರಾಶಿ',
+        'hiName': 'सिंह राशि',
+        'taName': 'சிம்ம ராசி',
+        'mlName': 'ചിങ്ങം രാശി',
+        'enName': 'Simha (Leo)',
+        'symbol': '♌',
+        'rulingPlanetKn': 'ಸೂರ್ಯ',
+        'rulingPlanetHi': 'सूर्य',
+        'rulingPlanetTa': 'சூரியன்',
+        'rulingPlanetMl': 'സൂര്യൻ',
+        'rulingPlanetEn': 'Sun (Surya)',
+        'elementKn': 'ಅಗ್ನಿ ತತ್ವ',
+        'elementHi': 'अग्नि तत्व',
+        'elementTa': 'நெருப்பு',
+        'elementMl': 'അഗ്നി',
+        'elementEn': 'Fire',
+        'luckyColorKn': 'ಕಿತ್ತಳೆ & ಚಿನ್ನದ ಬಣ್ಣ',
+        'luckyColorHi': 'नारंगी व स्वर्णिम',
+        'luckyColorEn': 'Orange & Golden Amber',
+        'luckyNumber': ((daySeed + 1) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ಸೂರ್ಯ ನಾರಾಯಣ',
+        'deityHi': 'भगवान सूर्य नारायण',
+        'deityTa': 'ஸ்ரீ சூரிய நாராயணன்',
+        'deityMl': 'ശ്രീ സൂര്യ നാരായണൻ',
+        'deityEn': 'Lord Surya Narayana',
+        'mantra': 'ಓಂ ಘೃಣಿಃ ಸೂರ್ಯಾಯ ನಮಃ / ॐ घृणिः सूर्याय नमः',
+        'predictionKn': _getDaySpecificPrediction('simha', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('simha', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('simha', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('simha', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('simha', weekday, 'en'),
+      },
+      {
+        'id': 'kanya',
+        'knName': 'ಕನ್ಯಾ ರಾಶಿ',
+        'hiName': 'कन्या राशि',
+        'taName': 'கன்னி ராசி',
+        'mlName': 'കന്നി രാശി',
+        'enName': 'Kanya (Virgo)',
+        'symbol': '♍',
+        'rulingPlanetKn': 'ಬುಧ',
+        'rulingPlanetHi': 'बुध',
+        'rulingPlanetTa': 'புதன்',
+        'rulingPlanetMl': 'ബുധൻ',
+        'rulingPlanetEn': 'Mercury (Budha)',
+        'elementKn': 'ಭೂಮಿ ತತ್ವ',
+        'elementHi': 'पृथ्वी तत्व',
+        'elementTa': 'நிலம்',
+        'elementMl': 'ഭൂമി',
+        'elementEn': 'Earth',
+        'luckyColorKn': 'ತಿಳಿ ಹಸಿರು & ಗೋಧಿ ಬಣ್ಣ',
+        'luckyColorHi': 'हल्का हरा व पीला',
+        'luckyColorEn': 'Light Green & Beige',
+        'luckyNumber': ((daySeed + 5) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ಸಿದ್ಧಿ ವಿನಾಯಕ',
+        'deityHi': 'श्री सिद्धि विनायक',
+        'deityTa': 'ஸ்ரீ சித்தி விநாயகர்',
+        'deityMl': 'ശ്രീ സിദ്ധി വിനായകൻ',
+        'deityEn': 'Lord Siddhi Vinayaka',
+        'mantra': 'ಓಂ ಗಂ ಗಣಪತಯೇ ನಮಃ / ॐ गं गणपतये नमः',
+        'predictionKn': _getDaySpecificPrediction('kanya', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('kanya', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('kanya', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('kanya', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('kanya', weekday, 'en'),
+      },
+      {
+        'id': 'tula',
+        'knName': 'ತುಲಾ ರಾಶಿ',
+        'hiName': 'तुला राशि',
+        'taName': 'துலாம் ராசி',
+        'mlName': 'തുലാം രാശി',
+        'enName': 'Tula (Libra)',
+        'symbol': '♎',
+        'rulingPlanetKn': 'ಶುಕ್ರ',
+        'rulingPlanetHi': 'शुक्र',
+        'rulingPlanetTa': 'சுக்கிரன்',
+        'rulingPlanetMl': 'ശുക്രൻ',
+        'rulingPlanetEn': 'Venus (Shukra)',
+        'elementKn': 'ವಾಯು ತತ್ವ',
+        'elementHi': 'वायु तत्व',
+        'elementTa': 'காற்று',
+        'elementMl': 'വായു',
+        'elementEn': 'Air',
+        'luckyColorKn': 'ಗುಲಾಬಿ & ಬಿಳಿ',
+        'luckyColorHi': 'गुलाबी व सफेद',
+        'luckyColorEn': 'Rose Pink & White',
+        'luckyNumber': ((daySeed + 6) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ಲಲಿತಾ ತ್ರಿಪುರಸುಂದರಿ',
+        'deityHi': 'माँ ललिता त्रिपुरसुंदरी',
+        'deityTa': 'ஸ்ரீ லலிதா திரிபுரசுந்தரி',
+        'deityMl': 'ശ്രീ ലളിതാ ത്രിപുരസുന്ദരി',
+        'deityEn': 'Goddess Lalitha Tripura Sundari',
+        'mantra': 'ಓಂ ಐಂ ಹ್ರೀಂ ಶ್ರೀಂ ತ್ರಿಪುರಸುಂದರ್ಯೈ ನಮಃ',
+        'predictionKn': _getDaySpecificPrediction('tula', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('tula', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('tula', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('tula', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('tula', weekday, 'en'),
+      },
+      {
+        'id': 'vrishchika',
+        'knName': 'ವೃಶ್ಚಿಕ ರಾಶಿ',
+        'hiName': 'वृश्चिक राशि',
+        'taName': 'விருச்சிக ராசி',
+        'mlName': 'വൃശ്ചികം രാശി',
+        'enName': 'Vrishchika (Scorpio)',
+        'symbol': '♏',
+        'rulingPlanetKn': 'ಕುಜ',
+        'rulingPlanetHi': 'मंगल',
+        'rulingPlanetTa': 'செவ்வாய்',
+        'rulingPlanetMl': 'ചൊവ്വ',
+        'rulingPlanetEn': 'Mars (Mangala)',
+        'elementKn': 'ಜಲ ತತ್ವ',
+        'elementHi': 'जल तत्व',
+        'elementTa': 'நீர்',
+        'elementMl': 'ജലം',
+        'elementEn': 'Water',
+        'luckyColorKn': 'ಗಾಢ ಕೆಂಪು & ಮರೂನ್',
+        'luckyColorHi': 'गहरा लाल व महरून',
+        'luckyColorEn': 'Deep Crimson & Maroon',
+        'luckyNumber': ((daySeed + 9) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ಸುಬ್ರಹ್ಮಣ್ಯ ಸ್ವಾಮಿ',
+        'deityHi': 'भगवान सुब्रह्मण्य स्वामी',
+        'deityTa': 'ஸ்ரீ முருகப் பெருமான்',
+        'deityMl': 'ശ്രീ സുബ്രഹ്മണ്യൻ',
+        'deityEn': 'Lord Subramanya / Kartikeya',
+        'mantra': 'ಓಂ ಶರವಣಭವಾಯ ನಮಃ / ॐ शरवणभवाय नमः',
+        'predictionKn': _getDaySpecificPrediction('vrishchika', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('vrishchika', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('vrishchika', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('vrishchika', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('vrishchika', weekday, 'en'),
+      },
+      {
+        'id': 'dhanu',
+        'knName': 'ಧನು ರಾಶಿ',
+        'hiName': 'धनु राशि',
+        'taName': 'தனுசு ராசி',
+        'mlName': 'ധനു രാശി',
+        'enName': 'Dhanu (Sagittarius)',
+        'symbol': '♐',
+        'rulingPlanetKn': 'ಗುರು (ಬೃಹಸ್ಪತಿ)',
+        'rulingPlanetHi': 'बृहस्पति (गुरु)',
+        'rulingPlanetTa': 'குரு',
+        'rulingPlanetMl': 'വ്യാഴം',
+        'rulingPlanetEn': 'Jupiter (Guru)',
+        'elementKn': 'ಅಗ್ನಿ ತತ್ವ',
+        'elementHi': 'अग्नि तत्व',
+        'elementTa': 'நெருப்பு',
+        'elementMl': 'അഗ്നി',
+        'elementEn': 'Fire',
+        'luckyColorKn': 'ಹಳದಿ & ಚಿನ್ನದ ಬಣ್ಣ',
+        'luckyColorHi': 'पीला व स्वर्णिम',
+        'luckyColorEn': 'Bright Yellow & Gold',
+        'luckyNumber': ((daySeed + 3) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ವೆಂಕಟೇಶ್ವರ ಸ್ವಾಮಿ',
+        'deityHi': 'श्री वेंकटेश्वर स्वामी',
+        'deityTa': 'ஸ்ரீ வெங்கடேஸ்வரர்',
+        'deityMl': 'ശ്രീ വെങ്കിടേശ്വരൻ',
+        'deityEn': 'Lord Venkateshwara',
+        'mantra': 'ಓಂ ನಮೋ ನಾರಾಯಣಾಯ / ॐ नमो नारायणाय',
+        'predictionKn': _getDaySpecificPrediction('dhanu', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('dhanu', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('dhanu', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('dhanu', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('dhanu', weekday, 'en'),
+      },
+      {
+        'id': 'makara',
+        'knName': 'ಮಕರ ರಾಶಿ',
+        'hiName': 'मकर राशि',
+        'taName': 'மகர ராசி',
+        'mlName': 'മകരം രാശി',
+        'enName': 'Makara (Capricorn)',
+        'symbol': '♑',
+        'rulingPlanetKn': 'ಶನಿ',
+        'rulingPlanetHi': 'शनि',
+        'rulingPlanetTa': 'சனி',
+        'rulingPlanetMl': 'ശനി',
+        'rulingPlanetEn': 'Saturn (Shani)',
+        'elementKn': 'ಭೂಮಿ ತತ್ವ',
+        'elementHi': 'पृथ्वी तत्व',
+        'elementTa': 'நிலம்',
+        'elementMl': 'ഭൂമി',
+        'elementEn': 'Earth',
+        'luckyColorKn': 'ನೀಲಿ & ಗಾಢ ಬೂದು',
+        'luckyColorHi': 'नीला व गहरा धूसर',
+        'luckyColorEn': 'Navy Blue & Charcoal',
+        'luckyNumber': ((daySeed + 8) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ಶನೈಶ್ಚರ & ಹನುಮಾನ್',
+        'deityHi': 'शनिदेव व हनुमान जी',
+        'deityTa': 'ஸ்ரீ சனி பகவான் & அனுமன்',
+        'deityMl': 'ശ്രീ ശനീശ്വരൻ & ഹനുമാൻ',
+        'deityEn': 'Lord Shani & Hanuman',
+        'mantra': 'ಓಂ ಶಂ ಶನೈಶ್ಚರಾಯ ನಮಃ / ॐ शं शनैश्चराय नमः',
+        'predictionKn': _getDaySpecificPrediction('makara', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('makara', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('makara', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('makara', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('makara', weekday, 'en'),
+      },
+      {
+        'id': 'kumbha',
+        'knName': 'ಕುಂಭ ರಾಶಿ',
+        'hiName': 'कुंभ राशि',
+        'taName': 'கும்ப ராசி',
+        'mlName': 'കുംഭം രാശി',
+        'enName': 'Kumbha (Aquarius)',
+        'symbol': '♒',
+        'rulingPlanetKn': 'ಶನಿ',
+        'rulingPlanetHi': 'शनि',
+        'rulingPlanetTa': 'சனி',
+        'rulingPlanetMl': 'ശനി',
+        'rulingPlanetEn': 'Saturn (Shani)',
+        'elementKn': 'ವಾಯು ತತ್ವ',
+        'elementHi': 'वायु तत्व',
+        'elementTa': 'காற்று',
+        'elementMl': 'വായു',
+        'elementEn': 'Air',
+        'luckyColorKn': 'ಆಕಾಶ ನೀಲಿ & ನೇರಳೆ',
+        'luckyColorHi': 'आसमानी नीला व बैंगनी',
+        'luckyColorEn': 'Sky Blue & Purple',
+        'luckyNumber': ((daySeed + 8) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ರುದ್ರದೇವ',
+        'deityHi': 'भगवान रुद्र',
+        'deityTa': 'ஸ்ரீ ருத்ர சிவன்',
+        'deityMl': 'ശ്രീ രുദ്രൻ',
+        'deityEn': 'Lord Rudra Shiva',
+        'mantra': 'ಓಂ ಜುಂ ಸಃ ರುದ್ರಾಯ ನಮಃ / ॐ जुं सः रुद्राय नमः',
+        'predictionKn': _getDaySpecificPrediction('kumbha', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('kumbha', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('kumbha', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('kumbha', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('kumbha', weekday, 'en'),
+      },
+      {
+        'id': 'meena',
+        'knName': 'ಮೀನ ರಾಶಿ',
+        'hiName': 'मीन राशि',
+        'taName': 'மீன ராசி',
+        'mlName': 'മീനം രാശി',
+        'enName': 'Meena (Pisces)',
+        'symbol': '♓',
+        'rulingPlanetKn': 'ಗುರು',
+        'rulingPlanetHi': 'बृहस्पति (गुरु)',
+        'rulingPlanetTa': 'குரு',
+        'rulingPlanetMl': 'വ്യാഴം',
+        'rulingPlanetEn': 'Jupiter (Guru)',
+        'elementKn': 'ಜಲ ತತ್ವ',
+        'elementHi': 'जल तत्व',
+        'elementTa': 'நீர்',
+        'elementMl': 'ജലം',
+        'elementEn': 'Water',
+        'luckyColorKn': 'ಹಳದಿ & ಕೇಸರಿ',
+        'luckyColorHi': 'पीला व केसरिया',
+        'luckyColorEn': 'Golden Yellow & Saffron',
+        'luckyNumber': ((daySeed + 3) % 9 + 1).toString(),
+        'deityKn': 'ಶ್ರೀ ದತ್ತಾತ್ರೇಯ & ಗುರು ರಾಯರು',
+        'deityHi': 'श्री दत्तात्रेय व गुरुदेव',
+        'deityTa': 'ஸ்ரீ குரு ராகவேந்திரர்',
+        'deityMl': 'ശ്രീ ഗുരു രാഘവേന്ദ്രൻ',
+        'deityEn': 'Sri Guru Raghavendra & Dattatreya',
+        'mantra': 'ಓಂ ಶ್ರೀ ರಾಘವೇಂದ್ರಾಯ ನಮಃ / ॐ श्री गुरुभ्यो नमः',
+        'predictionKn': _getDaySpecificPrediction('meena', weekday, 'kn'),
+        'predictionHi': _getDaySpecificPrediction('meena', weekday, 'hi'),
+        'predictionTa': _getDaySpecificPrediction('meena', weekday, 'ta'),
+        'predictionMl': _getDaySpecificPrediction('meena', weekday, 'ml'),
+        'predictionEn': _getDaySpecificPrediction('meena', weekday, 'en'),
+      },
+    ];
+
+    return rawRashiData.map((data) {
+      String name = data['enName'];
+      String planet = data['rulingPlanetEn'];
+      String element = data['elementEn'];
+      String prediction = data['predictionEn'];
+      String luckyColor = data['luckyColorEn'];
+      String deity = data['deityEn'];
+
+      if (lang == 'kn') {
+        name = data['knName'];
+        planet = data['rulingPlanetKn'];
+        element = data['elementKn'];
+        prediction = data['predictionKn'];
+        luckyColor = data['luckyColorKn'];
+        deity = data['deityKn'];
+      } else if (lang == 'hi') {
+        name = data['hiName'];
+        planet = data['rulingPlanetHi'];
+        element = data['elementHi'];
+        prediction = data['predictionHi'];
+        luckyColor = data['luckyColorHi'];
+        deity = data['deityHi'];
+      } else if (lang == 'ta') {
+        name = data['taName'] ?? data['enName'];
+        planet = data['rulingPlanetTa'] ?? data['rulingPlanetEn'];
+        element = data['elementTa'] ?? data['elementEn'];
+        prediction = data['predictionTa'] ?? data['predictionEn'];
+        luckyColor = data['luckyColorEn'];
+        deity = data['deityTa'] ?? data['deityEn'];
+      } else if (lang == 'ml') {
+        name = data['mlName'] ?? data['enName'];
+        planet = data['rulingPlanetMl'] ?? data['rulingPlanetEn'];
+        element = data['elementMl'] ?? data['elementEn'];
+        prediction = data['predictionMl'] ?? data['predictionEn'];
+        luckyColor = data['luckyColorEn'];
+        deity = data['deityMl'] ?? data['deityEn'];
+      }
+
+      return RashiInfo(
+        id: data['id'],
+        name: name,
+        englishName: data['enName'],
+        symbol: data['symbol'],
+        rulingPlanet: planet,
+        element: element,
+        prediction: prediction,
+        luckyColor: luckyColor,
+        luckyNumber: data['luckyNumber'],
+        deity: deity,
+        mantra: data['mantra'],
+      );
+    }).toList();
+  }
+
+  String _getDaySpecificPrediction(String rashiId, int weekday, String lang) {
     if (lang == 'kn') {
-      return const [
-        RashiInfo(
-          id: 'mesha',
-          name: 'ಮೇಷ ರಾಶಿ',
-          englishName: 'Aries',
-          symbol: '♈',
-          rulingPlanet: 'ಕುಜ (ಮಂಗಳ)',
-          element: 'ಅಗ್ನಿ ತತ್ವ',
-          prediction: 'ಇಂದು ಆತ್ಮವಿಶ್ವಾಸ ಹೆಚ್ಚಲಿದ್ದು ಕೈಗೊಂಡ ಕಾರ್ಯಗಳಲ್ಲಿ ಸಫಲತೆ ದೊರೆಯಲಿದೆ. ಗಣಪತಿ ಮತ್ತು ಹನುಮಂತನ ಸ್ಮರಣೆ ಶ್ರೇಯಸ್ಕರ.',
-          luckyColor: 'ಕೆಂಪು & ಕೇಸರಿ',
-          luckyNumber: '9',
-          deity: 'ಶ್ರೀ ಹನುಮಾನ್ & ಗಣಪತಿ',
-          mantra: 'ಓಂ ಹಂ ಹನುಮತೇ ನಮಃ',
-        ),
-        RashiInfo(
-          id: 'vrishabha',
-          name: 'ವೃಷಭ ರಾಶಿ',
-          englishName: 'Taurus',
-          symbol: '♉',
-          rulingPlanet: 'ಶುಕ್ರ',
-          element: 'ಭೂಮಿ ತತ್ವ',
-          prediction: 'ಕುಟುಂಬದಲ್ಲಿ ಶಾಂತಿ, ನೆಮ್ಮದಿ ನೆಲೆಸಲಿದೆ. ದೇವಸ್ಥಾನ ದರ್ಶನದಿಂದ ಮನಸ್ಸಿಗೆ ನವೋಲ್ಲಾಸ ಲಭಿಸಲಿದೆ.',
-          luckyColor: 'ಬಿಳಿ & ಚಿನ್ನದ ಬಣ್ಣ',
-          luckyNumber: '6',
-          deity: 'ಶ್ರೀ ಮಹಾಲಕ್ಷ್ಮಿ',
-          mantra: 'ಓಂ ಶ್ರೀಂ ಮಹಾಲಕ್ಷ್ಮ್ಯೈ ನಮಃ',
-        ),
-        RashiInfo(
-          id: 'mithuna',
-          name: 'ಮಿಥುನ ರಾಶಿ',
-          englishName: 'Gemini',
-          symbol: '♊',
-          rulingPlanet: 'ಬುಧ',
-          element: 'ವಾಯು ತತ್ವ',
-          prediction: 'ಬುಧವಾರ ಬುಧನ ಅನುಗ್ರಹದಿಂದ ವ್ಯಾಪಾರ, ಮಾತುಕತೆ ಮತ್ತು ಶಿಕ್ಷಣದಲ್ಲಿ ಉತ್ತಮ ಪ್ರಗತಿ. ವಿಷ್ಣು ಸಹಸ್ರನಾಮ ಪಠಿಸಿ.',
-          luckyColor: 'ಹಸಿರು',
-          luckyNumber: '5',
-          deity: 'ಶ್ರೀ ಕೃಷ್ಣ & ವಿಷ್ಣು',
-          mantra: 'ಓಂ ಕ್ಲೀಂ ಕೃಷ್ಣಾಯ ನಮಃ',
-        ),
-        RashiInfo(
-          id: 'karka',
-          name: 'ಕರ್ಕಾಟಕ ರಾಶಿ',
-          englishName: 'Cancer',
-          symbol: '♋',
-          rulingPlanet: 'ಚಂದ್ರ',
-          element: 'ಜಲ ತತ್ವ',
-          prediction: 'ಆಧ್ಯಾತ್ಮಿಕ ಚಿಂತನೆ ಹೆಚ್ಚಲಿದೆ. ಶಿವನಾಮ ಜಪದಿಂದ ಮನದ ಗೊಂದಲಗಳು ಪರಿಹಾರವಾಗುತ್ತವೆ.',
-          luckyColor: 'ಹಾಲು ಬಿಳಿ & ಬೆಳ್ಳಿ',
-          luckyNumber: '2',
-          deity: 'ಶ್ರೀ ಪರಮೇಶ್ವರ (ಚಂದ್ರಮೌಳೇಶ್ವರ)',
-          mantra: 'ಓಂ ನಮಃ ಶಿವಾಯ',
-        ),
-        RashiInfo(
-          id: 'simha',
-          name: 'ಸಿಂಹ ರಾಶಿ',
-          englishName: 'Leo',
-          symbol: '♌',
-          rulingPlanet: 'ಸೂರ್ಯ',
-          element: 'ಅಗ್ನಿ ತತ್ವ',
-          prediction: 'ಉದ್ಯೋಗ ಕ್ಷೇತ್ರದಲ್ಲಿ ಪ್ರಶಂಸೆ, ಗೌರವ ವೃದ್ಧಿ. ಆದಿತ್ಯ ಹೃದಯ ಸ್ತೋತ್ರ ಪಠಣ ಅತ್ಯಂತ ಶುಭ.',
-          luckyColor: 'ಕಿತ್ತಳೆ & ಹಳದಿ',
-          luckyNumber: '1',
-          deity: 'ಶ್ರೀ ಸೂರ್ಯ ನಾರಾಯಣ',
-          mantra: 'ಓಂ ಘೃಣಿಃ ಸೂರ್ಯಾಯ ನಮಃ',
-        ),
-        RashiInfo(
-          id: 'kanya',
-          name: 'ಕನ್ಯಾ ರಾಶಿ',
-          englishName: 'Virgo',
-          symbol: '♍',
-          rulingPlanet: 'ಬುಧ',
-          element: 'ಭೂಮಿ ತತ್ವ',
-          prediction: 'ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಉತ್ತಮ ದಿನ. ಗಣೇಶನಿಗೆ ಗರಿಕೆ ಅರ್ಪಿಸುವುದರಿಂದ ವಿಘ್ನಗಳು ನಿವಾರಣೆಯಾಗಲಿವೆ.',
-          luckyColor: 'ತಿಳಿ ಹಸಿರು',
-          luckyNumber: '5',
-          deity: 'ಶ್ರೀ ಸಿದ್ಧಿ ವಿನಾಯಕ',
-          mantra: 'ಓಂ ಗಂ ಗಣಪತಯೇ ನಮಃ',
-        ),
-        RashiInfo(
-          id: 'tula',
-          name: 'ತುಲಾ ರಾಶಿ',
-          englishName: 'Libra',
-          symbol: '♎',
-          rulingPlanet: 'ಶುಕ್ರ',
-          element: 'ವಾಯು ತತ್ವ',
-          prediction: 'ಹೊಸ ಯೋಜನೆಗಳಿಗೆ ಶುಭಾರಂಭ. ದಾನ ಧರ್ಮ ಮಾಡುವುದರಿಂದ ಪುಣ್ಯ ಫಲ ಪ್ರಾಪ್ತಿ.',
-          luckyColor: 'ಗುಲಾಬಿ & ಬಿಳಿ',
-          luckyNumber: '6',
-          deity: 'ಶ್ರೀ ಲಲಿತಾ ತ್ರಿಪುರಸುಂದರಿ',
-          mantra: 'ಓಂ ಐಂ ಹ್ರೀಂ ಶ್ರೀಂ ತ್ರಿಪುರಸುಂದರ್ಯೈ ನಮಃ',
-        ),
-        RashiInfo(
-          id: 'vrishchika',
-          name: 'ವೃಶ್ಚಿಕ ರಾಶಿ',
-          englishName: 'Scorpio',
-          symbol: '♏',
-          rulingPlanet: 'ಕುಜ',
-          element: 'ಜಲ ತತ್ವ',
-          prediction: 'ಧೈರ್ಯ ಮತ್ತು ಆತ್ಮವಿಶ್ವಾಸದಿಂದ ಕಷ್ಟಗಳನ್ನು ಗೆಲ್ಲುವಿರಿ. ಸುಬ್ರಹ್ಮಣ್ಯ ಸ್ವಾಮಿ ಪ್ರಾರ್ಥನೆ ಶುಭಕರ.',
-          luckyColor: 'ಗಾಢ ಕೆಂಪು',
-          luckyNumber: '9',
-          deity: 'ಶ್ರೀ ಸುಬ್ರಹ್ಮಣ್ಯ ಸ್ವಾಮಿ',
-          mantra: 'ಓಂ ಶರವಣಭವಾಯ ನಮಃ',
-        ),
-        RashiInfo(
-          id: 'dhanu',
-          name: 'ಧನು ರಾಶಿ',
-          englishName: 'Sagittarius',
-          symbol: '♐',
-          rulingPlanet: 'ಗುರು (ಬೃಹಸ್ಪತಿ)',
-          element: 'ಅಗ್ನಿ ತತ್ವ',
-          prediction: 'ಗುರು ಕೃಪೆಯಿಂದ ಸಕಲ ಕಾರ್ಯಗಳು ಸಾಂಗವಾಗಿ ನೆರವೇರಲಿವೆ. ವಿಷ್ಣು ಸಹಸ್ರನಾಮ ಪಠಿಸಿ.',
-          luckyColor: 'ಹಳದಿ & ಗೋಧಿ ಬಣ್ಣ',
-          luckyNumber: '3',
-          deity: 'ಶ್ರೀ ವೆಂಕಟೇಶ್ವರ ಸ್ವಾಮಿ',
-          mantra: 'ಓಂ ನಮೋ ನಾರಾಯಣಾಯ',
-        ),
-        RashiInfo(
-          id: 'makara',
-          name: 'ಮಕರ ರಾಶಿ',
-          englishName: 'Capricorn',
-          symbol: '♑',
-          rulingPlanet: 'ಶನಿ',
-          element: 'ಭೂಮಿ ತತ್ವ',
-          prediction: 'ಶ್ರಮಕ್ಕೆ ತಕ್ಕ ಪ್ರತಿಫಲ ದೊರೆಯಲಿದೆ. ಎಳ್ಳೆಣ್ಣೆ ದೀಪ ಬೆಳಗಿಸುವುದರಿಂದ ಶುಭ ಫಲಗಳು ಉಂಟಾಗುತ್ತವೆ.',
-          luckyColor: 'ನೀಲಿ & ಕಪ್ಪು',
-          luckyNumber: '8',
-          deity: 'ಶ್ರೀ ಶನೈಶ್ಚರ & ಹನುಮಾನ್',
-          mantra: 'ಓಂ ಶಂ ಶನೈಶ್ಚರಾಯ ನಮಃ',
-        ),
-        RashiInfo(
-          id: 'kumbha',
-          name: 'ಕುಂಭ ರಾಶಿ',
-          englishName: 'Aquarius',
-          symbol: '♒',
-          rulingPlanet: 'ಶನಿ',
-          element: 'ವಾಯು ತತ್ವ',
-          prediction: 'ಸಮಾಜ ಸೇವೆ ಮತ್ತು ದೈವಿಕ ಕಾರ್ಯಗಳಲ್ಲಿ ಆಸಕ್ತಿ. ಶಾಂತಿ ನೆಮ್ಮದಿ ವೃದ್ಧಿ.',
-          luckyColor: 'ಆಕಾಶ ನೀಲಿ',
-          luckyNumber: '8',
-          deity: 'ಶ್ರೀ ರುದ್ರದೇವ',
-          mantra: 'ಓಂ ಜುಂ ಸಃ ರುದ್ರಾಯ ನಮಃ',
-        ),
-        RashiInfo(
-          id: 'meena',
-          name: 'ಮೀನ ರಾಶಿ',
-          englishName: 'Pisces',
-          symbol: '♓',
-          rulingPlanet: 'ಗುರು',
-          element: 'ಜಲ ತತ್ವ',
-          prediction: 'ಆಧ್ಯಾತ್ಮಿಕ ಉನ್ನತಿ ಮತ್ತು ಧಾರ್ಮಿಕ ಯಾತ್ರೆಗೆ ಶುಭ ಯೋಗ. ಗುರು ಚರಿತ್ರೆ ಪಾರಾಯಣ ಶುಭ.',
-          luckyColor: 'ಹಳದಿ & ಕೇಸರಿ',
-          luckyNumber: '3',
-          deity: 'ಶ್ರೀ ದತ್ತಾತ್ರೇಯ & ಗುರು ರಾಯರು',
-          mantra: 'ಓಂ ಶ್ರೀ ರಾಘವೇಂದ್ರಾಯ ನಮಃ',
-        ),
-      ];
+      switch (weekday) {
+        case DateTime.monday:
+          switch (rashiId) {
+            case 'mesha': return 'ಸೋಮವಾರ: ಆತ್ಮವಿಶ್ವಾಸ ಹೆಚ್ಚುವುದು. ಶಿವನಿಗೆ ಜಲಾಭಿಷೇಕ ಮಾಡುವುದರಿಂದ ಅಡೆತಡೆಗಳು ನಿವಾರಣೆಯಾಗುತ್ತವೆ.';
+            case 'vrishabha': return 'ಸೋಮವಾರ: ಕುಟುಂಬದಲ್ಲಿ ಸಾಮರಸ್ಯ ಹಾಗೂ ಧನಾಗಮನ. ಚಂದ್ರ ಧ್ಯಾನದಿಂದ ಮನಸ್ಸಿಗೆ ಶಾಂತಿ ಲಭಿಸುತ್ತದೆ.';
+            case 'mithuna': return 'ಸೋಮವಾರ: ಸೃಜನಶೀಲ ಕೆಲಸಗಳಲ್ಲಿ ಪ್ರಗತಿ. ಶಿವ ಪಂಚಾಕ್ಷರಿ ಜಪದಿಂದ ಮಾನಸಿಕ ಸ್ಪಷ್ಟತೆ ಸಿಗುತ್ತದೆ.';
+            case 'karka': return 'ಸೋಮವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಚಂದ್ರನ ದಿನ! ಭಕ್ತಿ ಭಾವ ಹಾಗೂ ದೈವಾನುಗ್ರಹ ಉತ್ತುಂಗದಲ್ಲಿರುತ್ತದೆ. ಶಿವಾರ್ಚನೆ ಶುಭ.';
+            case 'simha': return 'ಸೋಮವಾರ: ಕಾರ್ಯಕ್ಷೇತ್ರದಲ್ಲಿ ಗೌರವ. ತಾಯಿಯ ಆಶೀರ್ವಾದ ಪಡೆಯಿರಿ, ಸಂಕಲ್ಪ ಸಿದ್ಧಿಸುತ್ತದೆ.';
+            case 'kanya': return 'ಸೋಮವಾರ: ಹೊಸ ಯೋಜನೆಗಳಿಗೆ ಚಾಲನೆ. ಬಿಳಿ ಹೂವುಗಳಿಂದ ಶಿವನ ಪೂಜೆ ಮಾಡುವುದು ಅತ್ಯಂತ ಮಂಗಳಕರ.';
+            case 'tula': return 'ಸೋಮವಾರ: ಶುಭ ವಾರ್ತೆ ಕೇಳುವಿರಿ. ಕಲಾತ್ಮಕ ಹಾಗೂ ಧಾರ್ಮಿಕ ಚಟುವಟಿಕೆಗಳಿಗೆ ಅನುಕೂಲಕರ ದಿನ.';
+            case 'vrishchika': return 'ಸೋಮವಾರ: ಧೈರ್ಯದಿಂದ ಕೆಲಸಗಳನ್ನು ಪೂರ್ಣಗೊಳಿಸುವಿರಿ. ರುದ್ರಾಷ್ಟಕಂ ಪಠಣದಿಂದ ಶತ್ರು ಭಯ ದೂರ.';
+            case 'dhanu': return 'ಸೋಮವಾರ: ಗುರು ಕೃಪೆಯಿಂದ ಜ್ಞಾನ ವೃದ್ಧಿ. ಹಿರಿಯರ ಆಶೀರ್ವಾದ ಪಡೆದು ದಿನವನ್ನು ಆರಂಭಿಸಿ.';
+            case 'makara': return 'ಸೋಮವಾರ: ಶ್ರಮಕ್ಕೆ ತಕ್ಕ ಫಲ ಲಭಿಸುತ್ತದೆ. ಶಿವ ದೇವಸ್ಥಾನಕ್ಕೆ ಭೇಟಿ ನೀಡಿ ಕ್ಷೀರಾಭಿಷೇಕ ಮಾಡಿಸಿ.';
+            case 'kumbha': return 'ಸೋಮವಾರ: ಸಮಾಜ ಸೇವೆ ಮತ್ತು ದೈವಿಕ ಕಾರ್ಯಗಳಲ್ಲಿ ಆಸಕ್ತಿ. ಮಾನಸಿಕ ಶಾಂತಿ ವೃದ್ಧಿಯಾಗುತ್ತದೆ.';
+            case 'meena': return 'ಸೋಮವಾರ: ಆಧ್ಯಾತ್ಮಿಕ ಚಿಂತನೆಗಳು ಫಲ ನೀಡುತ್ತವೆ. ಶಿವಲಿಂಗ ದರ್ಶನದಿಂದ ಪುಣ್ಯ ಪ್ರಾಪ್ತಿ.';
+          }
+          break;
+        case DateTime.tuesday:
+          switch (rashiId) {
+            case 'mesha': return 'ಮಂಗಳವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಕುಜನ ದಿನ! ಅಪಾರ ಶಕ್ತಿ, ಉತ್ಸಾಹ. ಹನುಮಾನ್ ಚಾಲೀಸಾ ಪಠಣದಿಂದ ಮಹಾ ಜಯ.';
+            case 'vrishabha': return 'ಮಂಗಳವಾರ: ಆತುರ ಬೇಡ, ತಾಳ್ಮೆಯಿಂದ ಕೆಲಸ ನಿರ್ವಹಿಸಿ. ಗಣೇಶನಿಗೆ ಗರಿಕೆ ಸಮರ್ಪಿಸಿ.';
+            case 'mithuna': return 'ಮಂಗಳವಾರ: ಮಾತುಗಳಲ್ಲಿ ಹಿಡಿತವಿರಲಿ. ಸುಬ್ರಹ್ಮಣ್ಯ ಸ್ವಾಮಿ ಪ್ರಾರ್ಥನೆಯಿಂದ ಜಯ ಲಭಿಸುತ್ತದೆ.';
+            case 'karka': return 'ಮಂಗಳವಾರ: ಧಾರ್ಮಿಕ ಕಾರ್ಯಗಳಿಗೆ ಖರ್ಚು. ಹನುಮಂತನಿಗೆ ಕೆಂಪು ಹೂ ಅರ್ಪಿಸಿ ನಮಸ್ಕರಿಸಿ.';
+            case 'simha': return 'ಮಂಗಳವಾರ: ನಾಯಕತ್ವ ಗುಣ ಮೆಚ್ಚುಗೆ ಗಳಿಸುತ್ತದೆ. ಸೂರ್ಯನಮಸ್ಕಾರ ಹಾಗೂ ಹನುಮತ್ ಸ್ಮರಣೆ ಮಾಡಿ.';
+            case 'kanya': return 'ಮಂಗಳವಾರ: ಸಾಲ ಅಥವಾ ಹಣಕಾಸು ಸಮಸ್ಯೆಗಳು ಪರಿಹಾರ ಕಾಣುತ್ತವೆ. ಗಣೇಶ ಸಂಕಷ್ಟನಾಶನ ಸ್ತೋತ್ರ ಜಪಿಸಿ.';
+            case 'tula': return 'ಮಂಗಳವಾರ: ದೃಢ ನಿರ್ಧಾರಗಳು ಫಲ ನೀಡುತ್ತವೆ. ಕಾರ್ತಿಕೇಯ ದೇವರ ಪ್ರಾರ್ಥನೆ ಶುಭ ತರಲಿದೆ.';
+            case 'vrishchika': return 'ಮಂಗಳವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಮಂಗಳನ ದಿನ! ಅದ್ಭುತ ಶಕ್ತಿ, ಶತ್ರುನಾಶ. ಸುಬ್ರಹ್ಮಣ್ಯ ಅಷ್ಟಕಂ ಪಠಿಸಿ.';
+            case 'dhanu': return 'ಮಂಗಳವಾರ: ಧರ್ಮ ಕಾರ್ಯಗಳಲ್ಲಿ ಯಶಸ್ಸು. ಹನುಮಾನ್ ದೇವಸ್ಥಾನಕ್ಕೆ ತೆರಳಿ ತುಳಸಿ ಮಾಲೆ ಅರ್ಪಿಸಿ.';
+            case 'makara': return 'ಮಂಗಳವಾರ: ಶ್ರಮಕ್ಕೆ ಶುಭ ಫಲ. ಆಂಜನೇಯ ಸ್ವಾಮಿ ಕೃಪೆಯಿಂದ ಕಾರ್ಯಸಿದ್ಧಿ.';
+            case 'kumbha': return 'ಮಂಗಳವಾರ: ಧೈರ್ಯದಿಂದ ಮುನ್ನಡೆಯಿರಿ. ಗಣೇಶನ ಆರಾಧನೆ ವಿಘ್ನಗಳನ್ನು ಕಳೆಯುತ್ತದೆ.';
+            case 'meena': return 'ಮಂಗಳವಾರ: ಹೊಸ ಅವಕಾಶಗಳು ಹುಡುಕಿ ಬರುತ್ತವೆ. ಮಂಗಳವಾರದ ವ್ರತ ಸಂಕಲ್ಪ ಯಶಸ್ವಿ.';
+          }
+          break;
+        case DateTime.wednesday:
+          switch (rashiId) {
+            case 'mesha': return 'ಬುಧವಾರ: ವ್ಯಾಪಾರ ಹಾಗೂ ಶಿಕ್ಷಣದಲ್ಲಿ ಶುಭ ಫಲ. ವಿಷ್ಣು ಸಹಸ್ರನಾಮ ಶ್ರವಣದಿಂದ ಬುದ್ಧಿಶಕ್ತಿ ವೃದ್ಧಿ.';
+            case 'vrishabha': return 'ಬುಧವಾರ: ಆರ್ಥಿಕ ಪ್ರಗತಿ, ಶುಭ ಮಾತುಕತೆ. ಶ್ರೀ ಕೃಷ್ಣನಿಗೆ ಬೆಣ್ಣೆ ನೈವೇದ್ಯ ಅರ್ಪಿಸಿ.';
+            case 'mithuna': return 'ಬುಧವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಬುಧನ ದಿನ! ಬುದ್ಧಿ, ಕೌಶಲ ಹಾಗೂ ಸಂವಹನದಲ್ಲಿ ಅಪಾರ ಯಶಸ್ಸು. ಕೃಷ್ಣಾರ್ಪಣಂ.';
+            case 'karka': return 'ಬುಧವಾರ: ನೆಮ್ಮದಿಯ ದಿನ. ಪಾಂಡುರಂಗ ವಿಟ್ಠಲನ ನಾಮಸ್ಮರಣೆಯಿಂದ ಸಕಲ ಸಂಕಷ್ಟ ದೂರ.';
+            case 'simha': return 'ಬುಧವಾರ: ಹೊಸ ಸ್ನೇಹಿತರ ಸಹಕಾರ. ಶ್ರೀ ಕೃಷ್ಣಾಷ್ಟಕಂ ಪಠಿಸುವುದರಿಂದ ದಿನ ಪೂರ್ತಿ ಆನಂದ.';
+            case 'kanya': return 'ಬುಧವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಬುಧನ ದಿನ! ಪರೀಕ್ಷೆ, ಲೆಕ್ಕಪತ್ರ ಹಾಗೂ ಅಧ್ಯಯನದಲ್ಲಿ ಸರ್ವೋತ್ತಮ ಜಯ. ಗಣೇಶ ಪೂಜೆ.';
+            case 'tula': return 'ಬುಧವಾರ: ಕಲಾತ್ಮಕ ಯೋಚನೆಗಳಿಗೆ ಮನ್ನಣೆ. ಶ್ರೀ ಲಕ್ಷ್ಮೀ ನಾರಾಯಣ ಹೃದಯ ಸ್ತೋತ್ರ ಜಪಿಸಿ.';
+            case 'vrishchika': return 'ಬುಧವಾರ: ನಿಧಾನವಾಗಿ ಕೆಲಸ ಮಾಡಿ ಯಶಸ್ಸು ಪಡೆಯಿರಿ. ಕೃಷ್ಣನಿಗೆ ತುಳಸಿ ಅರ್ಪಿಸಿ.';
+            case 'dhanu': return 'ಬುಧವಾರ: ಜ್ಞಾನಾರ್ಜನೆಗೆ ಅತ್ಯುತ್ತಮ ದಿನ. ಹಯಗ್ರೀವ ಸ್ತೋತ್ರ ಪಠಣದಿಂದ ವಿದ್ಯೆಯಲ್ಲಿ ಪ್ರಗತಿ.';
+            case 'makara': return 'ಬುಧವಾರ: ವ್ಯಾಪಾರದಲ್ಲಿ ಲಾಭ. ಗೋಪಾಲಕೃಷ್ಣನ ಧ್ಯಾನದಿಂದ ಮಾನಸಿಕ ಉಲ್ಲಾಸ.';
+            case 'kumbha': return 'ಬುಧವಾರ: ಹೊಸ ಆಲೋಚನೆಗಳು ಫಲಪ್ರದ. ವಿಷ್ಣು ದೇವಸ್ಥಾನಕ್ಕೆ ಭೇಟಿ ನೀಡಿ ತುಳಸಿ ಅರ್ಪಿಸಿ.';
+            case 'meena': return 'ಬುಧವಾರ: ಧಾರ್ಮಿಕ ಉಪನ್ಯಾಸ ಅಥವಾ ಸತ್ಸಂಗದಲ್ಲಿ ಭಾಗಿ. ಕೃಷ್ಣ ಭಜನೆಗಳಿಂದ ಶಾಂತಿ.';
+          }
+          break;
+        case DateTime.thursday:
+          switch (rashiId) {
+            case 'mesha': return 'ಗುರುವಾರ: ಗುರು ಕೃಪೆಯಿಂದ ಭಾಗ್ಯೋದಯ. ರಾಘವೇಂದ್ರ ಸ್ವಾಮಿಗಳ ಅಥವಾ ಸಾಯಿಬಾಬಾ ದರ್ಶನ ಮಾಡಿ.';
+            case 'vrishabha': return 'ಗುರುವಾರ: ಧಾರ್ಮಿಕ ಕಾರ್ಯಗಳಲ್ಲಿ ಭಾಗಿ. ಗುರು ಸ್ತೋತ್ರ ಪಠಣದಿಂದ ಸಂಪತ್ತು ವೃದ್ಧಿ.';
+            case 'mithuna': return 'ಗುರುವಾರ: ಉತ್ತಮ ಜ್ಞಾನ ಮತ್ತು ಬೋಧನೆ. ಶ್ರೀ ಗುರುಭ್ಯೋ ನಮಃ ಜಪಿಸಿ.';
+            case 'karka': return 'ಗುರುವಾರ: ಆಧ್ಯಾತ್ಮಿಕ ತೇಜಸ್ಸು. ದತ್ತಾತ್ರೇಯ ಸ್ಮರಣೆಯಿಂದ ಇಷ್ಟಾರ್ಥ ಸಿದ್ಧಿ.';
+            case 'simha': return 'ಗುರುವಾರ: ಯಶಸ್ಸು ಹಾಗೂ ಗುರು ಹಿರಿಯರ ಅನುಗ್ರಹ. ಬಂಗಾರದ ಬಣ್ಣದ ಹೂವುಗಳಿಂದ ವಿಷ್ಣು ಪೂಜೆ.';
+            case 'kanya': return 'ಗುರುವಾರ: ಸತ್ಕರ್ಮಗಳಿಗೆ ಫಲ. ಗುರು ಚರಿತ್ರೆ ಅಧ್ಯಾಯ ಪಠಣ ಶುಭ ತರಲಿದೆ.';
+            case 'tula': return 'ಗುರುವಾರ: ಮಂಗಳ ಕಾರ್ಯಗಳಿಗೆ ಮುನ್ನುಡಿ. ರಾಯರ ಮಂತ್ರ ಜಪದಿಂದ ನೆಮ್ಮದಿ.';
+            case 'vrishchika': return 'ಗುರುವಾರ: ಧರ್ಮ ಮಾರ್ಗದಲ್ಲಿ ಜಯ. ಗುರುಗಳ ಆಶೀರ್ವಾದ ಪಡೆಯಿರಿ.';
+            case 'dhanu': return 'ಗುರುವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಬೃಹಸ್ಪತಿಯ ದಿನ! ಜ್ಞಾನ, ಕೀರ್ತಿ, ಸಕಲ ಸಂಪತ್ತು ವೃದ್ಧಿ. ವೆಂಕಟೇಶ್ವರ ಪ್ರಾರ್ಥನೆ.';
+            case 'makara': return 'ಗುರುವಾರ: ಹಿರಿಯ ಅಧಿಕಾರಿಗಳ ಸಹಕಾರ. ದತ್ತಾತ್ರೇಯ ವಜ್ರ ಕವಚ ಪಠಿಸಿ.';
+            case 'kumbha': return 'ಗುರುವಾರ: ಸತ್ಸಂಗದಿಂದ ಆನಂದ. ಗುರು ರಾಘವೇಂದ್ರರ ಅಷ್ಟೋತ್ತರ ಪಠಿಸಿ.';
+            case 'meena': return 'ಗುರುವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಗುರುವಿನ ದಿನ! ದೈವಬಲ ಅತ್ಯುನ್ನತ, ಆಧ್ಯಾತ್ಮಿಕ ತೃಪ್ತಿ. ಗುರು ಪಾದ ಪೂಜೆ.';
+          }
+          break;
+        case DateTime.friday:
+          switch (rashiId) {
+            case 'mesha': return 'ಶುಕ್ರವಾರ: ಮಹಾಲಕ್ಷ್ಮಿ ಕೃಪೆಯಿಂದ ಸೌಭಾಗ್ಯ. ಕನಕಧಾರಾ ಸ್ತೋತ್ರ ಪಠಣದಿಂದ ಆರ್ಥಿಕ ಅಭಿವೃದ್ಧಿ.';
+            case 'vrishabha': return 'ಶುಕ್ರವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಶುಕ್ರನ ದಿನ! ಸೌಂದರ್ಯ, ಸುಖ, ಸಂಪತ್ತು. ಮಹಾಲಕ್ಷ್ಮಿ ಅಷ್ಟಕಂ ಪಠಿಸಿ.';
+            case 'mithuna': return 'ಶುಕ್ರವಾರ: ಪ್ರೇಮ ಹಾಗೂ ಕೌಟುಂಬಿಕ ಆನಂದ. ಲಲಿತಾ ಸಹಸ್ರನಾಮ ಶ್ರವಣ ಶುಭಕರ.';
+            case 'karka': return 'ಶುಕ್ರವಾರ: ದೇವಿ ಆರಾಧನೆಯಿಂದ ಸರ್ವ ಶುಭ. ದುರ್ಗಾ ದೇವಿಗೆ ತುಪ್ಪದ ದೀಪ ಹಚ್ಚಿ.';
+            case 'simha': return 'ಶುಕ್ರವಾರ: ಆಕರ್ಷಕ ವ್ಯಕ್ತಿತ್ವ, ಗೌರವ. ಭುವನೇಶ್ವರಿ ದೇವಿ ಸ್ಮರಣೆ ಮಾಡಿ.';
+            case 'kanya': return 'ಶುಕ್ರವಾರ: ಶುಭ ಸಮಾಚಾರ ಲಭ್ಯ. ಸರಸ್ವತಿ ಹಾಗೂ ಲಕ್ಷ್ಮೀ ಪೂಜೆಯಿಂದ ಜಯ.';
+            case 'tula': return 'ಶುಕ್ರವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಶುಕ್ರನ ದಿನ! ಕಲೆ, ಆನಂದ ಹಾಗೂ ಸಂಪತ್ತು. ಶ್ರೀ ಸೂಕ್ತ ಪಾರಾಯಣ.';
+            case 'vrishchika': return 'ಶುಕ್ರವಾರ: ಶಕ್ತಿ ದೇವತೆಯ ಕೃಪೆಯಿಂದ ಶತ್ರು ಭಯ ಮುಕ್ತಿ. ಚಾಮುಂಡೇಶ್ವರಿ ಆರಾಧನೆ.';
+            case 'dhanu': return 'ಶುಕ್ರವಾರ: ಮಂಗಳ ಕಾರ್ಯಗಳು ನೆರವೇರುತ್ತವೆ. ಲಕ್ಷ್ಮೀ ನಾರಾಯಣ ಪೂಜೆ ಮಾಡಿ.';
+            case 'makara': return 'ಶುಕ್ರವಾರ: ಶಾಂತಿ ಸಮಾಧಾನ. ಅನ್ನಪೂರ್ಣೇಶ್ವರಿ ದೇವಿ ಕೃಪೆಯಿಂದ ಸಮೃದ್ಧಿ.';
+            case 'kumbha': return 'ಶುಕ್ರವಾರ: ಶುಭ ಚಿಂತನೆಗಳು. ಗಾಯತ್ರಿ ಮಂತ್ರ ಜಪದಿಂದ ತೇಜಸ್ಸು.';
+            case 'meena': return 'ಶುಕ್ರವಾರ: ಕರುಣೆ, ಪರೋಪಕಾರದಿಂದ ದೇವಿಯ ಆಶೀರ್ವಾದ. ಮೂಕಾಂಬಿಕಾ ದೇವಿಯ ಧ್ಯಾನ.';
+          }
+          break;
+        case DateTime.saturday:
+          switch (rashiId) {
+            case 'mesha': return 'ಶನಿವಾರ: ಶನಿ ಮಹಾತ್ಮನ ಕೃಪೆಗೆ ಎಳ್ಳೆಣ್ಣೆ ದೀಪ ಹಚ್ಚಿ. ಹನುಮಾನ್ ಚಾಲೀಸಾ ಜಪಿಸಿ.';
+            case 'vrishabha': return 'ಶನಿವಾರ: ಕಠಿಣ ಶ್ರಮಕ್ಕೆ ಶುಭ ಫಲ. ಶನಿ ಗಾಯತ್ರಿ ಮಂತ್ರ ಪಠಿಸಿ.';
+            case 'mithuna': return 'ಶನಿವಾರ: ಶಿಸ್ತಿನಿಂದ ಕೆಲಸ ಮಾಡಿ. ವೆಂಕಟೇಶ್ವರ ಸ್ವಾಮಿ ದರ್ಶನ ಮಾಡಿ.';
+            case 'karka': return 'ಶನಿವಾರ: ಶಿವಾರ್ಚನೆ ಮತ್ತು ಶನಿ ಶಾಂತಿ ಪೂಜೆ ಶುಭಕರ.';
+            case 'simha': return 'ಶನಿವಾರ: ತಾಳ್ಮೆ ವಹಿಸಿ, ಅಹಂಕಾರ ತ್ಯಜಿಸಿ. ಶನೈಶ್ಚರ ಸ್ತೋತ್ರ ಪಠಿಸಿ.';
+            case 'kanya': return 'ಶನಿವಾರ: ಧರ್ಮ ಕಾರ್ಯಗಳಲ್ಲಿ ಯಶಸ್ಸು. ಕಾಗೆಗಳಿಗೆ ಅನ್ನ ನೀಡುವುದು ಪುಣ್ಯದಾಯಕ.';
+            case 'tula': return 'ಶನಿವಾರ: ಉದ್ಯೋಗದಲ್ಲಿ ಸ್ಥಿರತೆ. ಆಂಜನೇಯ ಸ್ವಾಮಿಗೆ ಸಿಂಧೂರ ಅರ್ಪಿಸಿ.';
+            case 'vrishchika': return 'ಶನಿವಾರ: ಸಾಡೇಸಾತಿ/ಕಂಟಕ ನಿವಾರಣೆಗೆ ಹನುಮತ್ ರಕ್ಷಾ ಕವಚ ಪಠಿಸಿ.';
+            case 'dhanu': return 'ಶನಿವಾರ: ತಿರುಪತಿ ವೆಂಕಟೇಶ್ವರ ಸ್ವಾಮಿ ಸ್ಮರಣೆಯಿಂದ ಸಕಲ ದಾರಿದ್ರ್ಯ ಪರಿಹಾರ.';
+            case 'makara': return 'ಶನಿವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಶನಿಯ ದಿನ! ನ್ಯಾಯ, ಧರ್ಮ ಪಾಲಿಸಿ. ಶನಿ ವಜ್ರ ಪಂಜರ ಕವಚ ಪಠಿಸಿ.';
+            case 'kumbha': return 'ಶನಿವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಶನಿಯ ದಿನ! ದಾನ ಧರ್ಮದಿಂದ ಮಹಾ ಪುಣ್ಯ. ರುದ್ರಾಭಿಷೇಕ ಶುಭ.';
+            case 'meena': return 'ಶನಿವಾರ: ಸೇವಾ ಮನೋಭಾವದಿಂದ ದೈವ ಕೃಪೆ. ನವಗ್ರಹ ದೇವಸ್ಥಾನ ಪ್ರದಕ್ಷಿಣೆ ಮಾಡಿ.';
+          }
+          break;
+        case DateTime.sunday:
+        default:
+          switch (rashiId) {
+            case 'mesha': return 'ಭಾನುವಾರ: ಸೂರ್ಯನಾರಾಯಣನ ತೇಜಸ್ಸಿನಿಂದ ಕಾರ್ಯಕ್ಷೇತ್ರದಲ್ಲಿ ಜಯ. ಆದಿತ್ಯ ಹೃದಯ ಸ್ತೋತ್ರ ಪಠಿಸಿ.';
+            case 'vrishabha': return 'ಭಾನುವಾರ: ಆರೋಗ್ಯ ವೃದ್ಧಿ ಹಾಗೂ ಕೀರ್ತಿ. ಸೂರ್ಯದೇವನಿಗೆ ಅರ್ಘ್ಯ ಅರ್ಪಿಸಿ.';
+            case 'mithuna': return 'ಭಾನುವಾರ: ಪ್ರಮುಖ ನಿರ್ಧಾರಗಳಿಗೆ ಶುಭ ದಿನ. ಗಾಯತ್ರಿ ಮಂತ್ರ ಜಪಿಸಿ.';
+            case 'karka': return 'ಭಾನುವಾರ: ಮಾನಸಿಕ ನೆಮ್ಮದಿ. ಶಿವ-ಸೂರ್ಯ ಆರಾಧನೆ ಮಂಗಳಕರ.';
+            case 'simha': return 'ಭಾನುವಾರ: ರಾಶ್ಯಾಧಿಪತಿ ಸೂರ್ಯನ ದಿನ! ಅಗಾಧ ತೇಜಸ್ಸು, ಪ್ರಭಾವ, ಕೀರ್ತಿ. ಆದಿತ್ಯ ಹೃದಯಂ ಪಠಿಸಿ.';
+            case 'kanya': return 'ಭಾನುವಾರ: ಹೊಸ ಶಕ್ತಿ, ಹೊಸ ಚೈತನ್ಯ. ಸೂರ್ಯ ನಮಸ್ಕಾರದಿಂದ ಆರೋಗ್ಯ ಸುಧಾರಣೆ.';
+            case 'tula': return 'ಭಾನುವಾರ: ಸಮಾಜದಲ್ಲಿ ಗೌರವ. ತಂದೆಯ ಆಶೀರ್ವಾದ ಪಡೆದು ದಿನ ಪ್ರಾರಂಭಿಸಿ.';
+            case 'vrishchika': return 'ಭಾನುವಾರ: ಶಕ್ತಿ ಹಾಗೂ ಉತ್ಸಾಹ. ಸೂರ್ಯ ಮಂತ್ರ ಜಪದಿಂದ ಧೈರ್ಯ ವೃದ್ಧಿ.';
+            case 'dhanu': return 'ಭಾನುವಾರ: ಧಾರ್ಮಿಕ ಪ್ರವಾಸ ಅಥವಾ ಸಂಕಲ್ಪ. ವಿಷ್ಣು ಸಹಸ್ರನಾಮ ಶ್ರವಣ.';
+            case 'makara': return 'ಭಾನುವಾರ: ಶ್ರಮ ಸಾರ್ಥಕವಾಗುತ್ತದೆ. ಸೂರ್ಯ ನಾರಾಯಣ ದೇವರಿಗೆ ನಮಸ್ಕರಿಸಿ.';
+            case 'kumbha': return 'ಭಾನುವಾರ: ಶಾಂತಿ ಹಾಗೂ ಶುಭಫಲ. ಸೂರ್ಯ ಅಷ್ಟಕಂ ಪಠಿಸಿ.';
+            case 'meena': return 'ಭಾನುವಾರ: ಆಧ್ಯಾತ್ಮಿಕ ಸಂತೃಪ್ತಿ. ನಾರಾಯಣ ಕವಚ ಪಠಣದಿಂದ ರಕ್ಷಣೆ.';
+          }
+      }
     } else if (lang == 'hi') {
-      return const [
-        RashiInfo(
-          id: 'mesha',
-          name: 'मेष राशि',
-          englishName: 'Aries',
-          symbol: '♈',
-          rulingPlanet: 'मंगल',
-          element: 'अग्नि तत्व',
-          prediction: 'आत्मविश्वास व साहस में वृद्धि होगी। हनुमान जी की उपासना से सभी कार्यों में सफलता प्राप्त होगी।',
-          luckyColor: 'लाल व केसरिया',
-          luckyNumber: '9',
-          deity: 'श्री हनुमान व गणेश जी',
-          mantra: 'ॐ हं हनुमते नमः',
-        ),
-        RashiInfo(
-          id: 'vrishabha',
-          name: 'वृषभ राशि',
-          englishName: 'Taurus',
-          symbol: '♉',
-          rulingPlanet: 'शुक्र',
-          element: 'पृथ्वी तत्व',
-          prediction: 'परिवार में सुख-शांति बनी रहेगी। माँ महालक्ष्मी की कृपा से धन-धान्य की वृद्धि होगी।',
-          luckyColor: 'सफेद व सुनहरा',
-          luckyNumber: '6',
-          deity: 'माँ महालक्ष्मी',
-          mantra: 'ॐ श्रीं महालक्ष्म्यै नमः',
-        ),
-        RashiInfo(
-          id: 'mithuna',
-          name: 'मिथुन राशि',
-          englishName: 'Gemini',
-          symbol: '♊',
-          rulingPlanet: 'बुध',
-          element: 'वायु तत्व',
-          prediction: 'बुधवार को व्यापार व संचार में उत्कृष्ट लाभ। भगवान विष्णु व श्री कृष्ण की आराधना करें।',
-          luckyColor: 'हरा',
-          luckyNumber: '5',
-          deity: 'भगवान कृष्ण व विष्णु',
-          mantra: 'ॐ क्लीं कृष्णाय नमः',
-        ),
-        RashiInfo(
-          id: 'karka',
-          name: 'कर्क राशि',
-          englishName: 'Cancer',
-          symbol: '♋',
-          rulingPlanet: 'चंद्र',
-          element: 'जल तत्व',
-          prediction: 'मन शांत व भक्तिभाव से परिपूर्ण रहेगा। भगवान शिव के पंचाक्षरी मंत्र का जप शुभ फल देगा।',
-          luckyColor: 'दूधिया सफेद व चांदी',
-          luckyNumber: '2',
-          deity: 'भगवान शिव',
-          mantra: 'ॐ नमः शिवाय',
-        ),
-        RashiInfo(
-          id: 'simha',
-          name: 'सिंह राशि',
-          englishName: 'Leo',
-          symbol: '♌',
-          rulingPlanet: 'सूर्य',
-          element: 'अग्नि तत्व',
-          prediction: 'तेज, सम्मान व कार्यक्षेत्र में प्रभाव बढ़ेगा। आदित्य हृदय स्तोत्र का पाठ करें।',
-          luckyColor: 'नारंगी व पीला',
-          luckyNumber: '1',
-          deity: 'सूर्य नारायण देव',
-          mantra: 'ॐ घृणिः सूर्याय नमः',
-        ),
-        RashiInfo(
-          id: 'kanya',
-          name: 'कन्या राशि',
-          englishName: 'Virgo',
-          symbol: '♍',
-          rulingPlanet: 'बुध',
-          element: 'पृथ्वी तत्व',
-          prediction: 'विद्यार्थियों व बुद्धिजीवियों के लिए दिन उत्तम। भगवान गणेश को दूर्वा अर्पित करें।',
-          luckyColor: 'हल्का हरा',
-          luckyNumber: '5',
-          deity: 'श्री सिद्धि विनायक',
-          mantra: 'ॐ गं गणपतये नमः',
-        ),
-        RashiInfo(
-          id: 'tula',
-          name: 'तुला राशि',
-          englishName: 'Libra',
-          symbol: '♎',
-          rulingPlanet: 'शुक्र',
-          element: 'वायु तत्व',
-          prediction: 'नये कार्यों के शुभारंभ के लिए उत्तम समय। ललिता सहस्रनाम का श्रवण करें।',
-          luckyColor: 'गुलाबी व सफेद',
-          luckyNumber: '6',
-          deity: 'माँ ललिता त्रिपुरसुंदरी',
-          mantra: 'ॐ ऐं ह्रीं श्रीं त्रिपुरसुन्दर्यै नमः',
-        ),
-        RashiInfo(
-          id: 'vrishchika',
-          name: 'वृश्चिक राशि',
-          englishName: 'Scorpio',
-          symbol: '♏',
-          rulingPlanet: 'मंगल',
-          element: 'जल तत्व',
-          prediction: 'धैर्य व पराक्रम से बाधाओं पर विजय मिलेगी। कार्तिकेय स्वामी की उपासना करें।',
-          luckyColor: 'गहरा लाल',
-          luckyNumber: '9',
-          deity: 'भगवान सुब्रह्मण्य',
-          mantra: 'ॐ शरवणभवाय नमः',
-        ),
-        RashiInfo(
-          id: 'dhanu',
-          name: 'धनु राशि',
-          englishName: 'Sagittarius',
-          symbol: '♐',
-          rulingPlanet: 'बृहस्पति (गुरु)',
-          element: 'अग्नि तत्व',
-          prediction: 'गुरु कृपा से ज्ञान व यश में वृद्धि होगी। विष्णु सहस्रनाम का पाठ करें।',
-          luckyColor: 'पीला व स्वर्णिम',
-          luckyNumber: '3',
-          deity: 'श्री वेंकटेश्वर स्वामी',
-          mantra: 'ॐ नमो नारायणाय',
-        ),
-        RashiInfo(
-          id: 'makara',
-          name: 'मकर राशि',
-          englishName: 'Capricorn',
-          symbol: '♑',
-          rulingPlanet: 'शनि',
-          element: 'पृथ्वी तत्व',
-          prediction: 'कठिन परिश्रम का उत्तम फल मिलेगा। तिल के तेल का दीपक प्रज्वलित करें।',
-          luckyColor: 'नीला व काला',
-          luckyNumber: '8',
-          deity: 'शनिदेव व हनुमान जी',
-          mantra: 'ॐ शं शनैश्चराय नमः',
-        ),
-        RashiInfo(
-          id: 'kumbha',
-          name: 'कुंभ राशि',
-          englishName: 'Aquarius',
-          symbol: '♒',
-          rulingPlanet: 'शनि',
-          element: 'वायु तत्व',
-          prediction: 'धार्मिक व परोपकारी कार्यों में मन लगेगा। महामृत्युंजय मंत्र जपें।',
-          luckyColor: 'आसमानी नीला',
-          luckyNumber: '8',
-          deity: 'भगवान रुद्र',
-          mantra: 'ॐ जुं सः रुद्राय नमः',
-        ),
-        RashiInfo(
-          id: 'meena',
-          name: 'मीन राशि',
-          englishName: 'Pisces',
-          symbol: '♓',
-          rulingPlanet: 'बृहस्पति (गुरु)',
-          element: 'जल तत्व',
-          prediction: 'अध्यात्म व तीर्थ यात्रा का पावन योग। गुरु वंदना से मानसिक शांति मिलेगी।',
-          luckyColor: 'पीला व केसरिया',
-          luckyNumber: '3',
-          deity: 'श्री दत्तात्रेय व गुरुदेव',
-          mantra: 'ॐ श्री गुरुभ्यो नमः',
-        ),
-      ];
-    } else {
-      return const [
-        RashiInfo(
-          id: 'mesha',
-          name: 'Mesha (Aries)',
-          englishName: 'Aries',
-          symbol: '♈',
-          rulingPlanet: 'Mars (Mangala)',
-          element: 'Fire',
-          prediction: 'Auspicious day for courageous endeavors and spiritual progress. Lord Ganesha and Hanuman grant success.',
-          luckyColor: 'Red & Saffron',
-          luckyNumber: '9',
-          deity: 'Lord Hanuman & Ganesha',
-          mantra: 'Om Hum Hanumate Namah',
-        ),
-        RashiInfo(
-          id: 'vrishabha',
-          name: 'Vrishabha (Taurus)',
-          englishName: 'Taurus',
-          symbol: '♉',
-          rulingPlanet: 'Venus (Shukra)',
-          element: 'Earth',
-          prediction: 'Peace and harmony prevail in family life. Offering flowers to Goddess Mahalakshmi brings abundant prosperity.',
-          luckyColor: 'White & Gold',
-          luckyNumber: '6',
-          deity: 'Goddess Mahalakshmi',
-          mantra: 'Om Shreem Mahalakshmyai Namah',
-        ),
-        RashiInfo(
-          id: 'mithuna',
-          name: 'Mithuna (Gemini)',
-          englishName: 'Gemini',
-          symbol: '♊',
-          rulingPlanet: 'Mercury (Budha)',
-          element: 'Air',
-          prediction: 'Wednesday brings positive growth in intellectual and communication pursuits. Chanting Vishnu Sahasranama brings clarity.',
-          luckyColor: 'Emerald Green',
-          luckyNumber: '5',
-          deity: 'Lord Krishna & Vishnu',
-          mantra: 'Om Kleem Krishnaya Namah',
-        ),
-        RashiInfo(
-          id: 'karka',
-          name: 'Karka (Cancer)',
-          englishName: 'Cancer',
-          symbol: '♋',
-          rulingPlanet: 'Moon (Chandra)',
-          element: 'Water',
-          prediction: 'Deep spiritual calmness and devotional intuition. Shiva Panchakshari japa resolves emotional fluctuations.',
-          luckyColor: 'Pearl White & Silver',
-          luckyNumber: '2',
-          deity: 'Lord Shiva (Chandramouleshwara)',
-          mantra: 'Om Namah Shivaya',
-        ),
-        RashiInfo(
-          id: 'simha',
-          name: 'Simha (Leo)',
-          englishName: 'Leo',
-          symbol: '♌',
-          rulingPlanet: 'Sun (Surya)',
-          element: 'Fire',
-          prediction: 'Leadership, radiance, and respect are enhanced. Chanting Aditya Hridaya Stotra yields victory and vitality.',
-          luckyColor: 'Amber & Golden Yellow',
-          luckyNumber: '1',
-          deity: 'Lord Surya Narayana',
-          mantra: 'Om Ghrinih Suryaya Namah',
-        ),
-        RashiInfo(
-          id: 'kanya',
-          name: 'Kanya (Virgo)',
-          englishName: 'Virgo',
-          symbol: '♍',
-          rulingPlanet: 'Mercury (Budha)',
-          element: 'Earth',
-          prediction: 'Favorable day for study, analysis, and resolving obstacles. Offering Durva grass to Lord Ganesha brings blessing.',
-          luckyColor: 'Light Green',
-          luckyNumber: '5',
-          deity: 'Lord Siddhi Vinayaka',
-          mantra: 'Om Gam Ganapataye Namah',
-        ),
-        RashiInfo(
-          id: 'tula',
-          name: 'Tula (Libra)',
-          englishName: 'Libra',
-          symbol: '♎',
-          rulingPlanet: 'Venus (Shukra)',
-          element: 'Air',
-          prediction: 'Auspicious timing for new artistic and spiritual beginnings. Lalitha Sahasranama brings grace and beauty.',
-          luckyColor: 'Rose Pink & White',
-          luckyNumber: '6',
-          deity: 'Goddess Lalitha Tripura Sundari',
-          mantra: 'Om Aim Hreem Shreem Tripurasundaryai Namah',
-        ),
-        RashiInfo(
-          id: 'vrishchika',
-          name: 'Vrishchika (Scorpio)',
-          englishName: 'Scorpio',
-          symbol: '♏',
-          rulingPlanet: 'Mars (Mangala)',
-          element: 'Water',
-          prediction: 'Inner strength and spiritual determination triumph over adversity. Praying to Lord Subramanya removes fear.',
-          luckyColor: 'Crimson Red',
-          luckyNumber: '9',
-          deity: 'Lord Subramanya / Kartikeya',
-          mantra: 'Om Sharavanabhavaya Namah',
-        ),
-        RashiInfo(
-          id: 'dhanu',
-          name: 'Dhanu (Sagittarius)',
-          englishName: 'Sagittarius',
-          symbol: '♐',
-          rulingPlanet: 'Jupiter (Guru)',
-          element: 'Fire',
-          prediction: 'Divine grace of Guru bestows wisdom and success. Listening to Venkateshwara Suprabhatam brings inner joy.',
-          luckyColor: 'Bright Yellow & Gold',
-          luckyNumber: '3',
-          deity: 'Lord Venkateshwara',
-          mantra: 'Om Namo Narayanaya',
-        ),
-        RashiInfo(
-          id: 'makara',
-          name: 'Makara (Capricorn)',
-          englishName: 'Capricorn',
-          symbol: '♑',
-          rulingPlanet: 'Saturn (Shani)',
-          element: 'Earth',
-          prediction: 'Perseverance brings divine fruits. Lighting a sesame lamp for Lord Shani and chanting Hanuman Chalisa brings peace.',
-          luckyColor: 'Midnight Blue',
-          luckyNumber: '8',
-          deity: 'Lord Shani & Hanuman',
-          mantra: 'Om Sham Shanaishcharaya Namah',
-        ),
-        RashiInfo(
-          id: 'kumbha',
-          name: 'Kumbha (Aquarius)',
-          englishName: 'Aquarius',
-          symbol: '♒',
-          rulingPlanet: 'Saturn (Shani)',
-          element: 'Air',
-          prediction: 'Compassion and community service bring spiritual fulfillment. Rudrabhishekam prayers bring high merit.',
-          luckyColor: 'Sky Blue',
-          luckyNumber: '8',
-          deity: 'Lord Rudra Shiva',
-          mantra: 'Om Jum Sah Rudraya Namah',
-        ),
-        RashiInfo(
-          id: 'meena',
-          name: 'Meena (Pisces)',
-          englishName: 'Pisces',
-          symbol: '♓',
-          rulingPlanet: 'Jupiter (Guru)',
-          element: 'Water',
-          prediction: 'Deep meditative bliss and sacred pilgrim thoughts. Guru Parampara prayers bring peace and guidance.',
-          luckyColor: 'Golden Yellow',
-          luckyNumber: '3',
-          deity: 'Sri Guru Raghavendra & Dattatreya',
-          mantra: 'Om Sri Raghavendraya Namah',
-        ),
-      ];
+      switch (weekday) {
+        case DateTime.monday:
+          switch (rashiId) {
+            case 'mesha': return 'सोमवार: आत्मविश्वास व कार्यक्षमता में वृद्धि। शिवलिंग पर जलाभिषेक करने से मनोकामनाएं पूर्ण होंगी।';
+            case 'vrishabha': return 'सोमवार: पारिवारिक सुख व आर्थिक लाभ। चंद्र देव के ध्यान से मानसिक शांति मिलेगी।';
+            case 'mithuna': return 'सोमवार: रचनात्मक कार्यों में सफलता। ॐ नमः शिवाय का 108 बार जप करें।';
+            case 'karka': return 'सोमवार: राशिश चंद्र का दिन! भक्तिभाव व सकारात्मक ऊर्जा बनी रहेगी। शिव पूजन करें।';
+            case 'simha': return 'सोमवार: कार्यक्षेत्र में सम्मान। माताजी का आशीर्वाद लेकर नया कार्य शुरू करें।';
+            case 'kanya': return 'सोमवार: नई योजनाओं के लिए अनुकूल समय। भगवान शिव को श्वेत पुष्प अर्पित करें।';
+            case 'tula': return 'सोमवार: शुभ समाचार प्राप्त होगा। कला व अध्यात्म में मन लगेगा।';
+            case 'vrishchika': return 'सोमवार: धैर्य व पराक्रम से सफलता। रुद्राष्टकम का पाठ लाभकारी रहेगा।';
+            case 'dhanu': return 'सोमवार: गुरु कृपा से ज्ञान में वृद्धि। बड़ों के आशीर्वाद से दिन शुभ रहेगा।';
+            case 'makara': return 'सोमवार: कठिन परिश्रम का उत्तम फल। शिव मंदिर में दुग्धाभिषेक करें।';
+            case 'kumbha': return 'सोमवार: परोपकार व धर्म कार्यों में मन लगेगा। मानसिक शांति मिलेगी।';
+            case 'meena': return 'सोमवार: आध्यात्मिक यात्रा के योग। महामृत्युंजय मंत्र का पाठ करें।';
+          }
+          break;
+        case DateTime.tuesday:
+          switch (rashiId) {
+            case 'mesha': return 'मंगलवार: राशिश मंगल का दिन! अपार ऊर्जा व साहस। हनुमान चालीसा का पाठ करें।';
+            case 'vrishabha': return 'मंगलवार: धैर्यपूर्वक कार्य करें। श्री गणेश को दूर्वा अर्पित करें।';
+            case 'mithuna': return 'मंगलवार: वाणी पर संयम रखें। भगवान सुब्रह्मण्य की आराधना से विजय प्राप्त होगी।';
+            case 'karka': return 'मंगलवार: धार्मिक कार्यों में रुचि। हनुमान जी को लाल पुष्प अर्पित करें।';
+            case 'simha': return 'मंगलवार: नेतृत्व क्षमता की प्रशंसा। सूर्य नमस्कार व हनुमान स्मरण करें।';
+            case 'kanya': return 'मंगलवार: संकटों का निवारण होगा। संकटनाशन गणेश स्तोत्र का जप करें।';
+            case 'tula': return 'मंगलवार: दृढ़ संकल्प से सफलता। कार्तिकेय भगवान की पूजा शुभकारी।';
+            case 'vrishchika': return 'मंगलवार: राशिश मंगल का दिन! शत्रुओं पर विजय। सुब्रह्मण्य अष्टकम पढ़ें।';
+            case 'dhanu': return 'मंगलवार: धर्म कार्यों में विजय। हनुमान जी को तुलसी माला अर्पित करें।';
+            case 'makara': return 'मंगलवार: परिश्रम का उत्तम फल मिलेगा। बजरंग बाण का पाठ करें।';
+            case 'kumbha': return 'मंगलवार: साहस से आगे बढ़ें। गणेश पूजन से विघ्न दूर होंगे।';
+            case 'meena': return 'मंगलवार: नए अवसर प्राप्त होंगे। सुंदरकांड का पाठ अत्यंत शुभ रहेगा।';
+          }
+          break;
+        case DateTime.wednesday:
+          switch (rashiId) {
+            case 'mesha': return 'बुधवार: व्यापार व अध्ययन में प्रगति। विष्णु सहस्रनाम का श्रवण करें।';
+            case 'vrishabha': return 'बुधवार: आर्थिक समृद्धि। भगवान श्री कृष्ण को माखन का भोग लगाएं।';
+            case 'mithuna': return 'बुधवार: राशिश बुध का पावन दिन! बुद्धि, विद्या व व्यापार में उत्कृष्ट सफलता।';
+            case 'karka': return 'बुधवार: शांति व सुखमय दिन। पांडुरंग विट्ठल के नाम का स्मरण करें।';
+            case 'simha': return 'बुधवार: नए मित्रों का सहयोग। कृष्णाष्टकम का पाठ करें।';
+            case 'kanya': return 'बुधवार: राशिश बुध का दिन! परीक्षा व बौद्धिक कार्यों में महाविजय। गणेश वंदना करें।';
+            case 'tula': return 'बुधवार: कला व सौंदर्य में मन लगेगा। श्री लक्ष्मीनारायण स्तोत्र जपें।';
+            case 'vrishchika': return 'बुधवार: धैर्य से कार्य करें। श्री कृष्ण को तुलसी अर्पित करें।';
+            case 'dhanu': return 'बुधवार: ज्ञान प्राप्ति के लिए उत्तम दिन। हयग्रीव स्तोत्र का पाठ करें।';
+            case 'makara': return 'बुधवार: व्यापार में शुभ लाभ। गोपाल कृष्ण की आराधना करें।';
+            case 'kumbha': return 'बुधवार: नए विचार सफल होंगे। विष्णु मंदिर में दर्शन करें।';
+            case 'meena': return 'बुधवार: सत्संग में भाग लें। कृष्ण संकीर्तन से मन को शांति मिलेगी।';
+          }
+          break;
+        case DateTime.thursday:
+          switch (rashiId) {
+            case 'mesha': return 'गुरुवार: गुरु कृपा से भाग्योदय। श्री राघवेंद्र स्वामी या साईं बाबा के दर्शन करें।';
+            case 'vrishabha': return 'गुरुवार: धार्मिक अनुष्ठान में रुचि। गुरु स्तोत्र का पाठ करें।';
+            case 'mithuna': return 'गुरुवार: ज्ञान व शिक्षा में उन्नति। ॐ श्री गुरुभ्यो नमः जपें।';
+            case 'karka': return 'गुरुवार: आध्यात्मिक तेज व प्रसन्नता। दत्तात्रेय भगवान का स्मरण करें।';
+            case 'simha': return 'गुरुवार: उच्च पद व मान-सम्मान। पीले पुष्पों से भगवान विष्णु का पूजन करें।';
+            case 'kanya': return 'गुरुवार: सत्कर्मों का उत्तम फल। गुरु चरित्र का पाठ शुभकारी रहेगा।';
+            case 'tula': return 'गुरुवार: मांगलिक कार्यों की शुरुआत। गुरु मंत्र का जप करें।';
+            case 'vrishchika': return 'गुरुवार: धर्म मार्ग पर विजय। गुरुजनों का आशीर्वाद लें।';
+            case 'dhanu': return 'गुरुवार: राशिश बृहस्पति का दिन! विद्या, यश व धन में अभूतपूर्व वृद्धि।';
+            case 'makara': return 'गुरुवार: उच्चाधिकारियों का सहयोग। दत्तात्रेय वज्र कवच का पाठ करें।';
+            case 'kumbha': return 'गुरुवार: सत्संग से आनंद। गुरु राघवेंद्र अष्टोत्तर का पाठ करें।';
+            case 'meena': return 'गुरुवार: राशिश देवगुरु का दिन! दैवीय कृपा व आत्मिक आनंद। गुरु वंदना करें।';
+          }
+          break;
+        case DateTime.friday:
+          switch (rashiId) {
+            case 'mesha': return 'शुक्रवार: माँ महालक्ष्मी की कृपा से धन-धान्य की वृद्धि। कनकधारा स्तोत्र पढ़ें।';
+            case 'vrishabha': return 'शुक्रवार: राशिश शुक्र का दिन! वैभव, सुख व समृद्धि। महालक्ष्मी अष्टकम का पाठ करें।';
+            case 'mithuna': return 'शुक्रवार: पारिवारिक आनंद। ललिता सहस्रनाम का श्रवण अत्यंत कल्याणकारी।';
+            case 'karka': return 'शुक्रवार: देवी उपासना से शुभ फल। दुर्गा जी के समक्ष घी का दीपक जलाएं।';
+            case 'simha': return 'शुक्रवार: आकर्षण व सम्मान में वृद्धि। भुवनेश्वरी देवी का स्मरण करें।';
+            case 'kanya': return 'शुक्रवार: शुभ समाचार प्राप्त होंगे। सरस्वती व लक्ष्मी पूजन करें।';
+            case 'tula': return 'शुक्रवार: राशिश शुक्र का दिन! कला, प्रेम व समृद्धि। श्री सूक्त का पाठ करें।';
+            case 'vrishchika': return 'शुक्रवार: शक्ति उपासना से भय मुक्ति। चामुंडेश्वरी देवी की वंदना करें।';
+            case 'dhanu': return 'शुक्रवार: मांगलिक कार्य संपन्न होंगे। लक्ष्मी नारायण का पूजन करें।';
+            case 'makara': return 'शुक्रवार: सुख व शांति। अन्नपूर्णा माता की कृपा से संपन्नता।';
+            case 'kumbha': return 'शुक्रवार: शुभ विचार व तेज। गायत्री मंत्र का जप करें।';
+            case 'meena': return 'शुक्रवार: परोपकार व दयाभाव। मूकांबिका देवी का ध्यान करें।';
+          }
+          break;
+        case DateTime.saturday:
+          switch (rashiId) {
+            case 'mesha': return 'शनिवार: शनिदेव की कृपा हेतु तिल तेल का दीपक जलाएं। हनुमान चालीसा पढ़ें।';
+            case 'vrishabha': return 'शनिवार: कठिन परिश्रम का मीठा फल। शनि गायत्री मंत्र का जप करें।';
+            case 'mithuna': return 'शनिवार: अनुशासन से काम लें। श्री वेंकटेश्वर स्वामी के दर्शन करें।';
+            case 'karka': return 'शनिवार: शिव पूजन व शनि शांति पूजा अत्यंत कल्याणकारी।';
+            case 'simha': return 'शनिवार: अहंकार त्यागें व धैर्य रखें। शनैश्चर स्तोत्र का पाठ करें।';
+            case 'kanya': return 'शनिवार: धर्म कार्यों में सफलता। पक्षियों व कौओं को अन्न दें।';
+            case 'tula': return 'शनिवार: नौकरी में स्थिरता। हनुमान जी को सिंदूर अर्पित करें।';
+            case 'vrishchika': return 'शनिवार: साढ़ेसाती शांति हेतु हनुमान रक्षा कवच का पाठ करें।';
+            case 'dhanu': return 'शनिवार: तिरुपति बालाजी के स्मरण से सभी दरिद्रता दूर होगी।';
+            case 'makara': return 'शनिवार: राशिश शनिदेव का दिन! न्याय व सत्य का पालन करें। शनि कवच जपें।';
+            case 'kumbha': return 'शनिवार: राशिश शनिदेव का दिन! दान-पुण्य से महाफल। रुद्राभिषेक करें।';
+            case 'meena': return 'शनिवार: सेवा भाव से प्रभु कृपा। नवग्रह मंदिर की परिक्रमा करें।';
+          }
+          break;
+        case DateTime.sunday:
+        default:
+          switch (rashiId) {
+            case 'mesha': return 'रविवार: सूर्य नारायण के तेज से कार्यक्षेत्र में विजय। आदित्य हृदय स्तोत्र पढ़ें।';
+            case 'vrishabha': return 'रविवार: उत्तम स्वास्थ्य व यश। सूर्य देव को जल अर्घ्य दें।';
+            case 'mithuna': return 'रविवार: महत्वपूर्ण निर्णयों के लिए शुभ दिन। गायत्री मंत्र जपें।';
+            case 'karka': return 'रविवार: मानसिक शांति। शिव व सूर्य उपासना मंगलकारी।';
+            case 'simha': return 'रविवार: राशिश सूर्य नारायण का पावन दिन! अपार तेज, प्रभाव व सम्मान। आदित्य हृदयम पढ़ें।';
+            case 'kanya': return 'रविवार: नई ऊर्जा व उत्साह। सूर्य नमस्कार से स्वास्थ्य लाभ।';
+            case 'tula': return 'रविवार: समाज में मान-सम्मान। पिता का आशीर्वाद लें।';
+            case 'vrishchika': return 'रविवार: शक्ति व पराक्रम। सूर्य मंत्र से मनोबल बढ़ेगा।';
+            case 'dhanu': return 'रविवार: आध्यात्मिक यात्रा। विष्णु सहस्रनाम का श्रवण करें।';
+            case 'makara': return 'रविवार: परिश्रम सार्थक होगा। सूर्य देव को प्रणाम करें।';
+            case 'kumbha': return 'रविवार: शांति व शुभ फल। सूर्याष्टकम का पाठ करें।';
+            case 'meena': return 'रविवार: आध्यात्मिक संतुष्टि। नारायण कवच का पाठ करें।';
+          }
+      }
+    }
+
+    // Default / English
+    final dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    final dayName = dayNames[(weekday - 1).clamp(0, 6)];
+    switch (weekday) {
+      case DateTime.wednesday:
+        return '$dayName: Auspicious planetary alignment with Mercury & Lord Krishna. High intellect, successful communication, and positive growth.';
+      case DateTime.thursday:
+        return '$dayName: Blessed by Jupiter (Guru) and Lord Venkateshwara. Divine wisdom, spiritual advancement, and family harmony.';
+      case DateTime.friday:
+        return '$dayName: Grace of Goddess Mahalakshmi and Venus brings abundance, prosperity, and creative artistic joy.';
+      case DateTime.saturday:
+        return '$dayName: Dedicated to Lord Shani and Hanuman. Sincere discipline, duty, and perseverance bring divine protection.';
+      case DateTime.sunday:
+        return '$dayName: Radiant energy of Lord Surya Narayana brings health, vitality, leadership, and victorious endeavors.';
+      case DateTime.monday:
+        return '$dayName: Serene cosmic grace of Lord Shiva and Moon. Deep mental peace, intuition, and devotional fulfillment.';
+      case DateTime.tuesday:
+      default:
+        return '$dayName: Dynamic courage of Mars and Lord Hanuman. Bold initiatives and victory over all challenges.';
     }
   }
 
