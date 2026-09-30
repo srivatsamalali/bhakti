@@ -317,14 +317,15 @@ class DevotionalCard extends StatelessWidget {
                         Text(
                           song.getLocalizedTitle(currentLang),
                           style: AppTypography.titleMedium.copyWith(
-                            fontSize: 16,
+                            fontSize: 15.5,
                             fontWeight: FontWeight.w800,
+                            height: 1.22,
                             color: isCurrentPlaying
                                 ? AppColors.maroonPrimary
                                 : AppColors.textDark,
-                            letterSpacing: 0.2,
+                            letterSpacing: 0.1,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),

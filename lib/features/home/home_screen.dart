@@ -617,142 +617,152 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Row(
-                            children: [
-                              // Album Artwork with active aura
-                              Stack(
-                                alignment: Alignment.center,
+                        child: Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => SongDetailsScreen(song: song)),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              child: Row(
                                 children: [
-                                  _buildSongImage(song.imageUrl, size: 64, radius: 14),
-                                  if (isPlaying)
-                                    Positioned(
-                                      bottom: 4,
-                                      right: 4,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.65),
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        child: DivineMusicVisualizer(
-                                          isPlaying: true,
-                                          height: 10,
-                                          width: 14,
-                                          barColor: templeTheme.accentGold,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(width: 16),
-
-                              // Title & Deity
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            song.getLocalizedTitle(currentLang),
-                                            style: TextStyle(
-                                              fontSize: 16.5,
-                                              fontWeight: FontWeight.bold,
-                                              color: isPlaying ? templeTheme.primaryColor : AppColors.textDark,
+                                  // Album Artwork with active aura
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      _buildSongImage(song.imageUrl, size: 58, radius: 13),
+                                      if (isPlaying)
+                                        Positioned(
+                                          bottom: 3,
+                                          right: 3,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withOpacity(0.65),
+                                              borderRadius: BorderRadius.circular(5),
                                             ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                            child: DivineMusicVisualizer(
+                                              isPlaying: true,
+                                              height: 9,
+                                              width: 12,
+                                              barColor: templeTheme.accentGold,
+                                            ),
                                           ),
                                         ),
-                                        if (isPlaying) ...[
-                                          const SizedBox(width: 6),
-                                          DivineMusicVisualizer(
-                                            isPlaying: true,
-                                            height: 14,
-                                            width: 18,
-                                            barColor: templeTheme.primaryColor,
-                                          ),
-                                        ],
+                                    ],
+                                  ),
+                                  const SizedBox(width: 13),
+
+                                  // Title & Deity
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                song.getLocalizedTitle(currentLang),
+                                                style: TextStyle(
+                                                  fontSize: 15.5,
+                                                  fontWeight: FontWeight.bold,
+                                                  height: 1.22,
+                                                  color: isPlaying ? templeTheme.primaryColor : AppColors.textDark,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            if (isPlaying) ...[
+                                              const SizedBox(width: 4),
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 2),
+                                                child: DivineMusicVisualizer(
+                                                  isPlaying: true,
+                                                  height: 13,
+                                                  width: 16,
+                                                  barColor: templeTheme.primaryColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Builder(
+                                          builder: (context) {
+                                            final liveDuration = (isPlaying && player.totalDuration != null && player.totalDuration!.inSeconds > 0)
+                                                ? '${player.totalDuration!.inMinutes}:${(player.totalDuration!.inSeconds % 60).toString().padLeft(2, '0')}'
+                                                : song.formattedDuration;
+                                            return Text(
+                                              '${song.getLocalizedDeity(currentLang)} • $liveDuration',
+                                              style: TextStyle(
+                                                fontSize: 12.5,
+                                                color: isPlaying ? templeTheme.primaryColor.withOpacity(0.85) : const Color(0xFF6B5B52),
+                                                fontWeight: isPlaying ? FontWeight.w600 : FontWeight.w500,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            );
+                                          },
+                                        ),
                                       ],
                                     ),
-                                    const SizedBox(height: 4),
-                                    Builder(
-                                      builder: (context) {
-                                        final liveDuration = (isPlaying && player.totalDuration != null && player.totalDuration!.inSeconds > 0)
-                                            ? '${player.totalDuration!.inMinutes}:${(player.totalDuration!.inSeconds % 60).toString().padLeft(2, '0')}'
-                                            : song.formattedDuration;
-                                        return Text(
-                                          '${song.getLocalizedDeity(currentLang)} • $liveDuration',
-                                          style: TextStyle(
-                                            fontSize: 13.5,
-                                            color: isPlaying ? templeTheme.primaryColor.withOpacity(0.85) : const Color(0xFF6B5B52),
-                                            fontWeight: isPlaying ? FontWeight.w600 : FontWeight.w500,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        );
+                                  ),
+                                  const SizedBox(width: 8),
+
+                                  // Favorite Heart Button
+                                  IconButton(
+                                    icon: Icon(
+                                      prefs.isFavorite(song.id) ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                                      color: prefs.isFavorite(song.id) ? templeTheme.primaryColor : const Color(0xFF8B776A),
+                                      size: 22,
+                                    ),
+                                    constraints: const BoxConstraints(),
+                                    padding: const EdgeInsets.all(8),
+                                    tooltip: 'Favorite',
+                                    onPressed: () async {
+                                      await prefs.toggleFavorite(song.id);
+                                    },
+                                  ),
+                                  const SizedBox(width: 4),
+
+                                  // Play/Pause Circular Action Button
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: isPlaying ? templeTheme.primaryColor : const Color(0xFFF3EDE3),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                        color: isPlaying ? Colors.white : templeTheme.primaryColor,
+                                        size: 24,
+                                      ),
+                                      padding: EdgeInsets.zero,
+                                      tooltip: isPlaying ? 'Pause' : 'Play',
+                                      onPressed: () {
+                                        if (isPlaying) {
+                                          player.pause();
+                                        } else if (player.currentSong?.id == song.id) {
+                                          player.resume();
+                                        } else {
+                                          player.playSong(song, newQueue: allSongs);
+                                        }
                                       },
                                     ),
-                                  ],
-                                ),
-                              ),
-
-                              // Play/Pause Circular Action Button
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: isPlaying ? templeTheme.primaryColor : const Color(0xFFF3EDE3),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  icon: Icon(
-                                    isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                                    color: isPlaying ? Colors.white : templeTheme.primaryColor,
-                                    size: 26,
                                   ),
-                                  padding: EdgeInsets.zero,
-                                  tooltip: isPlaying ? 'Pause' : 'Play',
-                                  onPressed: () {
-                                    if (isPlaying) {
-                                      player.pause();
-                                    } else if (player.currentSong?.id == song.id) {
-                                      player.resume();
-                                    } else {
-                                      player.playSong(song, newQueue: allSongs);
-                                    }
-                                  },
-                                ),
+                                ],
                               ),
-                              const SizedBox(width: 6),
-
-                              // Favorite Heart
-                              IconButton(
-                                icon: Icon(
-                                  prefs.isFavorite(song.id) ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
-                                  color: prefs.isFavorite(song.id) ? templeTheme.primaryColor : const Color(0xFF8B776A),
-                                  size: 22,
-                                ),
-                                tooltip: 'Favorite',
-                                onPressed: () async {
-                                  await prefs.toggleFavorite(song.id);
-                                },
-                              ),
-
-                              // Details Screen Arrow
-                              IconButton(
-                                icon: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF8B776A), size: 16),
-                                tooltip: 'Details',
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (_) => SongDetailsScreen(song: song)),
-                                  );
-                                },
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       );
