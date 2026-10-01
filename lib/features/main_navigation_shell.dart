@@ -13,6 +13,8 @@ import 'admin/admin_login_screen.dart';
 import 'favorites/favorites_screen.dart';
 import 'home/home_screen.dart';
 import 'player/mini_player_bar.dart';
+import 'pooja/sacred_temple_map_screen.dart';
+import 'pooja/virtual_pooja_room_screen.dart';
 import 'settings/settings_screen.dart';
 import 'songs/song_library_screen.dart';
 
@@ -138,6 +140,16 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               label: 'Explore Chants',
               isSelected: _currentIndex == 1,
               onTap: () => setState(() => _currentIndex = 1),
+            ),
+            _buildSidebarNavItem(
+              icon: Icons.public_rounded,
+              label: 'Sacred Map Yatra',
+              isSelected: false,
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SacredTempleMapScreen()),
+                );
+              },
             ),
             _buildSidebarNavItem(
               icon: Icons.favorite_rounded,

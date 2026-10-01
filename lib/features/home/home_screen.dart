@@ -21,8 +21,10 @@ import '../../widgets/shimmer_song_tile.dart';
 import '../../widgets/sacred_filigree_border.dart';
 import 'widgets/daily_panchanga_card.dart';
 import 'widgets/daily_shloka_card.dart';
+import 'widgets/virtual_pooja_card.dart';
 import '../../core/theme/temple_theme.dart';
 import '../settings/widgets/temple_theme_selector_sheet.dart';
+import '../pooja/sacred_temple_map_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -136,34 +138,31 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: templeTheme.backgroundColor,
       body: SafeArea(
-        child: AmbientDiyaParticles(
-          particleCount: 14,
-          particleColor: templeTheme.accentGold,
-          child: RefreshIndicator(
-            color: templeTheme.primaryColor,
-            backgroundColor: Colors.white,
-            onRefresh: () async {
-              await songRepo.loadSongs();
-            },
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-              slivers: [
-                // --- Clean Top Header Bar ---
+        child: RefreshIndicator(
+          color: templeTheme.primaryColor,
+          backgroundColor: Colors.white,
+          onRefresh: () async {
+            await songRepo.loadSongs();
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            slivers: [
+              // --- Clean, High-Performance Top Header Bar ---
               SliverToBoxAdapter(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final isDesktop = constraints.maxWidth >= 700;
-                    final isCompact = constraints.maxWidth < 500;
+                    final isCompact = constraints.maxWidth < 420;
 
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       child: Row(
                         children: [
                           // Show logo and title only on mobile when left sidebar is absent
                           if (!isDesktop) ...[
                             Container(
-                              width: 38,
-                              height: 38,
+                              width: 36,
+                              height: 36,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 boxShadow: [
@@ -183,17 +182,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, __, ___) => Container(
                                       color: templeTheme.primaryColor,
-                                      child: Icon(Icons.wb_sunny, color: templeTheme.accentGold, size: 20),
+                                      child: Icon(Icons.wb_sunny, color: templeTheme.accentGold, size: 18),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 8),
                             Text(
                               'BHAKTI',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 17,
                                 fontWeight: FontWeight.w800,
                                 color: templeTheme.primaryColor,
                                 letterSpacing: 1.1,
@@ -239,75 +238,94 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(width: 16),
                           ],
-                          // Ask Bhakti AI Floating Liquid Glass Pill (Matching "Ask Meta AI" in iOS screenshot)
-                          LiquidGlass(
-                            style: GlassStyle.button,
-                            isStadium: true,
-                            tint: templeTheme.primaryColor,
+
+                          // Ask Bhakti AI High-Performance Glossy Pill
+                          InkWell(
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(builder: (_) => const BhaktiAiScreen()),
                               );
                             },
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isCompact ? 8 : 12,
-                              vertical: 6,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 20,
-                                  height: 20,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: SweepGradient(
-                                      colors: [
-                                        Color(0xFFFF4070),
-                                        Color(0xFFFFB300),
-                                        Color(0xFF00E5FF),
-                                        Color(0xFF7C4DFF),
-                                        Color(0xFFFF4070),
-                                      ],
-                                    ),
-                                  ),
-                                  child: const Center(
-                                    child: Icon(Icons.auto_awesome, color: Colors.white, size: 12),
-                                  ),
-                                ),
-                                if (!isCompact || isDesktop) ...[
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    isCompact ? 'AI' : 'Ask Bhakti AI',
-                                    style: TextStyle(
-                                      color: templeTheme.primaryColor,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: 0.2,
-                                    ),
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: templeTheme.borderColor),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 1),
                                   ),
                                 ],
-                              ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 20,
+                                    height: 20,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: SweepGradient(
+                                        colors: [
+                                          Color(0xFFFF4070),
+                                          Color(0xFFFFB300),
+                                          Color(0xFF00E5FF),
+                                          Color(0xFF7C4DFF),
+                                          Color(0xFFFF4070),
+                                        ],
+                                      ),
+                                    ),
+                                    child: const Center(
+                                      child: Icon(Icons.auto_awesome, color: Colors.white, size: 11),
+                                    ),
+                                  ),
+                                  if (!isCompact || isDesktop) ...[
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'AI',
+                                      style: TextStyle(
+                                        color: templeTheme.primaryColor,
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 5),
 
-                          // Search Pill Button
-                          LiquidGlass(
-                            style: GlassStyle.button,
-                            isStadium: true,
+                          // Search Icon Button
+                          InkWell(
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(builder: (_) => const SearchScreen()),
                               );
                             },
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 6,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: templeTheme.borderColor),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 1),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(Icons.search_rounded, color: templeTheme.primaryColor, size: 17),
                             ),
-                            child: Icon(Icons.search_rounded, color: templeTheme.primaryColor, size: 18),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 5),
 
                           // Language Switcher Pill
                           InkWell(
@@ -318,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                             borderRadius: BorderRadius.circular(20),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20),
@@ -327,53 +345,72 @@ class _HomeScreenState extends State<HomeScreen> {
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.03),
                                     blurRadius: 4,
-                                    offset: const Offset(0, 2),
+                                    offset: const Offset(0, 1),
                                   ),
                                 ],
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.language_rounded, size: 15, color: templeTheme.primaryColor),
-                                  const SizedBox(width: 4),
+                                  Icon(Icons.language_rounded, size: 14, color: templeTheme.primaryColor),
+                                  const SizedBox(width: 3),
                                   Text(
                                     currentLang.toUpperCase(),
-                                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: templeTheme.primaryColor),
+                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: templeTheme.primaryColor),
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 5),
 
-                          // Temple Theme Switcher Button
-                          Builder(
-                            builder: (ctx) {
-                              final currentTheme = TempleTheme.fromId(prefs.getTempleThemeId());
-                              return InkWell(
-                                onTap: () => TempleThemeSelectorSheet.show(ctx),
-                                borderRadius: BorderRadius.circular(20),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: templeTheme.borderColor),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.03),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      ),
+                          // Sacred Temple Map & Yatra Button
+                          Tooltip(
+                            message: 'Sacred Temple Map & Yatra',
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const SacredTempleMapScreen()),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFFFFF8E7),
+                                      Color(0xFFFFECD2),
                                     ],
                                   ),
-                                  child: Text(
-                                    currentTheme.emoji,
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: AppColors.goldPrimary.withOpacity(0.8), width: 1.2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.goldPrimary.withOpacity(0.12),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.public_rounded, size: 15, color: templeTheme.primaryColor),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      'MAP',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w800,
+                                        color: templeTheme.primaryColor,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
 
                           if (isDesktop) ...[
@@ -874,7 +911,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-    ),
     );
   }
 

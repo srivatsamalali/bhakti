@@ -167,23 +167,23 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                   ),
                 ),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header Row: [Badge] + [Action Tools (Audio, Flower, Copy)]
+                  // --- Clean Unclipped Header ---
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           gradient: templeTheme.heroGradient,
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: templeTheme.primaryColor.withOpacity(0.25),
-                              blurRadius: 8,
+                              color: templeTheme.primaryColor.withOpacity(0.22),
+                              blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
                           ],
@@ -191,102 +191,73 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.auto_awesome, size: 12, color: AppColors.goldLight),
-                            const SizedBox(width: 5),
+                            const Icon(Icons.auto_awesome, size: 13, color: AppColors.goldLight),
+                            const SizedBox(width: 6),
                             Text(
                               data['title']!.toUpperCase(),
                               style: const TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
                                 color: Colors.white,
-                                letterSpacing: 0.6,
+                                letterSpacing: 0.8,
                               ),
                             ),
                           ],
                         ),
                       ),
 
-                      // Action Icons (Listen, Flower offering, Copy)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Listen Shloka Audio Button
-                          IconButton(
-                            icon: Icon(
-                              _isPlayingAudio ? Icons.volume_up_rounded : Icons.volume_mute_rounded,
-                              size: 19,
-                              color: _isPlayingAudio ? templeTheme.primaryColor : const Color(0xFF8B776A),
+                      // Quick Listen / Pause Pill
+                      InkWell(
+                        onTap: () => _togglePlayShloka(data['shloka']!, currentLang),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: _isPlayingAudio ? templeTheme.primaryColor : Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: _isPlayingAudio ? templeTheme.primaryColor : templeTheme.borderColor,
                             ),
-                            tooltip: _isPlayingAudio ? 'Stop Chanting' : 'Listen Shloka 🔊',
-                            padding: const EdgeInsets.all(4),
-                            constraints: const BoxConstraints(),
-                            onPressed: () {
-                              _togglePlayShloka(data['shloka']!, currentLang);
-                            },
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 4),
-                          // Flower offering action button
-                          IconButton(
-                            icon: const Icon(Icons.spa_rounded, size: 19, color: AppColors.goldDark),
-                            tooltip: 'Offer Pushpam 🌸',
-                            padding: const EdgeInsets.all(4),
-                            constraints: const BoxConstraints(),
-                            onPressed: () {
-                              final state = _offeringKey.currentState;
-                              if (state != null) {
-                                (state as dynamic).triggerOffering();
-                              }
-                            },
-                          ),
-                          const SizedBox(width: 4),
-                          // 1-Tap Wallpaper / Story Generator
-                          IconButton(
-                            icon: const Icon(Icons.wallpaper_rounded, size: 18, color: AppColors.saffronPrimary),
-                            tooltip: 'Create Wallpaper / Story 🖼️',
-                            padding: const EdgeInsets.all(4),
-                            constraints: const BoxConstraints(),
-                            onPressed: () {
-                              SacredWallpaperGeneratorDialog.show(
-                                context,
-                                shlokaTitle: data['title'],
-                                shlokaText: data['shloka'],
-                                shlokaMeaning: data['meaning'],
-                                deity: data['deity'],
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 4),
-                          IconButton(
-                            icon: const Icon(Icons.copy_rounded, size: 17, color: Color(0xFF8B776A)),
-                            tooltip: 'Copy Shloka',
-                            padding: const EdgeInsets.all(4),
-                            constraints: const BoxConstraints(),
-                            onPressed: () {
-                              Clipboard.setData(ClipboardData(text: '${data['shloka']}\n\n${data['meaning']}'));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text('Shloka copied to clipboard! 🙏'),
-                                  duration: const Duration(seconds: 2),
-                                  backgroundColor: templeTheme.primaryColor,
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _isPlayingAudio ? Icons.volume_up_rounded : Icons.volume_mute_rounded,
+                                size: 15,
+                                color: _isPlayingAudio ? Colors.white : templeTheme.primaryColor,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _isPlayingAudio ? 'Playing' : 'Listen',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: _isPlayingAudio ? Colors.white : templeTheme.primaryColor,
                                 ),
-                              );
-                            },
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
 
                   // Mantra / Deity Title
                   Text(
                     data['deity']!,
                     style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
                       color: templeTheme.primaryColor,
                       letterSpacing: 0.2,
                     ),
@@ -297,53 +268,180 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                   // Sacred Shloka Verse with gold accent
                   Text(
                     data['shloka']!,
-                  style: const TextStyle(
-                    fontSize: 16.5,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF2C1E18),
-                    height: 1.6,
-                    letterSpacing: 0.2,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF2C1E18),
+                      height: 1.6,
+                      letterSpacing: 0.2,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 14),
 
-                // Meaning Box with spiritual saffron accent
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFECD7B8)),
+                  const SizedBox(height: 14),
+
+                  // Meaning Box with spiritual saffron accent
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.90),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFECD7B8)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 2),
+                          child: Icon(
+                            Icons.spa_rounded,
+                            color: AppColors.goldDark,
+                            size: 17,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            data['meaning']!,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF5E4E42),
+                              height: 1.45,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                  const SizedBox(height: 14),
+
+                  // --- Dedicated Premium Action Toolbar ---
+                  Row(
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 2),
-                        child: Icon(
-                          Icons.spa_rounded,
-                          color: AppColors.goldDark,
-                          size: 18,
+                      // 1. Offer Pushpam
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            final state = _offeringKey.currentState;
+                            if (state != null) {
+                              (state as dynamic).triggerOffering();
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF8EE),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: AppColors.goldPrimary.withOpacity(0.5)),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.spa_rounded, size: 16, color: AppColors.goldDark),
+                                SizedBox(width: 5),
+                                Text(
+                                  'Pushpam',
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.maroonPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+
+                      const SizedBox(width: 8),
+
+                      // 2. Wallpaper & Story Generator
                       Expanded(
-                        child: Text(
-                          data['meaning']!,
-                          style: const TextStyle(
-                            fontSize: 13.5,
-                            color: Color(0xFF5E4E42),
-                            height: 1.45,
-                            fontWeight: FontWeight.w500,
+                        child: InkWell(
+                          onTap: () {
+                            SacredWallpaperGeneratorDialog.show(
+                              context,
+                              shlokaTitle: data['title'],
+                              shlokaText: data['shloka'],
+                              shlokaMeaning: data['meaning'],
+                              deity: data['deity'],
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF8EE),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: AppColors.goldPrimary.withOpacity(0.5)),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.wallpaper_rounded, size: 16, color: AppColors.saffronPrimary),
+                                SizedBox(width: 5),
+                                Text(
+                                  'Wallpaper',
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.maroonPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      // 3. Copy Shloka
+                      InkWell(
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: '${data['shloka']}\n\n${data['meaning']}'));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Shloka copied to clipboard! 🙏'),
+                              duration: const Duration(seconds: 2),
+                              backgroundColor: templeTheme.primaryColor,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: templeTheme.borderColor),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.copy_rounded, size: 15, color: templeTheme.primaryColor),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Copy',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: templeTheme.primaryColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
         ],
       ),
     ),

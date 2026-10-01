@@ -274,5 +274,14 @@ class PreferencesService extends ChangeNotifier {
     notifyListeners();
     return success;
   }
+
+  // --- General Key-Value Access ---
+  int? getInt(String key) => _prefs.getInt(key);
+
+  Future<bool> setInt(String key, int value) async {
+    final res = await _prefs.setInt(key, value);
+    notifyListeners();
+    return res;
+  }
 }
 

@@ -42,40 +42,42 @@ class LiquidGlass extends StatelessWidget {
         ? const Color(0xFF161210).withOpacity(style.fillOpacity.clamp(0.55, 0.78))
         : Colors.white.withOpacity(style.fillOpacity.clamp(0.60, 0.75));
 
-    Widget glassSurface = ClipRRect(
-      borderRadius: borderRadius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: style.blurSigma.clamp(20.0, 35.0),
-          sigmaY: style.blurSigma.clamp(20.0, 35.0),
-        ),
-        child: CustomPaint(
-          painter: _LiquidGlassPrismPainter(
-            borderRadius: radius,
-            isDark: isDark,
-            tint: tint,
-            enablePrism: enablePrism,
+    Widget glassSurface = RepaintBoundary(
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: style.blurSigma.clamp(8.0, 16.0),
+            sigmaY: style.blurSigma.clamp(8.0, 16.0),
           ),
-          child: Container(
-            padding: padding,
-            decoration: BoxDecoration(
-              color: baseFillColor,
-              borderRadius: borderRadius,
-              border: customBorder,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  (tint ?? (isDark ? Colors.white : AppColors.goldLight))
-                      .withOpacity(style.tintOpacity + 0.08),
-                  (tint ?? (isDark ? Colors.white : AppColors.goldPrimary))
-                      .withOpacity(style.tintOpacity * 0.35),
-                  Colors.transparent,
-                ],
-                stops: const [0.0, 0.45, 1.0],
-              ),
+          child: CustomPaint(
+            painter: _LiquidGlassPrismPainter(
+              borderRadius: radius,
+              isDark: isDark,
+              tint: tint,
+              enablePrism: enablePrism,
             ),
-            child: child,
+            child: Container(
+              padding: padding,
+              decoration: BoxDecoration(
+                color: baseFillColor,
+                borderRadius: borderRadius,
+                border: customBorder,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    (tint ?? (isDark ? Colors.white : AppColors.goldLight))
+                        .withOpacity(style.tintOpacity + 0.08),
+                    (tint ?? (isDark ? Colors.white : AppColors.goldPrimary))
+                        .withOpacity(style.tintOpacity * 0.35),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.45, 1.0],
+                ),
+              ),
+              child: child,
+            ),
           ),
         ),
       ),
