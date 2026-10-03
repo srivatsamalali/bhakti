@@ -20,29 +20,53 @@ import flutter_local_notifications
       UNUserNotificationCenter.current().delegate = self
     }
 
-    let registrar = self.registrar(forPlugin: "DevotionalNativeNotifications")
-    let messenger = registrar!.messenger()
-    let channel = FlutterMethodChannel(name: "com.bhakti.devotional/notifications", binaryMessenger: messenger)
-    channel.setMethodCallHandler { [weak self] (call, callResult) in
-      if call.method == "showNativeNotification" {
-        guard let args = call.arguments as? [String: Any],
-              let title = args["title"] as? String,
-              let body = args["body"] as? String else {
-          callResult(FlutterError(code: "INVALID_ARGS", message: "Missing title or body", details: nil))
-          return
-        }
-        self?.scheduleNativeNotification(title: title, body: body)
-        callResult(true)
-      } else if call.method == "requestNativePermissions" {
-        if #available(iOS 10.0, *) {
-          UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-            callResult(granted)
+    if let controller = window?.rootViewController as? FlutterViewController {
+      let channel = FlutterMethodChannel(name: "com.bhakti.devotional/notifications", binaryMessenger: controller.binaryMessenger)
+      channel.setMethodCallHandler { [weak self] (call, callResult) in
+        if call.method == "showNativeNotification" {
+          guard let args = call.arguments as? [String: Any],
+                let title = args["title"] as? String,
+                let body = args["body"] as? String else {
+            callResult(FlutterError(code: "INVALID_ARGS", message: "Missing title or body", details: nil))
+            return
+          }
+          self?.scheduleNativeNotification(title: title, body: body)
+          callResult(true)
+        } else if call.method == "requestNativePermissions" {
+          if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+              callResult(granted)
+            }
+          } else {
+            callResult(true)
           }
         } else {
-          callResult(true)
+          callResult(FlutterMethodNotImplemented)
         }
-      } else {
-        callResult(FlutterMethodNotImplemented)
+      }
+    } else if let registrar = self.registrar(forPlugin: "DevotionalNativeNotifications") {
+      let channel = FlutterMethodChannel(name: "com.bhakti.devotional/notifications", binaryMessenger: registrar.messenger())
+      channel.setMethodCallHandler { [weak self] (call, callResult) in
+        if call.method == "showNativeNotification" {
+          guard let args = call.arguments as? [String: Any],
+                let title = args["title"] as? String,
+                let body = args["body"] as? String else {
+            callResult(FlutterError(code: "INVALID_ARGS", message: "Missing title or body", details: nil))
+            return
+          }
+          self?.scheduleNativeNotification(title: title, body: body)
+          callResult(true)
+        } else if call.method == "requestNativePermissions" {
+          if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+              callResult(granted)
+            }
+          } else {
+            callResult(true)
+          }
+        } else {
+          callResult(FlutterMethodNotImplemented)
+        }
       }
     }
 
