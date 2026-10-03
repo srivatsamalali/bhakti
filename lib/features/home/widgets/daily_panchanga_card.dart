@@ -393,6 +393,33 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     );
   }
 
+  Widget _buildMuhurtaRow(String label, String time, Color textColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: textColor.withOpacity(0.9),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          time,
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildLunarDetailTile({
     required IconData icon,
     required Color iconColor,
@@ -612,110 +639,80 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
 
-        // Auspicious & Inauspicious Times Grid
-        Row(
-          children: [
-            // Auspicious Box
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFC8E6C9)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.check_circle_outline, color: Color(0xFF2E7D32), size: 14),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            _getText('auspicious', lang),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2E7D32),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+        // Auspicious Times Card (Shubh Kaal) - Full width, no truncation!
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE8F5E9),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFC8E6C9)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.check_circle_rounded, color: Color(0xFF2E7D32), size: 15),
+                  const SizedBox(width: 6),
+                  Text(
+                    _getText('auspicious', lang),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2E7D32),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${_getText('brahma', lang)}: ${data.brahmaMuhurta}',
-                      style: const TextStyle(fontSize: 10.5, color: Color(0xFF1B5E20), fontWeight: FontWeight.w500),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${_getText('abhijit', lang)}: ${data.abhijitMuhurta}',
-                      style: const TextStyle(fontSize: 10.5, color: Color(0xFF1B5E20), fontWeight: FontWeight.w500),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(width: 10),
+              const SizedBox(height: 8),
+              _buildMuhurtaRow(_getText('brahma', lang), data.brahmaMuhurta, const Color(0xFF1B5E20)),
+              const SizedBox(height: 4),
+              _buildMuhurtaRow(_getText('abhijit', lang), data.abhijitMuhurta, const Color(0xFF1B5E20)),
+            ],
+          ),
+        ),
 
-            // Inauspicious Box
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFBE9E7),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFFCCBC)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time_filled, color: Color(0xFFC62828), size: 14),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            _getText('inauspicious', lang),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFC62828),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+        const SizedBox(height: 8),
+
+        // Inauspicious Times Card (Ashubh Kaal - Rahu / Yama) - Full width, no truncation!
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFBE9E7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFFFCCBC)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.access_time_filled_rounded, color: Color(0xFFC62828), size: 15),
+                  const SizedBox(width: 6),
+                  Text(
+                    _getText('inauspicious', lang),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFC62828),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${_getText('rahu', lang)}: ${data.rahuKalam}',
-                      style: const TextStyle(fontSize: 10.5, color: Color(0xFFB71C1C), fontWeight: FontWeight.w500),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${_getText('yama', lang)}: ${data.yamaGandam}',
-                      style: const TextStyle(fontSize: 10.5, color: Color(0xFFB71C1C), fontWeight: FontWeight.w500),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              _buildMuhurtaRow(_getText('rahu', lang), data.rahuKalam, const Color(0xFFB71C1C)),
+              const SizedBox(height: 4),
+              _buildMuhurtaRow(_getText('yama', lang), data.yamaGandam, const Color(0xFFB71C1C)),
+              if (data.gulikaKalam.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                _buildMuhurtaRow(_getText('gulika', lang), data.gulikaKalam, const Color(0xFFB71C1C)),
+              ],
+            ],
+          ),
         ),
 
         const SizedBox(height: 12),
