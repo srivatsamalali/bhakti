@@ -15,6 +15,8 @@ import 'package:bhakti/core/localization/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'package:bhakti/services/premium/premium_service.dart';
+import 'package:bhakti/services/rewards/seva_token_service.dart';
+import 'package:bhakti/services/firebase/song_request_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -110,6 +112,13 @@ void main() {
           ),
           ChangeNotifierProvider<PremiumService>(
             create: (_) => PremiumService(prefsService),
+          ),
+          ChangeNotifierProvider<SevaTokenService>(
+            create: (_) => SevaTokenService(prefsService),
+          ),
+          ChangeNotifierProxyProvider<SevaTokenService, SongRequestService>(
+            create: (ctx) => SongRequestService(ctx.read<SevaTokenService>()),
+            update: (ctx, seva, prev) => prev ?? SongRequestService(seva),
           ),
         ],
         child: const MaterialApp(

@@ -17,6 +17,11 @@ class AdService {
   bool get isInitialized => _isInitialized;
   AdFrequencyManager get frequencyManager => _frequencyManager;
 
+  /// Update premium status across all ad controllers
+  void setPremium(bool isPremium) {
+    _frequencyManager.setPremiumUser(isPremium);
+  }
+
   static const List<String> defaultTestDevices = [
     '9e8f5c48-a289-4d95-87bb-360ed33fc0c0',
   ];

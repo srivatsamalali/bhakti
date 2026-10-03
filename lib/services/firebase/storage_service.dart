@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import '../../core/constants/app_constants.dart';
 import '../audio/audio_compression_service.dart';
+import '../security/virus_scan_service.dart';
 
 class StorageService {
   FirebaseStorage? get _storage {
@@ -24,9 +25,19 @@ class StorageService {
       throw Exception('Image size exceeds maximum limit of 5MB.');
     }
 
+    // 🛡️ Pre-upload Virus & Security Scanner verification
+    final scan = await VirusScanService.instance.scanFileBytes(
+      bytes: bytes,
+      fileName: fileName,
+      isAudio: false,
+    );
+    if (!scan.isSafe) {
+      throw Exception('Security Alert: Image upload blocked. ${scan.detectedThreat ?? scan.statusMessage}');
+    }
+
     final ext = fileName.split('.').last.toLowerCase();
     final validExt = ['jpg', 'jpeg', 'png', 'webp'].contains(ext) ? ext : 'jpg';
-    final mimeType = 'image/$validExt';
+    final mimeType = scan.detectedMimeType.startsWith('image/') ? scan.detectedMimeType : 'image/$validExt';
 
     try {
       final st = _storage;
@@ -79,6 +90,16 @@ class StorageService {
     required String fileName,
     Function(double progress)? onProgress,
   }) async {
+    // 🛡️ Pre-upload Virus & Security Scanner verification on audio binary
+    final scan = await VirusScanService.instance.scanFileBytes(
+      bytes: bytes,
+      fileName: fileName,
+      isAudio: true,
+    );
+    if (!scan.isSafe) {
+      throw Exception('Security Alert: Audio upload blocked. ${scan.detectedThreat ?? scan.statusMessage}');
+    }
+
     // Automatically compress if size exceeds 50MB limit
     Uint8List uploadBytes = bytes;
     if (AudioCompressionService.exceedsThreshold(bytes.lengthInBytes)) {
@@ -92,15 +113,17 @@ class StorageService {
 
     final ext = fileName.split('.').last.toLowerCase();
     final validExt = ['mp3', 'm4a', 'aac', 'wav', 'ogg'].contains(ext) ? ext : 'mp3';
-    final mimeType = validExt == 'mp3'
-        ? 'audio/mpeg'
-        : validExt == 'm4a'
-            ? 'audio/mp4'
-            : validExt == 'aac'
-                ? 'audio/aac'
-                : validExt == 'wav'
-                    ? 'audio/wav'
-                    : 'audio/mpeg';
+    final mimeType = scan.detectedMimeType.startsWith('audio/')
+        ? scan.detectedMimeType
+        : (validExt == 'mp3'
+            ? 'audio/mpeg'
+            : validExt == 'm4a'
+                ? 'audio/mp4'
+                : validExt == 'aac'
+                    ? 'audio/aac'
+                    : validExt == 'wav'
+                        ? 'audio/wav'
+                        : 'audio/mpeg');
 
     try {
       final st = _storage;

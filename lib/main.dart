@@ -25,6 +25,8 @@ import 'services/firebase/auth_service.dart';
 import 'services/firebase/firestore_service.dart';
 import 'services/preferences/preferences_service.dart';
 import 'services/premium/premium_service.dart';
+import 'services/rewards/seva_token_service.dart';
+import 'services/firebase/song_request_service.dart';
 import 'services/widgets/home_widget_service.dart';
 
 
@@ -148,6 +150,13 @@ class _BhaktiAppState extends State<BhaktiApp> {
         ),
         ChangeNotifierProvider<OfflineDownloadService>(
           create: (_) => OfflineDownloadService(),
+        ),
+        ChangeNotifierProvider<SevaTokenService>(
+          create: (_) => SevaTokenService(widget.prefsService),
+        ),
+        ChangeNotifierProxyProvider<SevaTokenService, SongRequestService>(
+          create: (ctx) => SongRequestService(ctx.read<SevaTokenService>()),
+          update: (ctx, sevaService, prev) => prev ?? SongRequestService(sevaService),
         ),
       ],
 

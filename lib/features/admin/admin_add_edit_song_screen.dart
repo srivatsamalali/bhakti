@@ -16,6 +16,7 @@ import '../../repositories/song_repository.dart';
 import '../../services/audio/audio_compression_service.dart';
 import '../../services/firebase/firestore_service.dart';
 import '../../services/firebase/storage_service.dart';
+import '../../services/rewards/seva_token_service.dart';
 import '../../services/storage/media_blob_helper.dart';
 
 class AdminAddEditSongScreen extends StatefulWidget {
@@ -415,6 +416,15 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
 
       if (widget.existingSong == null) {
         await _firestoreService.createSong(songModel);
+        try {
+          if (mounted) {
+            await context.read<SevaTokenService>().awardTokens(
+              amount: 50,
+              title: 'Song Upload Contribution 🎵',
+              description: 'Uploaded "${songModel.title}" to the sacred library',
+            );
+          }
+        } catch (_) {}
       } else {
         await _firestoreService.updateSong(songModel);
       }

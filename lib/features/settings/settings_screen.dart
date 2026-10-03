@@ -24,6 +24,9 @@ import 'widgets/smart_notification_sheet.dart';
 import 'widgets/temple_theme_selector_sheet.dart';
 import '../premium/bhakti_premium_screen.dart';
 import '../../services/premium/premium_service.dart';
+import '../rewards/seva_wallet_screen.dart';
+import '../../services/rewards/seva_token_service.dart';
+import '../requests/song_request_dialog.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -375,12 +378,134 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
 
+          // Seva Karma & Rewards Card
+          Consumer<SevaTokenService>(
+            builder: (context, seva, _) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFFF9E6), Color(0xFFFDE8B5)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE2B258), width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFE2B258).withOpacity(0.18),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const SevaWalletScreen()),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF633800),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF633800).withOpacity(0.3),
+                                  blurRadius: 6,
+                                ),
+                              ],
+                            ),
+                            child: const Text('🪙', style: TextStyle(fontSize: 22)),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'Seva Karma Wallet',
+                                      style: TextStyle(
+                                        fontSize: 15.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF422400),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF8D5B00),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        '${seva.tokenBalance} TOKENS',
+                                        style: const TextStyle(
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Badge: ${seva.currentBadge.title} • Redeem Ad-Free passes',
+                                  style: const TextStyle(fontSize: 12, color: Color(0xFF734500)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF8D5B00)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+
           // Section: Preferences
           _buildSectionHeader('Preferences & Experience'),
           Card(
             child: Column(
               children: [
-                // 1. Temple Theme Selector
+                // 1. Request a Song (Earn Tokens)
+                ListTile(
+                  leading: const Icon(Icons.queue_music_rounded, color: AppColors.maroonPrimary),
+                  title: const Text('Request a Devotional Song', style: TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Earn +20 Seva Tokens for your request'),
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF8E1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFFFD54F)),
+                    ),
+                    child: const Text(
+                      '+20 🪙',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF8D5B00)),
+                    ),
+                  ),
+                  onTap: () {
+                    SongRequestDialog.show(context);
+                  },
+                ),
+                const Divider(height: 1),
+
+                // 2. Temple Theme Selector
                 ListTile(
                   leading: const Icon(Icons.palette_rounded, color: AppColors.maroonPrimary),
                   title: const Text('Sacred Temple Theme', style: TextStyle(fontWeight: FontWeight.w600)),
