@@ -53,6 +53,7 @@ class FirestoreService {
 
   /// Stream of all published devotional songs
   Stream<List<SongModel>> streamPublishedSongs({String? language, String? categoryId}) {
+    _loadFallbackData();
     try {
       final fs = _firestore;
       if (fs == null) {

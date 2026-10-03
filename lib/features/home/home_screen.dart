@@ -13,18 +13,15 @@ import '../language/language_selection_screen.dart';
 import '../search/search_screen.dart';
 import '../settings/settings_screen.dart';
 import '../songs/song_details_screen.dart';
-import '../../widgets/ambient_diya_particles.dart';
 import '../../widgets/divine_music_visualizer.dart';
-import '../../widgets/liquid_glass/glass_style.dart';
-import '../../widgets/liquid_glass/liquid_glass.dart';
 import '../../widgets/shimmer_song_tile.dart';
 import '../../widgets/sacred_filigree_border.dart';
 import 'widgets/daily_panchanga_card.dart';
 import 'widgets/daily_shloka_card.dart';
-import 'widgets/virtual_pooja_card.dart';
 import '../../core/theme/temple_theme.dart';
-import '../settings/widgets/temple_theme_selector_sheet.dart';
 import '../pooja/sacred_temple_map_screen.dart';
+import '../premium/bhakti_premium_screen.dart';
+import '../../services/premium/premium_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -238,6 +235,55 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(width: 16),
                           ],
+
+                          // VIP Gold Ad-Free / Premium Pill
+                          if (PremiumService.isFeatureEnabled)
+                            Consumer<PremiumService>(
+                              builder: (context, premium, _) {
+                                final isPrem = premium.isPremium;
+                                return InkWell(
+                                  onTap: () => BhaktiPremiumScreen.show(context),
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                    margin: const EdgeInsets.only(right: 5),
+                                    decoration: BoxDecoration(
+                                      gradient: isPrem
+                                          ? const LinearGradient(colors: [Color(0xFF2E1500), Color(0xFF150A00)])
+                                          : const LinearGradient(colors: [Color(0xFFFFF9E8), Color(0xFFFFF0D0)]),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(color: const Color(0xFFE0B850), width: 1.2),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.goldPrimary.withOpacity(0.18),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 1),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.diamond_rounded, color: Color(0xFFC89010), size: 14),
+                                        if (!isCompact || isDesktop) ...[
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            isPrem ? 'VIP' : 'PRO',
+                                            style: const TextStyle(
+                                              color: Color(0xFF8A5500),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w900,
+                                              letterSpacing: 0.2,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+
 
                           // Ask Bhakti AI High-Performance Glossy Pill
                           InkWell(

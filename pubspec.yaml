@@ -1,8 +1,8 @@
 name: bhakti
-description: "Bhakti – Divine Music for a Better Life. Devotional audio streaming application with multi-language support, background playback, offline caching, and global content distribution."
+description: "Bhakti – Divine Devotional Audio, Daily Shlokas, Vedic Panchanga, Sacred Wallpapers & Smart Devotional Reminders."
 publish_to: 'none'
 
-version: 1.0.15+18
+version: 1.0.19+22
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -57,8 +57,13 @@ dependencies:
   firebase_auth: ^5.5.1
   firebase_storage: ^12.4.4
   firebase_analytics: ^11.4.4
+  # Notifications & Background Reminders
+  flutter_local_notifications: ^17.2.4
+  timezone: ^0.9.4
+
   gal: ^2.3.3
   home_widget: ^0.10.0
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

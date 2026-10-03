@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/theme/temple_theme.dart';
 import '../../../services/preferences/preferences_service.dart';
+import '../../../services/wisdom/daily_wisdom_service.dart';
 
 import '../../../widgets/interactive_flower_offering.dart';
 import '../../../widgets/sacred_filigree_border.dart';
@@ -77,45 +78,25 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
     }
   }
 
-  static const Map<String, Map<String, String>> _shlokaContent = {
-    'kn': {
-      'title': 'ದಿನದ ಪವಿತ್ರ ಶ್ಲೋಕ',
-      'shloka': 'ಓಂ ಭೂರ್ಭುವಸ್ಸುವಃ । ತತ್ಸವಿತುರ್ವರೇಣ್ಯಂ ।\nಭರ್ಗೋ ದೇವಸ್ಯ ಧೀಮಹಿ । ಧಿಯೋ ಯೋ ನಃ ಪ್ರಚೋದಯಾತ್ ॥',
-      'meaning': 'ಸಕಲ ಜಗತ್ತನ್ನು ಸೃಷ್ಟಿಸಿ ಪ್ರಕಾಶಿಸುವ ಆ ಪರಂಜ್ಯೋತಿಯನ್ನು ನಾವು ಧ್ಯಾನಿಸುತ್ತೇವೆ. ಆ ದೈವೀ ಪ್ರಕಾಶವು ನಮ್ಮ ಬುದ್ಧಿಯನ್ನು ಸನ್ಮಾರ್ಗದಲ್ಲಿ ಮುನ್ನಡೆಸಲಿ.',
-      'deity': 'ಗಾಯತ್ರೀ ಮಹಾಮಂತ್ರ',
-    },
-    'en': {
-      'title': 'Sacred Shloka of the Day',
-      'shloka': 'Om Bhur Bhuvaḥ Swaḥ । Tat-Savitur Vareṇyaṃ ।\nBhargo Devasya Dhīmahi । Dhiyo Yo Naḥ Prachodayāt ॥',
-      'meaning': 'We meditate on the supreme radiant light of the Divine Creator who illuminates the cosmos. May that divine light awaken and guide our intellect.',
-      'deity': 'Gayatri Maha Mantra',
-    },
-    'hi': {
-      'title': 'आज का दिव्य श्लोक',
-      'shloka': 'ॐ भूर्भुवः स्वः । तत्सवितुर्वरेण्यं ।\nभर्गो देवस्य धीमहि । धियो यो नः प्रचोदयात् ॥',
-      'meaning': 'हम उस प्राणस्वरूप, दुःखनाशक, सुखस्वरूप, श्रेष्ठ, तेजस्वी परमपिता परमात्मा के दिव्य तेज का ध्यान करते हैं जो हमारी बुद्धि को सन्मार्ग पर प्रेरित करे।',
-      'deity': 'गायत्री महामंत्र',
-    },
-    'ta': {
-      'title': 'இன்றைய புனித ஸ்லோகம்',
-      'shloka': 'ஓம் பூர்புவஸ்ஸுவஹ । தத்ஸவிதுர்வரேண்யம் ।\nபர்கோ தேவஸ்ய தீமஹி । தியோ யோ நஹ் ப்ரசோதயாத் ॥',
-      'meaning': 'அனைத்து உலகங்களையும் படைத்து ஒளிரச்செய்யும் அந்த பரம்பொருளை தியானிக்கிறோம். அந்த தெய்வீக ஒளி நமது புத்தியை நல்வழியில் செலுத்தட்டும்.',
-      'deity': 'காயத்ரி மகா மந்திரம்',
-    },
-    'ml': {
-      'title': 'ഇന്നത്തെ പവിത്ര ശ്ലോകം',
-      'shloka': 'ഓം ഭൂർഭുവസ്സുവഃ । തത്സവിതുർവരേണ്യം ।\nഭർഗോ ദേവസ്യ ധീമഹി । ധിയോ യോ നഃ പ്രചോദയാത് ॥',
-      'meaning': 'പ്രപഞ്ചത്തെ സൃഷ്ടിച്ചു പ്രകാശിപ്പിക്കുന്ന ആ പരമജ്യോതിയെ നാം ധ്യാനിക്കുന്നു. ആ ദൈവിക പ്രകാശം നമ്മുടെ ബുദ്ധിയെ സന്മാർഗ്ഗത്തിലേക്ക് നയിക്കട്ടെ.',
-      'deity': 'ഗായത്രീ മഹാമന്ത്രം',
-    },
-  };
-
   @override
   Widget build(BuildContext context) {
     final prefs = context.watch<PreferencesService>();
     final currentLang = prefs.getSelectedLanguage();
     final templeTheme = TempleTheme.fromId(prefs.getTempleThemeId());
-    final data = _shlokaContent[currentLang] ?? _shlokaContent['en']!;
+    final todayWisdom = DailyWisdomService.getTodayWisdom();
+
+    final cardTitle = currentLang == 'kn'
+        ? (todayWisdom.category == 'Vachana'
+            ? 'ದಿನದ ಪವಿತ್ರ ವಚನ'
+            : todayWisdom.category == 'Dasa Sahitya'
+                ? 'ದಾಸ ಸಾಹಿತ್ಯಾಮೃತ'
+                : 'ದಿನದ ಪವಿತ್ರ ಶ್ಲೋಕ')
+        : 'Sacred Daily Wisdom';
+
+    final authorDisplay = todayWisdom.getAuthor(currentLang);
+    final verseText = todayWisdom.getVerse(currentLang);
+    final meaningText = todayWisdom.getMeaning(currentLang);
+    final deityDisplay = '$authorDisplay • ${todayWisdom.deity}';
 
     return InteractiveFlowerOffering(
       key: _offeringKey,
@@ -194,7 +175,7 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                             const Icon(Icons.auto_awesome, size: 13, color: AppColors.goldLight),
                             const SizedBox(width: 6),
                             Text(
-                              data['title']!.toUpperCase(),
+                              cardTitle.toUpperCase(),
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,
@@ -208,7 +189,7 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
 
                       // Quick Listen / Pause Pill
                       InkWell(
-                        onTap: () => _togglePlayShloka(data['shloka']!, currentLang),
+                        onTap: () => _togglePlayShloka(verseText, currentLang),
                         borderRadius: BorderRadius.circular(20),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -252,9 +233,9 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
 
                   const SizedBox(height: 14),
 
-                  // Mantra / Deity Title
+                  // Mantra / Deity / Author Title
                   Text(
-                    data['deity']!,
+                    deityDisplay,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -265,11 +246,11 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
 
                   const SizedBox(height: 8),
 
-                  // Sacred Shloka Verse with gold accent
+                  // Sacred Shloka / Vachana Verse with gold accent
                   Text(
-                    data['shloka']!,
+                    verseText,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 15.5,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF2C1E18),
                       height: 1.6,
@@ -301,7 +282,7 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            data['meaning']!,
+                            meaningText,
                             style: const TextStyle(
                               fontSize: 13,
                               color: Color(0xFF5E4E42),
@@ -363,10 +344,10 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                           onTap: () {
                             SacredWallpaperGeneratorDialog.show(
                               context,
-                              shlokaTitle: data['title'],
-                              shlokaText: data['shloka'],
-                              shlokaMeaning: data['meaning'],
-                              deity: data['deity'],
+                              shlokaTitle: todayWisdom.title,
+                              shlokaText: verseText,
+                              shlokaMeaning: meaningText,
+                              deity: deityDisplay,
                             );
                           },
                           borderRadius: BorderRadius.circular(14),
@@ -401,10 +382,10 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                       // 3. Copy Shloka
                       InkWell(
                         onTap: () {
-                          Clipboard.setData(ClipboardData(text: '${data['shloka']}\n\n${data['meaning']}'));
+                          Clipboard.setData(ClipboardData(text: '$verseText\n\n$meaningText\n— $deityDisplay'));
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text('Shloka copied to clipboard! 🙏'),
+                              content: const Text('Wisdom verse copied to clipboard! 🙏'),
                               duration: const Duration(seconds: 2),
                               backgroundColor: templeTheme.primaryColor,
                               behavior: SnackBarBehavior.floating,

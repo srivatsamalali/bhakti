@@ -123,20 +123,27 @@ class _DiyaParticlePainter extends CustomPainter {
       final currentY = p.y * size.height;
       final center = Offset(currentX, currentY);
 
-      // Soft Warm Halo
-      final haloPaint = Paint()
-        ..color = baseColor.withOpacity(p.opacity * 0.35)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, p.radius * 2.0);
-      canvas.drawCircle(center, p.radius * 2.0, haloPaint);
-
-      // Delicate Core
-      final corePaint = Paint()
-        ..color = Colors.white.withOpacity(p.opacity * 0.50)
+      // Outer Soft Warm Halo (Impeller & Metal safe)
+      final outerHalo = Paint()
+        ..color = baseColor.withOpacity((p.opacity * 0.18).clamp(0.0, 1.0))
         ..style = PaintingStyle.fill;
-      canvas.drawCircle(center, p.radius * 0.7, corePaint);
+      canvas.drawCircle(center, p.radius * 2.5, outerHalo);
+
+      // Inner Warm Glow
+      final innerGlow = Paint()
+        ..color = baseColor.withOpacity((p.opacity * 0.45).clamp(0.0, 1.0))
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(center, p.radius * 1.4, innerGlow);
+
+      // Delicate Luminous Core
+      final corePaint = Paint()
+        ..color = Colors.white.withOpacity((p.opacity * 0.70).clamp(0.0, 1.0))
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(center, p.radius * 0.65, corePaint);
     }
   }
 
   @override
   bool shouldRepaint(covariant _DiyaParticlePainter oldDelegate) => true;
 }
+

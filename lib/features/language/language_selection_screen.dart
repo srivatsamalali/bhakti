@@ -5,6 +5,7 @@ import '../../core/constants/app_typography.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../models/language_model.dart';
 import '../../services/analytics/analytics_service.dart';
+import '../../services/notifications/devotional_reminder_service.dart';
 import '../../services/preferences/preferences_service.dart';
 import '../main_navigation_shell.dart';
 
@@ -32,6 +33,11 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
     await prefs.setSelectedLanguage(code);
     await prefs.setFirstLaunchComplete();
     AnalyticsService.instance.logLanguageSelected(code);
+
+    try {
+      final reminders = context.read<DevotionalReminderService>();
+      await reminders.scheduleSmartDevotionalNotifications(code);
+    } catch (_) {}
 
     if (!mounted) return;
 

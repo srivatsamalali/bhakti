@@ -1,10 +1,16 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../core/localization/app_localizations.dart';
+import '../models/song_model.dart';
 import '../repositories/song_repository.dart';
 import '../services/audio/audio_player_service.dart';
+import '../services/notifications/devotional_reminder_service.dart';
+import '../services/preferences/preferences_service.dart';
 import '../widgets/divine_music_visualizer.dart';
 import '../widgets/liquid_glass/glass_style.dart';
 import '../widgets/liquid_glass/glass_tab_bar.dart';
@@ -28,6 +34,7 @@ class MainNavigationShell extends StatefulWidget {
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
   late final PageController _pageController;
+  StreamSubscription<Uri?>? _widgetClickSubscription;
 
   final List<Widget> _screens = const [
     HomeScreen(),
@@ -40,10 +47,105 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
+    _initHomeWidgetNavigation();
+    _triggerWelcomeNotificationIfNeeded();
+  }
+
+  void _triggerWelcomeNotificationIfNeeded() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      try {
+        final lang = context.read<PreferencesService>().getSelectedLanguage();
+        context.read<DevotionalReminderService>().sendWelcomeInstallationNotification(lang);
+      } catch (e) {
+        debugPrint('Welcome notification trigger notice: $e');
+      }
+    });
+  }
+
+  void _initHomeWidgetNavigation() {
+    if (kIsWeb) return;
+    try {
+      HomeWidget.initiallyLaunchedFromHomeWidget().then(_handleWidgetUri);
+      _widgetClickSubscription = HomeWidget.widgetClicked.listen(_handleWidgetUri);
+    } catch (e) {
+      debugPrint('HomeWidget navigation init notice: $e');
+    }
+  }
+
+  void _handleWidgetUri(Uri? uri) {
+    if (uri == null || !mounted) return;
+    final uriString = uri.toString().toLowerCase();
+    debugPrint('Navigating from widget URI: $uriString (params: ${uri.queryParameters})');
+
+    final player = context.read<AudioPlayerService>();
+    final songRepo = context.read<SongRepository>();
+
+    final songId = uri.queryParameters['id'] ?? '';
+    final songTitle = uri.queryParameters['title'] ?? '';
+
+    SongModel? song;
+    if (songId.isNotEmpty) {
+      song = songRepo.getSongById(songId);
+      if (song == null) {
+        try {
+          song = songRepo.allSongs.firstWhere(
+            (s) => s.id.toLowerCase().contains(songId.toLowerCase()) || songId.toLowerCase().contains(s.id.toLowerCase()),
+          );
+        } catch (_) {}
+      }
+    }
+
+    if (song == null && songTitle.isNotEmpty) {
+      final matches = songRepo.searchSongs(songTitle, 'en');
+      if (matches.isNotEmpty) {
+        song = matches.first;
+      }
+    }
+
+    if (song != null) {
+      player.playSong(song, newQueue: songRepo.allSongs);
+      return;
+    }
+
+    if (uriString.contains('toggle')) {
+      player.togglePlayPause();
+    } else if (uriString.contains('next')) {
+      player.skipToNext();
+    } else if (uriString.contains('prev')) {
+      player.skipToPrevious();
+    } else if (uriString.contains('play') || uriString.contains('player')) {
+      if (player.currentSong != null) {
+        if (!player.isPlaying) player.resume();
+      } else if (songRepo.allSongs.isNotEmpty) {
+        player.playSong(songRepo.allSongs.first, newQueue: songRepo.allSongs);
+      }
+    } else if (uriString.contains('library') || uriString.contains('song')) {
+      _navigateToTab(1);
+    } else if (uriString.contains('favorite') || uriString.contains('liked')) {
+      _navigateToTab(2);
+    } else if (uriString.contains('pooja') || uriString.contains('sanctum')) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const VirtualPoojaRoomScreen()),
+      );
+    }
+  }
+
+  void _navigateToTab(int index) {
+    if (!mounted) return;
+    setState(() => _currentIndex = index);
+    if (_pageController.hasClients) {
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+      );
+    }
   }
 
   @override
   void dispose() {
+    _widgetClickSubscription?.cancel();
     _pageController.dispose();
     super.dispose();
   }

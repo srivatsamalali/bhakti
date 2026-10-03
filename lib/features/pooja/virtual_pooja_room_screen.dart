@@ -1142,62 +1142,78 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
 
   Widget _buildTopSacredBar(GarbhagruhaEnvironment deity) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
             onPressed: () => Navigator.of(context).maybePop(),
             icon: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(7),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.black.withOpacity(0.4),
                 border: Border.all(color: AppColors.goldPrimary.withOpacity(0.4)),
               ),
-              child: const Icon(Icons.arrow_back, color: AppColors.goldLight, size: 20),
+              child: const Icon(Icons.arrow_back, color: AppColors.goldLight, size: 18),
             ),
           ),
+          const SizedBox(width: 8),
+
           // Temple Header Title & Symbol
-          GestureDetector(
-            onTap: () => _showDeitySelectorModal(context),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      deity.symbol,
-                      style: const TextStyle(fontSize: 18, color: AppColors.goldLight),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _showDeitySelectorModal(context),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          deity.symbol,
+                          style: const TextStyle(fontSize: 16, color: AppColors.goldLight),
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          'ದೇವತಾ ಮಂದಿರ • SANCTUM',
+                          style: TextStyle(
+                            fontFamily: 'serif',
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0,
+                            color: AppColors.goldLight,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        const Icon(Icons.keyboard_arrow_down, color: AppColors.goldLight, size: 16),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'ದೇವತಾ ಮಂದಿರ • SANCTUM',
-                      style: TextStyle(
-                        fontFamily: 'serif',
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                        color: AppColors.goldLight,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.keyboard_arrow_down, color: AppColors.goldLight, size: 18),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  deity.sanctumName,
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.6,
-                    color: Colors.white.withOpacity(0.85),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 1),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      deity.sanctumName,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.4,
+                        color: Colors.white.withOpacity(0.85),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+          const SizedBox(width: 8),
+
           // Action Buttons: Replay Aerial Sky Flight + OM Toggle + Daily Count
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -1215,17 +1231,17 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
                   child: const Icon(
                     Icons.flight_land_rounded,
                     color: AppColors.goldLight,
-                    size: 16,
+                    size: 15,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
 
               // OM Ambience Toggle
               GestureDetector(
                 onTap: _toggleOmAudio,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     color: _isOmPlaying
@@ -1242,26 +1258,26 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
                       Text(
                         'ॐ',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                           color: _isOmPlaying ? AppColors.goldLight : Colors.white60,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 3),
                       Icon(
                         _isOmPlaying ? Icons.volume_up_rounded : Icons.volume_off_rounded,
                         color: _isOmPlaying ? AppColors.goldLight : Colors.white60,
-                        size: 14,
+                        size: 13,
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
 
               // Daily Pooja Count Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -1275,13 +1291,13 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.wb_sunny_rounded, color: AppColors.goldLight, size: 14),
-                    const SizedBox(width: 4),
+                    const Icon(Icons.wb_sunny_rounded, color: AppColors.goldLight, size: 13),
+                    const SizedBox(width: 3),
                     Text(
                       '$_poojaCount',
                       style: const TextStyle(
                         color: AppColors.goldLight,
-                        fontSize: 12,
+                        fontSize: 11.5,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1791,7 +1807,7 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
 
   Widget _buildRitualActionBar(GarbhagruhaEnvironment deity) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.fromLTRB(6, 6, 6, 12),
       decoration: BoxDecoration(
         color: const Color(0xFF140804).withOpacity(0.95),
         border: const Border(
@@ -1806,7 +1822,7 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildRitualButton(
             icon: Icons.notifications_active,
@@ -1868,67 +1884,81 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
     required VoidCallback onTap,
     required GarbhagruhaEnvironment deity,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: isActive
-                  ? LinearGradient(
-                      colors: [
-                        AppColors.goldLight,
-                        deity.primaryColor,
-                      ],
-                    )
-                  : const LinearGradient(
-                      colors: [
-                        Color(0xFF2C160F),
-                        Color(0xFF1E0C06),
-                      ],
-                    ),
-              border: Border.all(
-                color: isActive ? AppColors.goldLight : AppColors.goldPrimary.withOpacity(0.4),
-                width: isActive ? 2.0 : 1.0,
-              ),
-              boxShadow: isActive
-                  ? [
-                      BoxShadow(
-                        color: AppColors.goldPrimary.withOpacity(0.5),
-                        blurRadius: 12,
-                        spreadRadius: 2,
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: isActive
+                    ? LinearGradient(
+                        colors: [
+                          AppColors.goldLight,
+                          deity.primaryColor,
+                        ],
+                      )
+                    : const LinearGradient(
+                        colors: [
+                          Color(0xFF2C160F),
+                          Color(0xFF1E0C06),
+                        ],
                       ),
-                    ]
-                  : [],
+                border: Border.all(
+                  color: isActive ? AppColors.goldLight : AppColors.goldPrimary.withOpacity(0.4),
+                  width: isActive ? 2.0 : 1.0,
+                ),
+                boxShadow: isActive
+                    ? [
+                        BoxShadow(
+                          color: AppColors.goldPrimary.withOpacity(0.5),
+                          blurRadius: 12,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : [],
+              ),
+              child: Icon(
+                icon,
+                color: isActive ? Colors.black87 : AppColors.goldLight,
+                size: 20,
+              ),
             ),
-            child: Icon(
-              icon,
-              color: isActive ? Colors.black87 : AppColors.goldLight,
-              size: 22,
+            const SizedBox(height: 3),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: isActive ? AppColors.goldLight : Colors.white.withOpacity(0.85),
+                  ),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: isActive ? AppColors.goldLight : Colors.white.withOpacity(0.85),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  subLabel,
+                  style: TextStyle(
+                    fontSize: 8.5,
+                    color: Colors.white.withOpacity(0.55),
+                  ),
+                ),
+              ),
             ),
-          ),
-          Text(
-            subLabel,
-            style: TextStyle(
-              fontSize: 9,
-              color: Colors.white.withOpacity(0.55),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

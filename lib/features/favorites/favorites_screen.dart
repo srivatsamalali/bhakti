@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../core/theme/temple_theme.dart';
 import '../../repositories/song_repository.dart';
 import '../../services/audio/audio_player_service.dart';
 import '../../services/preferences/preferences_service.dart';
@@ -17,13 +18,14 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<PreferencesService>();
+    final prefs = context.watch<PreferencesService>();
+    final templeTheme = TempleTheme.fromId(prefs.getTempleThemeId());
     final songRepo = context.watch<SongRepository>();
     final player = context.watch<AudioPlayerService>();
     final favoriteSongs = songRepo.getFavoriteSongs();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: templeTheme.backgroundColor,
       appBar: DevotionalAppBar(
         title: context.tr('navFavorites'),
         showLogo: false,

@@ -6,6 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import '../../models/song_model.dart';
 import '../../repositories/song_repository.dart';
+import '../ads/ad_service.dart';
 import '../firebase/firestore_service.dart';
 import '../preferences/preferences_service.dart';
 import '../widgets/home_widget_service.dart';
@@ -454,7 +455,17 @@ class AudioPlayerService extends ChangeNotifier {
       _player.seek(Duration.zero);
       _player.play();
     } else {
-      playNext();
+      // Record natural completion for frequency limiting
+      AdService.instance.frequencyManager.recordSongCompletedNaturally();
+
+      // Show transition ad ONLY if frequency rules are met (>= 3 songs & >= 10 mins & not premium)
+      // If not eligible or ad is not loaded, playNext() is called immediately without delay.
+      AdService.instance.showInterstitialAtNaturalTransition(
+        isAudioCurrentlyPlaying: false,
+        onDismissedOrCompleted: () {
+          playNext();
+        },
+      );
     }
   }
 

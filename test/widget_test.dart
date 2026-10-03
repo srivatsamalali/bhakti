@@ -14,6 +14,8 @@ import 'package:bhakti/services/preferences/preferences_service.dart';
 import 'package:bhakti/core/localization/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'package:bhakti/services/premium/premium_service.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -105,6 +107,9 @@ void main() {
           ),
           ChangeNotifierProvider<DevotionalReminderService>(
             create: (_) => DevotionalReminderService(),
+          ),
+          ChangeNotifierProvider<PremiumService>(
+            create: (_) => PremiumService(prefsService),
           ),
         ],
         child: const MaterialApp(

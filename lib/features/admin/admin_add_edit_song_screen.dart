@@ -37,8 +37,15 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
   late TextEditingController _descriptionController;
   late TextEditingController _artistController;
   late TextEditingController _albumController;
-  late TextEditingController _lyricsController;
 
+  // Multi-Language Sacred Lyrics Controllers
+  late TextEditingController _lyricsKnController;
+  late TextEditingController _lyricsEnController;
+  late TextEditingController _lyricsHiController;
+  late TextEditingController _lyricsTaController;
+  late TextEditingController _lyricsMlController;
+
+  String _activeLyricsTab = 'kn';
   String _selectedLanguage = 'kn';
   String _selectedCategoryId = 'stotras';
 
@@ -60,10 +67,17 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
     _descriptionController = TextEditingController(text: song?.description ?? '');
     _artistController = TextEditingController(text: song?.artist ?? '');
     _albumController = TextEditingController(text: song?.album ?? '');
-    _lyricsController = TextEditingController(text: song?.lyrics ?? '');
+
+    final loc = song?.lyricsLocalized ?? {};
+    _lyricsKnController = TextEditingController(text: loc['kn'] ?? (song?.language == 'kn' ? (song?.lyrics ?? '') : ''));
+    _lyricsEnController = TextEditingController(text: loc['en'] ?? (song?.language == 'en' ? (song?.lyrics ?? '') : ''));
+    _lyricsHiController = TextEditingController(text: loc['hi'] ?? (song?.language == 'hi' ? (song?.lyrics ?? '') : ''));
+    _lyricsTaController = TextEditingController(text: loc['ta'] ?? (song?.language == 'ta' ? (song?.lyrics ?? '') : ''));
+    _lyricsMlController = TextEditingController(text: loc['ml'] ?? (song?.language == 'ml' ? (song?.lyrics ?? '') : ''));
 
     if (song != null) {
       _selectedLanguage = song.language;
+      _activeLyricsTab = song.language;
       _selectedCategoryId = song.categoryId;
     }
   }
@@ -75,7 +89,11 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
     _descriptionController.dispose();
     _artistController.dispose();
     _albumController.dispose();
-    _lyricsController.dispose();
+    _lyricsKnController.dispose();
+    _lyricsEnController.dispose();
+    _lyricsHiController.dispose();
+    _lyricsTaController.dispose();
+    _lyricsMlController.dispose();
     super.dispose();
   }
 
@@ -361,6 +379,21 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
           ? _detectedDuration
           : (widget.existingSong?.duration ?? 1740);
 
+      final Map<String, String> lyricsLocalized = {};
+      if (_lyricsKnController.text.trim().isNotEmpty) lyricsLocalized['kn'] = _lyricsKnController.text.trim();
+      if (_lyricsEnController.text.trim().isNotEmpty) lyricsLocalized['en'] = _lyricsEnController.text.trim();
+      if (_lyricsHiController.text.trim().isNotEmpty) lyricsLocalized['hi'] = _lyricsHiController.text.trim();
+      if (_lyricsTaController.text.trim().isNotEmpty) lyricsLocalized['ta'] = _lyricsTaController.text.trim();
+      if (_lyricsMlController.text.trim().isNotEmpty) lyricsLocalized['ml'] = _lyricsMlController.text.trim();
+
+      final primaryLyrics = lyricsLocalized[_selectedLanguage] ??
+          lyricsLocalized['kn'] ??
+          lyricsLocalized['en'] ??
+          lyricsLocalized['hi'] ??
+          lyricsLocalized['ta'] ??
+          lyricsLocalized['ml'] ??
+          '';
+
       final songModel = SongModel(
         id: songId,
         title: _titleController.text.trim(),
@@ -373,7 +406,8 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
         imageUrl: imageUrl,
         audioUrl: audioUrl,
         duration: effectiveDuration,
-        lyrics: _lyricsController.text.trim().isNotEmpty ? _lyricsController.text.trim() : null,
+        lyrics: primaryLyrics.isNotEmpty ? primaryLyrics : null,
+        lyricsLocalized: lyricsLocalized.isNotEmpty ? lyricsLocalized : null,
         published: publishImmediately,
         createdAt: widget.existingSong?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
@@ -609,15 +643,8 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
                   ),
                   const SizedBox(height: 14),
 
-                  // Sacred Lyrics
-                  TextFormField(
-                    controller: _lyricsController,
-                    maxLines: 6,
-                    decoration: InputDecoration(
-                      labelText: context.tr('lyricsField'),
-                      hintText: 'Paste full Sanskrit or Indic lyrics here...',
-                    ),
-                  ),
+                  // Sacred Multi-Language Lyrics Section
+                  _buildMultiLanguageLyricsSection(context),
                   const SizedBox(height: 24),
 
                   // Action Buttons: Save Draft & Publish
@@ -660,4 +687,211 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
       ),
     );
   }
+
+  TextEditingController _getLyricsControllerForLang(String lang) {
+    switch (lang) {
+      case 'kn':
+        return _lyricsKnController;
+      case 'en':
+        return _lyricsEnController;
+      case 'hi':
+        return _lyricsHiController;
+      case 'ta':
+        return _lyricsTaController;
+      case 'ml':
+        return _lyricsMlController;
+      default:
+        return _lyricsKnController;
+    }
+  }
+
+  static const List<Map<String, String>> _lyricsLanguageDefs = [
+    {'code': 'kn', 'label': 'Kannada', 'native': 'ಕನ್ನಡ', 'icon': '🌸'},
+    {'code': 'en', 'label': 'English', 'native': 'English', 'icon': '🌐'},
+    {'code': 'hi', 'label': 'Hindi', 'native': 'हिन्दी', 'icon': '🕉️'},
+    {'code': 'ta', 'label': 'Tamil', 'native': 'தமிழ்', 'icon': '🪷'},
+    {'code': 'ml', 'label': 'Malayalam', 'native': 'മലയാളം', 'icon': '🚩'},
+  ];
+
+  Widget _buildMultiLanguageLyricsSection(BuildContext context) {
+    final activeController = _getLyricsControllerForLang(_activeLyricsTab);
+    final activeDef = _lyricsLanguageDefs.firstWhere(
+      (d) => d['code'] == _activeLyricsTab,
+      orElse: () => _lyricsLanguageDefs.first,
+    );
+
+    int filledCount = 0;
+    if (_lyricsKnController.text.trim().isNotEmpty) filledCount++;
+    if (_lyricsEnController.text.trim().isNotEmpty) filledCount++;
+    if (_lyricsHiController.text.trim().isNotEmpty) filledCount++;
+    if (_lyricsTaController.text.trim().isNotEmpty) filledCount++;
+    if (_lyricsMlController.text.trim().isNotEmpty) filledCount++;
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.lyrics_outlined, color: AppColors.maroonPrimary, size: 22),
+                const SizedBox(width: 8),
+                const Text(
+                  'Multi-Language Lyrics (ಸಾಹಿತ್ಯ / गीत)',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.maroonPrimary),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: filledCount > 0 ? AppColors.success.withOpacity(0.15) : AppColors.creamSurface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: filledCount > 0 ? AppColors.success.withOpacity(0.4) : AppColors.goldPrimary.withOpacity(0.3),
+                    ),
+                  ),
+                  child: Text(
+                    '$filledCount / 5 Languages',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: filledCount > 0 ? AppColors.success : AppColors.textMuted,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Add sacred lyrics in Kannada, English, Hindi, Tamil, and Malayalam. The player will automatically show lyrics in the user\'s selected app language and let them switch seamlessly.',
+              style: TextStyle(fontSize: 12.5, color: Colors.grey.shade700, height: 1.4),
+            ),
+            const SizedBox(height: 16),
+
+            // Language Selector Horizontal Scroll Tabs
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: _lyricsLanguageDefs.map((lang) {
+                  final code = lang['code']!;
+                  final isSelected = _activeLyricsTab == code;
+                  final ctrl = _getLyricsControllerForLang(code);
+                  final hasContent = ctrl.text.trim().isNotEmpty;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      selected: isSelected,
+                      selectedColor: AppColors.maroonPrimary,
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: isSelected
+                              ? AppColors.maroonPrimary
+                              : (hasContent ? AppColors.goldPrimary : Colors.grey.shade300),
+                          width: isSelected ? 1.8 : 1.0,
+                        ),
+                      ),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(lang['icon']!, style: const TextStyle(fontSize: 13)),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${lang['native']} (${lang['label']})',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              color: isSelected ? Colors.white : AppColors.textDark,
+                            ),
+                          ),
+                          if (hasContent) ...[
+                            const SizedBox(width: 6),
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 14,
+                              color: isSelected ? AppColors.goldLight : AppColors.success,
+                            ),
+                          ],
+                        ],
+                      ),
+                      onSelected: (val) {
+                        if (val) setState(() => _activeLyricsTab = code);
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Active Tab Lyrics Input Card
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.creamSurface.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.goldPrimary.withOpacity(0.35)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        '${activeDef['icon']} ${activeDef['label']} (${activeDef['native']}) Lyrics',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: AppColors.maroonDark),
+                      ),
+                      const Spacer(),
+                      // Helper: Quick clear or copy from another language if needed
+                      if (activeController.text.isNotEmpty)
+                        Text(
+                          '${activeController.text.split('\n').where((l) => l.trim().isNotEmpty).length} lines',
+                          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    key: ValueKey('lyrics_input_$_activeLyricsTab'),
+                    controller: activeController,
+                    maxLines: 8,
+                    onChanged: (_) {
+                      // Trigger re-render to update chip badge
+                      setState(() {});
+                    },
+                    style: const TextStyle(fontSize: 14.5, height: 1.6),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: 'Enter or paste ${activeDef['label']} (${activeDef['native']}) sacred lyrics here...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFEADBCE)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFEADBCE)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.goldPrimary, width: 1.8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
+

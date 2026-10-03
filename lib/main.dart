@@ -24,6 +24,7 @@ import 'services/ai/voice_service.dart';
 import 'services/firebase/auth_service.dart';
 import 'services/firebase/firestore_service.dart';
 import 'services/preferences/preferences_service.dart';
+import 'services/premium/premium_service.dart';
 import 'services/widgets/home_widget_service.dart';
 
 
@@ -44,7 +45,11 @@ void main() async {
 
   // 2. Initialize SharedPreferences local persistence & Home Screen Widgets
   final prefsService = await PreferencesService.create();
-  await HomeWidgetService.initialize();
+  try {
+    await HomeWidgetService.initialize();
+  } catch (e) {
+    debugPrint('HomeWidget initialization notice: $e');
+  }
 
   // 3. Initialize Firebase (safely wrapped)
   try {
@@ -137,6 +142,9 @@ class _BhaktiAppState extends State<BhaktiApp> {
         ),
         ChangeNotifierProvider<DevotionalReminderService>(
           create: (_) => DevotionalReminderService(),
+        ),
+        ChangeNotifierProvider<PremiumService>(
+          create: (_) => PremiumService(widget.prefsService),
         ),
         ChangeNotifierProvider<OfflineDownloadService>(
           create: (_) => OfflineDownloadService(),

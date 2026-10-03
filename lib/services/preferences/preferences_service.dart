@@ -283,5 +283,14 @@ class PreferencesService extends ChangeNotifier {
     notifyListeners();
     return res;
   }
+
+  String? getString(String key) => _prefs.getString(key);
+
+  Future<bool> setString(String key, String value) async {
+    final res = await _prefs.setString(key, value);
+    notifyListeners();
+    return res;
+  }
 }
+
 

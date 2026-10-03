@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:provider/provider.dart';
 import '../services/ads/ad_service.dart';
+import '../services/premium/premium_service.dart';
 
 class BannerAdWidget extends StatefulWidget {
   const BannerAdWidget({super.key});
@@ -17,11 +19,13 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   void initState() {
     super.initState();
-    _loadBanner();
+    if (!AdService.instance.frequencyManager.isPremiumUser) {
+      _loadBanner();
+    }
   }
 
   void _loadBanner() {
-    if (kIsWeb || !AdService.instance.isInitialized) return;
+    if (kIsWeb || !AdService.instance.isInitialized || AdService.instance.frequencyManager.isPremiumUser) return;
 
     _bannerAd = BannerAd(
       adUnitId: AdService.instance.bannerAdUnitId,
@@ -30,6 +34,14 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           if (mounted) {
+            if (AdService.instance.frequencyManager.isPremiumUser) {
+              ad.dispose();
+              setState(() {
+                _isLoaded = false;
+                _bannerAd = null;
+              });
+              return;
+            }
             setState(() {
               _isLoaded = true;
             });
@@ -54,6 +66,19 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final premiumService = context.watch<PremiumService?>();
+    final isPremium = premiumService?.isPremium ?? AdService.instance.frequencyManager.isPremiumUser;
+
+    // 100% Ad-Free for VIP/Premium subscribers
+    if (isPremium) {
+      if (_bannerAd != null) {
+        _bannerAd?.dispose();
+        _bannerAd = null;
+        _isLoaded = false;
+      }
+      return const SizedBox.shrink();
+    }
+
     if (kIsWeb || !AdService.instance.isInitialized) {
       return const SizedBox.shrink();
     }
@@ -72,3 +97,4 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     return const SizedBox.shrink();
   }
 }
+

@@ -24,3 +24,7 @@
 
 # Home Widget
 -keep class es.antonborri.home_widget.** { *; }
+
+# Flutter Local Notifications & Timezone
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
+-dontwarn com.dexterous.flutterlocalnotifications.**

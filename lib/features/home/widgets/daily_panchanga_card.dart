@@ -8,6 +8,7 @@ import '../../../../services/preferences/preferences_service.dart';
 import '../../../widgets/moon_phase_dial.dart';
 import '../../../widgets/sacred_filigree_border.dart';
 import '../../wallpaper/sacred_wallpaper_generator_dialog.dart';
+import 'sacred_luck_oracle_dialog.dart';
 
 class DailyPanchangaCard extends StatefulWidget {
   const DailyPanchangaCard({super.key});
@@ -27,7 +28,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final lang = context.read<PreferencesService>().getSelectedLanguage();
-      context.read<PanchangaService>().getPanchangaForLanguage(lang);
+      final panchangaService = context.read<PanchangaService>();
+      panchangaService.getPanchangaForLanguage(lang);
+      panchangaService.fetchLiveRashiBhavishya();
     });
   }
 
@@ -813,10 +816,25 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     );
   }
 
+  List<String> _getWeekdayHeaders(String lang) {
+    if (lang == 'kn') {
+      return ['ಭಾನು', 'ಸೋಮ', 'ಮಂಗಳ', 'ಬುಧ', 'ಗುರು', 'ಶುಕ್ರ', 'ಶನಿ'];
+    } else if (lang == 'hi') {
+      return ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
+    } else if (lang == 'ta') {
+      return ['ஞாயிறு', 'திங்கள்', 'செவ்வாய்', 'புதன்', 'வியாழன்', 'வெள்ளி', 'சனி'];
+    } else if (lang == 'ml') {
+      return ['ഞായർ', 'തിങ്കൾ', 'ചൊവ്വ', 'ബുധൻ', 'വ്യാഴം', 'വെള്ളി', 'ശനി'];
+    }
+    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  }
+
   // --- TAB 2: VEDIC MONTH CALENDAR ---
   Widget _buildCalendarTab(BuildContext context, PanchangaService service, String lang, TempleTheme templeTheme) {
     final days = service.getMonthCalendarDays(_calendarMonth, lang);
     final monthTitle = DateFormat('MMMM yyyy').format(_calendarMonth);
+    final firstWeekdayOffset = DateTime(_calendarMonth.year, _calendarMonth.month, 1).weekday % 7;
+    final totalGridItems = firstWeekdayOffset + days.length;
 
     return GestureDetector(
       onHorizontalDragEnd: (details) {
@@ -877,127 +895,172 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
 
           const SizedBox(height: 6),
 
-        // Grid of Month Days
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 7,
-            childAspectRatio: 0.82,
-            crossAxisSpacing: 4,
-            mainAxisSpacing: 4,
-          ),
-          itemCount: days.length,
-          itemBuilder: (context, index) {
-            final day = days[index];
-            final isSpecial = day.isGrahana || day.isHunnime || day.isAmavasya || day.isAuspicious;
-            
-            Color cellBg;
-            Color cellBorder;
-            if (day.isToday) {
-              cellBg = templeTheme.primaryColor;
-              cellBorder = templeTheme.accentGold;
-            } else if (day.isGrahana) {
-              cellBg = const Color(0xFFFFEBEE);
-              cellBorder = const Color(0xFFE53935);
-            } else if (day.isHunnime) {
-              cellBg = const Color(0xFFFFF9C4);
-              cellBorder = const Color(0xFFFFB300);
-            } else if (day.isAmavasya) {
-              cellBg = const Color(0xFFECEFF1);
-              cellBorder = const Color(0xFF78909C);
-            } else if (day.isAuspicious) {
-              cellBg = const Color(0xFFFFF8E1);
-              cellBorder = const Color(0xFFFFCA28);
-            } else {
-              cellBg = const Color(0xFFFAF7F2);
-              cellBorder = const Color(0xFFE8DECF);
-            }
-
-            return InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () {
-                HapticFeedback.selectionClick();
-                _showDayPanchangaPopup(context, day, service, lang, templeTheme);
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: cellBg,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: cellBorder,
-                    width: (day.isToday || day.isGrahana || day.isHunnime || day.isAmavasya) ? 1.5 : 0.8,
+          // 7 Weekdays Header (Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: _getWeekdayHeaders(lang).asMap().entries.map((entry) {
+                final idx = entry.key;
+                final name = entry.value;
+                final isSunday = idx == 0;
+                return Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                    decoration: BoxDecoration(
+                      color: isSunday ? templeTheme.primaryColor.withOpacity(0.09) : const Color(0xFFF3ECE2),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Center(
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                          color: isSunday ? templeTheme.primaryColor : const Color(0xFF6B584C),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${day.day}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                );
+              }).toList(),
+            ),
+          ),
+
+          const SizedBox(height: 6),
+
+          // Grid of Month Days perfectly aligned with Weekday columns
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              childAspectRatio: 0.82,
+              crossAxisSpacing: 4,
+              mainAxisSpacing: 4,
+            ),
+            itemCount: totalGridItems,
+            itemBuilder: (context, index) {
+              if (index < firstWeekdayOffset) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFAF7F2).withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                );
+              }
+
+              final day = days[index - firstWeekdayOffset];
+              final isSpecial = day.isGrahana || day.isHunnime || day.isAmavasya || day.isAuspicious;
+              
+              Color cellBg;
+              Color cellBorder;
+              if (day.isToday) {
+                cellBg = templeTheme.primaryColor;
+                cellBorder = templeTheme.accentGold;
+              } else if (day.isGrahana) {
+                cellBg = const Color(0xFFFFEBEE);
+                cellBorder = const Color(0xFFE53935);
+              } else if (day.isHunnime) {
+                cellBg = const Color(0xFFFFF9C4);
+                cellBorder = const Color(0xFFFFB300);
+              } else if (day.isAmavasya) {
+                cellBg = const Color(0xFFECEFF1);
+                cellBorder = const Color(0xFF78909C);
+              } else if (day.isAuspicious) {
+                cellBg = const Color(0xFFFFF8E1);
+                cellBorder = const Color(0xFFFFCA28);
+              } else {
+                cellBg = const Color(0xFFFAF7F2);
+                cellBorder = const Color(0xFFE8DECF);
+              }
+
+              return InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  _showDayPanchangaPopup(context, day, service, lang, templeTheme);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: cellBg,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: cellBorder,
+                      width: (day.isToday || day.isGrahana || day.isHunnime || day.isAmavasya) ? 1.5 : 0.8,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${day.day}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: day.isToday
+                                  ? Colors.white
+                                  : (day.isGrahana ? const Color(0xFFC62828) : const Color(0xFF3E2723)),
+                            ),
+                          ),
+                          if (day.isGrahana) ...[
+                            const SizedBox(width: 2),
+                            const Text('🌘', style: TextStyle(fontSize: 8)),
+                          ] else if (day.isHunnime) ...[
+                            const SizedBox(width: 2),
+                            const Text('🌕', style: TextStyle(fontSize: 8)),
+                          ] else if (day.isAmavasya) ...[
+                            const SizedBox(width: 2),
+                            const Text('🌑', style: TextStyle(fontSize: 8)),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        day.tithi,
+                        style: TextStyle(
+                          fontSize: 7.2,
+                          fontWeight: FontWeight.w600,
+                          color: day.isToday
+                              ? Colors.white70
+                              : (day.isGrahana ? const Color(0xFFB71C1C) : const Color(0xFF795548)),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (day.festivalName != null || isSpecial) ...[
+                        const SizedBox(height: 1),
+                        Container(
+                          width: 5,
+                          height: 5,
+                          decoration: BoxDecoration(
                             color: day.isToday
-                                ? Colors.white
-                                : (day.isGrahana ? const Color(0xFFC62828) : const Color(0xFF3E2723)),
+                                ? Colors.amberAccent
+                                : (day.isGrahana
+                                    ? const Color(0xFFD32F2F)
+                                    : (day.isHunnime
+                                        ? const Color(0xFFFFA000)
+                                        : (day.isAmavasya ? const Color(0xFF455A64) : const Color(0xFFE65100)))),
+                            shape: BoxShape.circle,
                           ),
                         ),
-                        if (day.isGrahana) ...[
-                          const SizedBox(width: 2),
-                          const Text('🌘', style: TextStyle(fontSize: 8)),
-                        ] else if (day.isHunnime) ...[
-                          const SizedBox(width: 2),
-                          const Text('🌕', style: TextStyle(fontSize: 8)),
-                        ] else if (day.isAmavasya) ...[
-                          const SizedBox(width: 2),
-                          const Text('🌑', style: TextStyle(fontSize: 8)),
-                        ],
                       ],
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      day.tithi,
-                      style: TextStyle(
-                        fontSize: 7.2,
-                        fontWeight: FontWeight.w600,
-                        color: day.isToday
-                            ? Colors.white70
-                            : (day.isGrahana ? const Color(0xFFB71C1C) : const Color(0xFF795548)),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (day.festivalName != null || isSpecial) ...[
-                      const SizedBox(height: 1),
-                      Container(
-                        width: 5,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: day.isToday
-                              ? Colors.amberAccent
-                              : (day.isGrahana
-                                  ? const Color(0xFFD32F2F)
-                                  : (day.isHunnime
-                                      ? const Color(0xFFFFA000)
-                                      : (day.isAmavasya ? const Color(0xFF455A64) : const Color(0xFFE65100)))),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          ),
 
-        const SizedBox(height: 10),
+          const SizedBox(height: 10),
 
-        // Festival & Sacred Days Legend in this month
-        Container(
+          // Festival & Sacred Days Legend in this month
+          Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: const Color(0xFFFFF9E6),
@@ -1446,32 +1509,79 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
       key: const ValueKey(2),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Daily Bhavishya Subtitle Banner
-        Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: templeTheme.primaryColor.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: templeTheme.accentGold.withOpacity(0.3)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.auto_awesome_rounded, color: templeTheme.accentGold, size: 14),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  dayBhavishyaHeader,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: templeTheme.primaryColor,
+        // Daily Bhavishya Subtitle Banner with Live Internet Indicator & Refresh
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: templeTheme.primaryColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: templeTheme.accentGold.withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.auto_awesome_rounded, color: templeTheme.accentGold, size: 14),
+                  const SizedBox(width: 6),
+                  Text(
+                    dayBhavishyaHeader,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: templeTheme.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                service.fetchLiveRashiBhavishya(forceRefresh: true);
+              },
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: selectedRashi.isLiveFetched
+                      ? const Color(0xFF1B5E20).withOpacity(0.12)
+                      : templeTheme.primaryColor.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: selectedRashi.isLiveFetched
+                        ? const Color(0xFF2E7D32).withOpacity(0.4)
+                        : templeTheme.accentGold.withOpacity(0.3),
                   ),
                 ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      selectedRashi.isLiveFetched ? Icons.wifi_rounded : Icons.refresh_rounded,
+                      size: 12,
+                      color: selectedRashi.isLiveFetched
+                          ? const Color(0xFF1B5E20)
+                          : templeTheme.primaryColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      selectedRashi.isLiveFetched ? 'Live 🌐' : 'Sync 🔄',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: selectedRashi.isLiveFetched
+                            ? const Color(0xFF1B5E20)
+                            : templeTheme.primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
 
         // Horizontal Rashi Selector Carousel
@@ -1710,6 +1820,95 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                       ),
                     ),
                   ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Personalized DOB & Vedic Dice Oracle Button
+              InkWell(
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  SacredLuckOracleDialog.show(context, selectedRashi, lang);
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        templeTheme.primaryColor,
+                        const Color(0xFF8B1E3F),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: templeTheme.accentGold.withOpacity(0.8), width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: templeTheme.primaryColor.withOpacity(0.25),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              '🎲',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                lang == 'kn'
+                                    ? 'ಇಂದಿನ ಜನ್ಮದಿನಾಂಕ & ಕವಡೆ ಅದೃಷ್ಟ ಗಣಕ'
+                                    : (lang == 'hi'
+                                        ? 'DOB व पासा द्वारा आज का भाग्य जानें'
+                                        : 'Personalized Daily Luck & Dice Oracle'),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                lang == 'kn'
+                                    ? 'DOB ಆಯ್ಕೆಮಾಡಿ ಮತ್ತು ಕವಡೆ ಉರುಳಿಸಿ ✨'
+                                    : (lang == 'hi'
+                                        ? 'जन्मतिथि चुनें व पासा फेंकें ✨'
+                                        : 'Enter DOB & Roll Sacred Dice ✨'),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: templeTheme.accentGold,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: templeTheme.accentGold,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -12,6 +12,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/theme/temple_theme.dart';
 import '../../models/song_model.dart';
 import '../../services/preferences/preferences_service.dart';
+import '../../services/wisdom/daily_wisdom_service.dart';
 
 enum WallpaperFormat {
   story('Story (9:16)', 9 / 16, Icons.stay_current_portrait_rounded),
@@ -94,13 +95,14 @@ class _SacredWallpaperGeneratorDialogState extends State<SacredWallpaperGenerato
     if (widget.song != null) return widget.song!.title;
     if (widget.shlokaTitle != null) return widget.shlokaTitle!;
     if (widget.panchangaSummary != null) return 'Daily Panchanga Blessings';
-    return 'Sacred Shloka of the Day';
+    return DailyWisdomService.getTodayWisdom().title;
   }
 
   String get _deity {
     if (widget.song != null) return widget.song!.deity;
     if (widget.deity != null) return widget.deity!;
-    return 'Universal Divine Prayer';
+    final today = DailyWisdomService.getTodayWisdom();
+    return '${today.authorKannada} • ${today.deity}';
   }
 
   String get _mainContent {
@@ -108,14 +110,14 @@ class _SacredWallpaperGeneratorDialogState extends State<SacredWallpaperGenerato
       final lyrics = widget.song!.lyrics;
       if (lyrics != null && lyrics.trim().isNotEmpty) {
         final lines = lyrics.split('\n').where((l) => l.trim().isNotEmpty).toList();
-        final selectedLines = lines.take(6).join('\n');
+        final selectedLines = lines.take(8).join('\n');
         return '॥ ${widget.song!.title} ॥\n\n$selectedLines';
       }
       return '॥ ${widget.song!.title} ॥\n\nSacred devotional chanting dedicated to $_deity.';
     }
     if (widget.shlokaText != null) return widget.shlokaText!;
     if (widget.panchangaSummary != null) return widget.panchangaSummary!;
-    return 'ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यं ।\nभर्गो देवಸ್ಯ धीमहि धियो यो नः प्रचोदयात् ॥';
+    return DailyWisdomService.getTodayWisdom().getVerse('kn');
   }
 
   String? get _subContent {
@@ -123,7 +125,7 @@ class _SacredWallpaperGeneratorDialogState extends State<SacredWallpaperGenerato
     if (widget.song != null && widget.song!.artist != null && widget.song!.artist!.isNotEmpty) {
       return 'Rendered with devotion by ${widget.song!.artist}';
     }
-    return null;
+    return DailyWisdomService.getTodayWisdom().getMeaning('kn');
   }
 
   Future<Uint8List?> _capturePngBytes() async {
@@ -233,10 +235,10 @@ class _SacredWallpaperGeneratorDialogState extends State<SacredWallpaperGenerato
     final prefs = context.watch<PreferencesService>();
     final activeTheme = TempleTheme.fromId(prefs.getTempleThemeId());
     final screenHeight = MediaQuery.of(context).size.height;
-    final maxCanvasHeight = (screenHeight * 0.42).clamp(260.0, 360.0);
+    final maxCanvasHeight = (screenHeight * 0.54).clamp(340.0, 500.0);
 
     return Container(
-      height: screenHeight * 0.90,
+      height: screenHeight * 0.92,
       decoration: BoxDecoration(
         color: activeTheme.backgroundColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -344,32 +346,61 @@ class _SacredWallpaperGeneratorDialogState extends State<SacredWallpaperGenerato
 
                   const SizedBox(height: 14),
 
-                  // Format Selector (Story, Wallpaper, Square)
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
+                  // Format Selector (Story, Wallpaper, Square) - Responsive Row
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: activeTheme.borderColor.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: activeTheme.borderColor.withOpacity(0.3)),
+                    ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: WallpaperFormat.values.map((f) {
                         final isSelected = _selectedFormat == f;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: ChoiceChip(
-                            avatar: Icon(
-                              f.icon,
-                              size: 15,
-                              color: isSelected ? Colors.white : activeTheme.primaryColor,
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _selectedFormat = f),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                              decoration: BoxDecoration(
+                                color: isSelected ? activeTheme.primaryColor : Colors.transparent,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: activeTheme.primaryColor.withOpacity(0.3),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    f.icon,
+                                    size: 14,
+                                    color: isSelected ? Colors.white : activeTheme.textColor.withOpacity(0.7),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        f.label,
+                                        style: TextStyle(
+                                          color: isSelected ? Colors.white : activeTheme.textColor,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            label: Text(f.label),
-                            selected: isSelected,
-                            selectedColor: activeTheme.primaryColor,
-                            labelStyle: TextStyle(
-                              color: isSelected ? Colors.white : activeTheme.textColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11.5,
-                            ),
-                            onSelected: (selected) {
-                              if (selected) setState(() => _selectedFormat = f);
-                            },
                           ),
                         );
                       }).toList(),
@@ -496,19 +527,19 @@ class _SacredWallpaperGeneratorDialogState extends State<SacredWallpaperGenerato
     final isParchment = _selectedStyle == WallpaperStyle.sandalwoodParchment;
     final primaryTextColor = isParchment ? const Color(0xFF261102) : Colors.white;
     final secondaryTextColor = isParchment ? const Color(0xFF78350F) : _selectedStyle.accentColor;
-    final mutedTextColor = isParchment ? const Color(0xFF573014) : Colors.white.withOpacity(0.85);
+    final mutedTextColor = isParchment ? const Color(0xFF573014) : Colors.white.withOpacity(0.92);
 
     return Stack(
       children: [
         // Decorative Sacred Inner Border Frame
         Positioned.fill(
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: _selectedStyle.accentColor.withOpacity(0.35),
+                  color: _selectedStyle.accentColor.withOpacity(0.40),
                   width: 1.2,
                 ),
               ),
@@ -518,154 +549,154 @@ class _SacredWallpaperGeneratorDialogState extends State<SacredWallpaperGenerato
 
         // Corner Sacred Diya Icons
         Positioned(
-          top: 14,
-          left: 14,
-          child: Icon(Icons.spa_rounded, size: 13, color: _selectedStyle.accentColor.withOpacity(0.55)),
+          top: 12,
+          left: 12,
+          child: Icon(Icons.spa_rounded, size: 14, color: _selectedStyle.accentColor.withOpacity(0.70)),
         ),
         Positioned(
-          top: 14,
-          right: 14,
-          child: Icon(Icons.spa_rounded, size: 13, color: _selectedStyle.accentColor.withOpacity(0.55)),
+          top: 12,
+          right: 12,
+          child: Icon(Icons.spa_rounded, size: 14, color: _selectedStyle.accentColor.withOpacity(0.70)),
         ),
         Positioned(
-          bottom: 14,
-          left: 14,
-          child: Icon(Icons.spa_rounded, size: 13, color: _selectedStyle.accentColor.withOpacity(0.55)),
+          bottom: 12,
+          left: 12,
+          child: Icon(Icons.spa_rounded, size: 14, color: _selectedStyle.accentColor.withOpacity(0.70)),
         ),
         Positioned(
-          bottom: 14,
-          right: 14,
-          child: Icon(Icons.spa_rounded, size: 13, color: _selectedStyle.accentColor.withOpacity(0.55)),
+          bottom: 12,
+          right: 12,
+          child: Icon(Icons.spa_rounded, size: 14, color: _selectedStyle.accentColor.withOpacity(0.70)),
         ),
 
-        // Main Typography Body
-        Center(
+        // Main Typography Body filling the poster height with balanced vertical distribution
+        Positioned.fill(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Deity Emoji Icon & Aura
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _selectedStyle.accentColor.withOpacity(0.18),
-                    border: Border.all(color: _selectedStyle.accentColor.withOpacity(0.5)),
-                  ),
-                  child: Center(
-                    child: Text(_selectedStyle.icon, style: const TextStyle(fontSize: 18)),
-                  ),
-                ),
-                const SizedBox(height: 6),
-
-                // Deity Title
-                Text(
-                  _deity.toUpperCase(),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: secondaryTextColor,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 3),
-
-                // Main Title
-                Text(
-                  _title,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.bold,
-                    color: primaryTextColor,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Divider line
-                Container(
-                  width: 44,
-                  height: 1.5,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.transparent,
-                        _selectedStyle.accentColor,
-                        Colors.transparent,
-                      ],
+                // Top Header Block: Diya Icon + Deity / Author Tag + Sacred Title + Divider
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedStyle.accentColor.withOpacity(0.18),
+                        border: Border.all(color: _selectedStyle.accentColor.withOpacity(0.6), width: 1.2),
+                      ),
+                      child: Center(
+                        child: Text(_selectedStyle.icon, style: const TextStyle(fontSize: 20)),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Sacred Verse / Shloka Text
-                Flexible(
-                  child: Text(
-                    _mainContent,
-                    textAlign: TextAlign.center,
-                    maxLines: 7,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
-                      color: primaryTextColor,
-                      height: 1.45,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ),
-
-                // Meaning / Subcontent
-                if (_subContent != null) ...[
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: isParchment ? Colors.white.withOpacity(0.6) : Colors.black.withOpacity(0.25),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: _selectedStyle.accentColor.withOpacity(0.25)),
-                    ),
-                    child: Text(
-                      _subContent!,
+                    const SizedBox(height: 8),
+                    Text(
+                      _deity.toUpperCase(),
                       textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 9.5,
-                        color: mutedTextColor,
-                        fontStyle: FontStyle.italic,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: secondaryTextColor,
+                        letterSpacing: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.bold,
+                        color: primaryTextColor,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: 60,
+                      height: 2,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            _selectedStyle.accentColor,
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Center Verse & Meaning Body - Prominent & Visible
+                Expanded(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 8),
+                          Text(
+                            _mainContent,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: primaryTextColor,
+                              height: 1.6,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          if (_subContent != null) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: isParchment ? Colors.white.withOpacity(0.7) : Colors.black.withOpacity(0.35),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: _selectedStyle.accentColor.withOpacity(0.30)),
+                              ),
+                              child: Text(
+                                _subContent!,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  color: mutedTextColor,
+                                  fontStyle: FontStyle.italic,
+                                  height: 1.45,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                        ],
                       ),
                     ),
                   ),
-                ],
+                ),
 
-                const SizedBox(height: 8),
-
-                // Footer App Branding Pill
+                // Bottom App Branding Pill
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _selectedStyle.accentColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
+                    color: _selectedStyle.accentColor.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: _selectedStyle.accentColor.withOpacity(0.35), width: 0.8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.wb_sunny_rounded, size: 10, color: secondaryTextColor),
-                      const SizedBox(width: 4),
+                      Icon(Icons.wb_sunny_rounded, size: 12, color: secondaryTextColor),
+                      const SizedBox(width: 5),
                       Text(
                         'Bhakti App • Divine Music & Stotras',
                         style: TextStyle(
-                          fontSize: 8.5,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w700,
                           color: secondaryTextColor,
                         ),

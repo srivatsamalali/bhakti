@@ -8,6 +8,11 @@ class AppConstants {
   static const String appUniversalPrayer = '॥ लोकाः समस्ताः सुखिनೋ ಭವಂತು ॥';
   static const String appVersion = '1.0.10';
 
+  // --- In-App Purchase & Subscription Feature Flag ---
+  // Set to 'Y' when subscriptions should be enabled, or 'N' when disabled.
+  static const String subscriptionFeatureFlag = 'N';
+  static bool get isSubscriptionEnabled => subscriptionFeatureFlag.trim().toUpperCase() == 'Y';
+
   // Supported language codes
   static const String langKannada = 'kn';
   static const String langEnglish = 'en';

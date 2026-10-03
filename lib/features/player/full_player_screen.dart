@@ -8,7 +8,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/localization/app_localizations.dart';
 import '../../core/utils/deity_theme_helper.dart';
 import '../../models/song_model.dart';
 import '../../services/audio/audio_player_service.dart';
@@ -35,6 +34,7 @@ class FullPlayerScreen extends StatefulWidget {
 
 class _FullPlayerScreenState extends State<FullPlayerScreen> with TickerProviderStateMixin {
   bool _showLyricsSheet = false;
+  String? _selectedLyricsLang;
   bool _isDisliked = false;
   double _verticalDragOffset = 0;
   bool _dragActionTriggered = false;
@@ -1059,28 +1059,196 @@ class _FullPlayerScreenState extends State<FullPlayerScreen> with TickerProvider
                               ],
                             ),
 
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 18),
+
+                            // Multi-Language Lyrics Selector Bar
+                            Builder(
+                              builder: (ctx) {
+                                final activeLyricsLang = _selectedLyricsLang ?? currentLang;
+                                const lyricsLanguages = [
+                                  {'code': 'kn', 'label': 'Kannada', 'native': 'ಕನ್ನಡ', 'icon': '🌸'},
+                                  {'code': 'en', 'label': 'English', 'native': 'English', 'icon': '🌐'},
+                                  {'code': 'hi', 'label': 'Hindi', 'native': 'हिन्दी', 'icon': '🕉️'},
+                                  {'code': 'ta', 'label': 'Tamil', 'native': 'தமிழ்', 'icon': '🪷'},
+                                  {'code': 'ml', 'label': 'Malayalam', 'native': 'മലയാളം', 'icon': '🚩'},
+                                ];
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 4, bottom: 8),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.translate_rounded, color: AppColors.goldLight, size: 14),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            'Lyrics Script / Language (Defaulted to App Language)',
+                                            style: TextStyle(
+                                              fontSize: 11.5,
+                                              color: Colors.white.withOpacity(0.6),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 38,
+                                      child: ListView.separated(
+                                        scrollDirection: Axis.horizontal,
+                                        physics: const BouncingScrollPhysics(),
+                                        itemCount: lyricsLanguages.length,
+                                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                                        itemBuilder: (context, index) {
+                                          final lang = lyricsLanguages[index];
+                                          final code = lang['code']!;
+                                          final isSelected = activeLyricsLang == code;
+                                          final hasLyricsInLang = (song.lyricsLocalized != null &&
+                                                  (song.lyricsLocalized![code]?.trim().isNotEmpty ?? false)) ||
+                                              (song.language == code && song.lyrics != null && song.lyrics!.trim().isNotEmpty);
+
+                                          return GestureDetector(
+                                            onTap: () {
+                                              HapticFeedback.selectionClick();
+                                              setState(() => _selectedLyricsLang = code);
+                                            },
+                                            child: AnimatedContainer(
+                                              duration: const Duration(milliseconds: 200),
+                                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                              decoration: BoxDecoration(
+                                                gradient: isSelected
+                                                    ? AppColors.goldGradient
+                                                    : null,
+                                                color: isSelected ? null : Colors.white.withOpacity(0.08),
+                                                borderRadius: BorderRadius.circular(20),
+                                                border: Border.all(
+                                                  color: isSelected
+                                                      ? AppColors.goldPrimary
+                                                      : (hasLyricsInLang
+                                                          ? AppColors.goldPrimary.withOpacity(0.4)
+                                                          : Colors.white.withOpacity(0.12)),
+                                                  width: isSelected ? 1.6 : 1.0,
+                                                ),
+                                                boxShadow: isSelected
+                                                    ? [
+                                                        BoxShadow(
+                                                          color: AppColors.goldPrimary.withOpacity(0.35),
+                                                          blurRadius: 8,
+                                                          offset: const Offset(0, 2),
+                                                        ),
+                                                      ]
+                                                    : null,
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(lang['icon']!, style: const TextStyle(fontSize: 12)),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    '${lang['native']} (${lang['label']})',
+                                                    style: TextStyle(
+                                                      fontSize: 12.5,
+                                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                                      color: isSelected ? AppColors.maroonDark : Colors.white.withOpacity(0.9),
+                                                    ),
+                                                  ),
+                                                  if (hasLyricsInLang) ...[
+                                                    const SizedBox(width: 5),
+                                                    Container(
+                                                      width: 6,
+                                                      height: 6,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: isSelected ? AppColors.maroonDark : AppColors.goldLight,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+
+                            const SizedBox(height: 20),
 
                             // Large Devotional Lyrics with High-Clarity Typography
-                            Expanded(
-                              child: SingleChildScrollView(
-                                physics: const BouncingScrollPhysics(),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                                  child: Text(
-                                    song.lyrics != null && song.lyrics!.trim().isNotEmpty
-                                        ? song.lyrics!
-                                        : context.tr('noLyricsAvailable'),
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      height: 1.85,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      letterSpacing: 0.1,
+                            Builder(
+                              builder: (ctx) {
+                                final activeLyricsLang = _selectedLyricsLang ?? currentLang;
+                                final localizedText = song.getLocalizedLyrics(activeLyricsLang);
+                                final hasText = localizedText != null && localizedText.trim().isNotEmpty;
+
+                                return Expanded(
+                                  child: SingleChildScrollView(
+                                    physics: const BouncingScrollPhysics(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                                      child: hasText
+                                          ? Text(
+                                              localizedText,
+                                              style: const TextStyle(
+                                                fontSize: 24,
+                                                height: 1.85,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                                letterSpacing: 0.1,
+                                              ),
+                                            )
+                                          : Container(
+                                              padding: const EdgeInsets.all(24),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withOpacity(0.06),
+                                                borderRadius: BorderRadius.circular(20),
+                                                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                                              ),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(Icons.translate_outlined, size: 44, color: AppColors.goldLight),
+                                                  const SizedBox(height: 14),
+                                                  Text(
+                                                    'No lyrics available in selected language yet.',
+                                                    style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    'You can choose another script tab above or add lyrics in all 5 languages via Admin.',
+                                                    style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.65), height: 1.4),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  if (song.lyrics != null && song.lyrics!.isNotEmpty) ...[
+                                                    const SizedBox(height: 18),
+                                                    OutlinedButton.icon(
+                                                      onPressed: () {
+                                                        setState(() => _selectedLyricsLang = song.language);
+                                                      },
+                                                      icon: const Icon(Icons.menu_book_rounded, color: AppColors.goldLight),
+                                                      label: Text(
+                                                        'View Default Lyrics (${song.language.toUpperCase()})',
+                                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                                      ),
+                                                      style: OutlinedButton.styleFrom(
+                                                        side: const BorderSide(color: AppColors.goldPrimary),
+                                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ],
+                                              ),
+                                            ),
                                     ),
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             ),
                           ],
                         ),

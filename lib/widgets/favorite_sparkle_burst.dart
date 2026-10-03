@@ -120,65 +120,61 @@ class _FavoriteSparkleBurstState extends State<FavoriteSparkleBurst>
     final active = widget.activeColor ?? AppColors.error;
     final inactive = widget.inactiveColor ?? const Color(0xFF8D7B70);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkResponse(
-        onTap: _handleTap,
-        radius: 22,
-        splashColor: active.withOpacity(0.15),
-        highlightShape: BoxShape.circle,
-        child: SizedBox(
-          width: 40,
-          height: 40,
-          child: Stack(
-            alignment: Alignment.center,
-            clipBehavior: Clip.none,
-            children: [
-              // 1. Particle Burst Canvas
-              AnimatedBuilder(
-                animation: _controller,
-                builder: (context, _) {
-                  if (!_controller.isAnimating || !_isFav) {
-                    return const SizedBox.shrink();
-                  }
-                  return SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CustomPaint(
-                      painter: _SparkleBurstPainter(
-                        sparks: _sparks,
-                        progress: _controller.value,
-                      ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _handleTap,
+      child: SizedBox(
+        width: 40,
+        height: 40,
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            // 1. Particle Burst Canvas
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, _) {
+                if (!_controller.isAnimating || !_isFav) {
+                  return const SizedBox.shrink();
+                }
+                return SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CustomPaint(
+                    painter: _SparkleBurstPainter(
+                      sparks: _sparks,
+                      progress: _controller.value,
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
+            ),
 
-              // 2. Animated Heart Icon
-              AnimatedBuilder(
-                animation: _scaleAnimation,
-                builder: (context, _) {
-                  final scale = _controller.isAnimating ? _scaleAnimation.value : 1.0;
-                  return Transform.scale(
-                    scale: scale,
-                    child: widget.child ??
-                        Icon(
-                          _isFav
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_outline_rounded,
-                          color: _isFav ? active : inactive,
-                          size: widget.size,
-                        ),
-                  );
-                },
-              ),
-            ],
-          ),
+            // 2. Animated Heart Icon
+            AnimatedBuilder(
+              animation: _scaleAnimation,
+              builder: (context, _) {
+                final scale = _controller.isAnimating ? _scaleAnimation.value : 1.0;
+                return Transform.scale(
+                  scale: scale,
+                  child: widget.child ??
+                      Icon(
+                        _isFav
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_outline_rounded,
+                        color: _isFav ? active : inactive,
+                        size: widget.size,
+                      ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
 
 class _BurstSpark {
   final Offset offset;

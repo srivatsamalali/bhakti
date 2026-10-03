@@ -5,6 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '../models/song_model.dart';
 import '../services/firebase/firestore_service.dart';
 import '../services/preferences/preferences_service.dart';
+import '../services/widgets/home_widget_service.dart';
 
 class SongRepository extends ChangeNotifier {
   final FirestoreService _firestoreService;
@@ -34,6 +35,7 @@ class SongRepository extends ChangeNotifier {
         if (cachedSongs.isNotEmpty) {
           _allSongs = cachedSongs;
           _isLoading = false;
+          HomeWidgetService.syncSongsWithWidget(_allSongs);
         }
       } catch (e) {
         debugPrint('Error loading cached songs: $e');
@@ -45,6 +47,7 @@ class SongRepository extends ChangeNotifier {
     try {
       final jsonString = jsonEncode(songs.map((s) => s.toJson()).toList());
       _prefs.saveCachedSongsJson(jsonString);
+      HomeWidgetService.syncSongsWithWidget(songs);
     } catch (e) {
       debugPrint('Error saving songs to local cache: $e');
     }
@@ -81,6 +84,7 @@ class SongRepository extends ChangeNotifier {
         _errorMessage = null;
         _saveToLocalCache(songs);
         _precacheAudioFiles(songs);
+        HomeWidgetService.syncSongsWithWidget(songs);
         notifyListeners();
       },
       onError: (err) {
@@ -113,6 +117,7 @@ class SongRepository extends ChangeNotifier {
         _allSongs = songs;
         _saveToLocalCache(songs);
         _precacheAudioFiles(songs);
+        HomeWidgetService.syncSongsWithWidget(songs);
       }
     } catch (e) {
       _errorMessage = e.toString();

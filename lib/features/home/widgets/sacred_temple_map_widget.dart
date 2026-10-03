@@ -1,12 +1,7 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../pooja/garbhagruha/garbhagruha_scene.dart';
-import '../../pooja/garbhagruha/venkateshwara_scene.dart';
-import '../../pooja/garbhagruha/ganesha_scene.dart';
-import '../../pooja/garbhagruha/chamundeshwari_scene.dart';
-import '../../pooja/garbhagruha/lakshmi_scene.dart';
 import '../../pooja/garbhagruha/sanctum_registry.dart';
 import '../../pooja/virtual_pooja_room_screen.dart';
 import '../../../widgets/sacred_filigree_border.dart';
@@ -103,89 +98,98 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
                 children: [
                   // Header Row with Sacred Title & Yatra Badge
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: const RadialGradient(
-                                colors: [
-                                  Color(0xFFFFD54F),
-                                  Color(0xFFE65100),
-                                  Color(0xFF4E160A),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: const RadialGradient(
+                                  colors: [
+                                    Color(0xFFFFD54F),
+                                    Color(0xFFE65100),
+                                    Color(0xFF4E160A),
+                                  ],
+                                ),
+                                border: Border.all(color: AppColors.goldLight, width: 1.2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.goldPrimary.withOpacity(0.4),
+                                    blurRadius: 10,
+                                  ),
                                 ],
                               ),
-                              border: Border.all(color: AppColors.goldLight, width: 1.2),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.goldPrimary.withOpacity(0.4),
-                                  blurRadius: 10,
-                                ),
-                              ],
+                              child: const Icon(
+                                Icons.public_rounded,
+                                color: Color(0xFFFFF9C4),
+                                size: 18,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.public_rounded,
-                              color: Color(0xFFFFF9C4),
-                              size: 18,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'ಪುಣ್ಯಕ್ಷೇತ್ರ ದರ್ಶನ',
-                                    style: TextStyle(
-                                      fontFamily: 'serif',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.goldLight,
-                                      letterSpacing: 0.3,
-                                    ),
+                                  Wrap(
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    spacing: 6,
+                                    runSpacing: 2,
+                                    children: [
+                                      const Text(
+                                        'ಪುಣ್ಯಕ್ಷೇತ್ರ ದರ್ಶನ',
+                                        style: TextStyle(
+                                          fontFamily: 'serif',
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.goldLight,
+                                          letterSpacing: 0.3,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.goldPrimary.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(
+                                            color: AppColors.goldPrimary.withOpacity(0.5),
+                                            width: 0.8,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          '3D TERRAIN YATRA',
+                                          style: TextStyle(
+                                            fontSize: 8,
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: 0.6,
+                                            color: AppColors.goldLight,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 6),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.goldPrimary.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(
-                                        color: AppColors.goldPrimary.withOpacity(0.5),
-                                        width: 0.8,
-                                      ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Realistic Satellite Map • Sky Entry & Garbhagruha Pooja',
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      color: Colors.white.withOpacity(0.8),
                                     ),
-                                    child: const Text(
-                                      '3D TERRAIN YATRA',
-                                      style: TextStyle(
-                                        fontSize: 8.5,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: 0.8,
-                                        color: AppColors.goldLight,
-                                      ),
-                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
-                              Text(
-                                'Realistic Satellite Map • Sky Entry & Garbhagruha Pooja',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.white.withOpacity(0.8),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 6),
                       IconButton(
                         onPressed: () => _navigateToTemple(_selectedSiteIndex),
                         icon: Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(7),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: AppColors.goldPrimary.withOpacity(0.2),
@@ -194,12 +198,13 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
                           child: const Icon(
                             Icons.arrow_forward_ios_rounded,
                             color: AppColors.goldLight,
-                            size: 13,
+                            size: 12,
                           ),
                         ),
                       ),
                     ],
                   ),
+
 
                   const SizedBox(height: 14),
 
@@ -461,8 +466,8 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
                                 ),
                                 child: Image.asset(
                                   selectedSite.aerialImagePath,
-                                  width: 125,
-                                  height: 88,
+                                  width: 104,
+                                  height: 84,
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -470,7 +475,7 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
                                 top: 6,
                                 left: 6,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                                   decoration: BoxDecoration(
                                     color: Colors.black.withOpacity(0.75),
                                     borderRadius: BorderRadius.circular(6),
@@ -479,12 +484,12 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
                                   child: const Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.flight_takeoff_rounded, color: AppColors.goldLight, size: 10),
+                                      Icon(Icons.flight_takeoff_rounded, color: AppColors.goldLight, size: 9),
                                       SizedBox(width: 3),
                                       Text(
                                         'AERIAL VIEW',
                                         style: TextStyle(
-                                          fontSize: 8,
+                                          fontSize: 7.5,
                                           fontWeight: FontWeight.bold,
                                           color: AppColors.goldLight,
                                         ),
@@ -496,31 +501,35 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
                             ],
                           ),
 
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
 
                           // Temple Details & Flight Action
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Row(
                                     children: [
-                                      Text(
-                                        selectedSite.kannadaName,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.goldLight,
+                                      Flexible(
+                                        child: Text(
+                                          selectedSite.kannadaName,
+                                          style: const TextStyle(
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.goldLight,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      const SizedBox(width: 6),
+                                      const SizedBox(width: 4),
                                       Text(
                                         '• ${selectedSite.stateName}',
                                         style: TextStyle(
-                                          fontSize: 10,
+                                          fontSize: 9.5,
                                           color: Colors.white.withOpacity(0.7),
                                         ),
                                       ),
@@ -531,28 +540,32 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
                                     selectedSite.sanctumName,
                                     style: const TextStyle(
                                       fontFamily: 'serif',
-                                      fontSize: 13.5,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 3),
                                   Row(
                                     children: [
                                       const Icon(
                                         Icons.play_circle_fill_rounded,
                                         color: AppColors.goldLight,
-                                        size: 15,
+                                        size: 14,
                                       ),
                                       const SizedBox(width: 4),
-                                      Text(
-                                        'Fly In & Enter Garbhagruha',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          color: AppColors.goldLight.withOpacity(0.95),
+                                      Flexible(
+                                        child: Text(
+                                          'Fly In & Enter Garbhagruha',
+                                          style: TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.goldLight.withOpacity(0.95),
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],
@@ -564,9 +577,9 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
 
                           // Action Arrow
                           Padding(
-                            padding: const EdgeInsets.only(right: 12),
+                            padding: const EdgeInsets.only(right: 10),
                             child: Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(7),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: AppColors.goldPrimary.withOpacity(0.3),
@@ -575,12 +588,13 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
                               child: const Icon(
                                 Icons.arrow_forward_rounded,
                                 color: AppColors.goldLight,
-                                size: 16,
+                                size: 15,
                               ),
                             ),
                           ),
                         ],
                       ),
+
                     ),
                   ),
 

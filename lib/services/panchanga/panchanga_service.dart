@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PanchangaData {
   final String tithi;
@@ -102,6 +103,7 @@ class RashiInfo {
   final String luckyNumber;
   final String deity;
   final String mantra;
+  final bool isLiveFetched;
 
   const RashiInfo({
     required this.id,
@@ -115,6 +117,7 @@ class RashiInfo {
     required this.luckyNumber,
     required this.deity,
     required this.mantra,
+    this.isLiveFetched = false,
   });
 }
 
@@ -204,8 +207,108 @@ class PanchangaService with ChangeNotifier {
   String _cachedLang = '';
   DateTime? _lastFetchDate;
   bool _isLoading = false;
+  final Map<String, String> _liveHoroscopes = {};
+  bool _isFetchingHoroscope = false;
+  DateTime? _lastHoroscopeFetchDate;
 
   bool get isLoading => _isLoading;
+  bool get isFetchingHoroscope => _isFetchingHoroscope;
+  Map<String, String> get liveHoroscopes => _liveHoroscopes;
+
+  /// Fetches daily live horoscope data from online astrological feeds with local caching
+  Future<void> fetchLiveRashiBhavishya({bool forceRefresh = false}) async {
+    final now = DateTime.now();
+    final dateKey = DateFormat('yyyy-MM-dd').format(now);
+
+    final isSameDay = _lastHoroscopeFetchDate != null &&
+        _lastHoroscopeFetchDate!.year == now.year &&
+        _lastHoroscopeFetchDate!.month == now.month &&
+        _lastHoroscopeFetchDate!.day == now.day;
+
+    if (!forceRefresh && isSameDay && _liveHoroscopes.isNotEmpty) {
+      return;
+    }
+
+    _isFetchingHoroscope = true;
+    notifyListeners();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final rashiMapping = {
+        'mesha': 'aries',
+        'vrishabha': 'taurus',
+        'mithuna': 'gemini',
+        'karka': 'cancer',
+        'simha': 'leo',
+        'kanya': 'virgo',
+        'tula': 'libra',
+        'vrishchika': 'scorpio',
+        'dhanu': 'sagittarius',
+        'makara': 'capricorn',
+        'kumbha': 'aquarius',
+        'meena': 'pisces',
+      };
+
+      // 1. Check local persistent cache
+      bool hasAllCached = true;
+      for (final entry in rashiMapping.entries) {
+        final cached = prefs.getString('rashi_horoscope_${dateKey}_${entry.key}');
+        if (cached != null && cached.trim().isNotEmpty) {
+          _liveHoroscopes[entry.key] = cached.trim();
+        } else {
+          hasAllCached = false;
+        }
+      }
+
+      if (!forceRefresh && hasAllCached) {
+        _lastHoroscopeFetchDate = now;
+        _isFetchingHoroscope = false;
+        notifyListeners();
+        return;
+      }
+
+      // 2. Fetch live data from internet API in parallel
+      final futures = rashiMapping.entries.map((entry) async {
+        final rashiId = entry.key;
+        final sign = entry.value;
+        try {
+          final url = Uri.parse('https://horoscope-app-api.vercel.app/api/v1/get-horoscope/daily?sign=$sign&day=TODAY');
+          final response = await http.get(url).timeout(const Duration(seconds: 5));
+          if (response.statusCode == 200) {
+            final json = jsonDecode(response.body);
+            final horoscope = json['data']?['horoscope'] as String?;
+            if (horoscope != null && horoscope.trim().isNotEmpty) {
+              _liveHoroscopes[rashiId] = horoscope.trim();
+              await prefs.setString('rashi_horoscope_${dateKey}_$rashiId', horoscope.trim());
+              return;
+            }
+          }
+        } catch (_) {
+          try {
+            final fallbackUrl = Uri.parse('https://ohmanda.com/api/horoscope/$sign');
+            final response = await http.get(fallbackUrl).timeout(const Duration(seconds: 4));
+            if (response.statusCode == 200) {
+              final json = jsonDecode(response.body);
+              final horoscope = json['horoscope'] as String?;
+              if (horoscope != null && horoscope.trim().isNotEmpty) {
+                _liveHoroscopes[rashiId] = horoscope.trim();
+                await prefs.setString('rashi_horoscope_${dateKey}_$rashiId', horoscope.trim());
+                return;
+              }
+            }
+          } catch (_) {}
+        }
+      }).toList();
+
+      await Future.wait(futures);
+      _lastHoroscopeFetchDate = now;
+    } catch (e) {
+      debugPrint('Live horoscope fetch notice: $e');
+    } finally {
+      _isFetchingHoroscope = false;
+      notifyListeners();
+    }
+  }
 
   // Real-time live fetch with precision astronomical ephemeris
   Future<PanchangaData> getPanchangaForLanguage(String langCode, {bool forceRefresh = false}) async {
@@ -710,6 +813,7 @@ class PanchangaService with ChangeNotifier {
     final d = date ?? DateTime.now();
     final int weekday = d.weekday;
     final int daySeed = d.year * 10000 + d.month * 100 + d.day;
+    final bool isToday = (d.year == DateTime.now().year && d.month == DateTime.now().month && d.day == DateTime.now().day);
 
     final List<Map<String, dynamic>> rawRashiData = [
       {
@@ -817,7 +921,7 @@ class PanchangaService with ChangeNotifier {
       {
         'id': 'karka',
         'knName': 'ಕರ್ಕಾಟಕ ರಾಶಿ',
-        'hiName': 'ಕर्क राशि',
+        'hiName': 'कर्क राशि',
         'taName': 'கடக ராசி',
         'mlName': 'കർക്കടകം രാശി',
         'enName': 'Karka (Cancer)',
@@ -1123,12 +1227,14 @@ class PanchangaService with ChangeNotifier {
     ];
 
     return rawRashiData.map((data) {
+      final rashiId = data['id'] as String;
       String name = data['enName'];
       String planet = data['rulingPlanetEn'];
       String element = data['elementEn'];
       String prediction = data['predictionEn'];
       String luckyColor = data['luckyColorEn'];
       String deity = data['deityEn'];
+      bool isLive = false;
 
       if (lang == 'kn') {
         name = data['knName'];
@@ -1160,8 +1266,19 @@ class PanchangaService with ChangeNotifier {
         deity = data['deityMl'] ?? data['deityEn'];
       }
 
+      // Check if real-time live internet horoscope is available for today
+      if (isToday && _liveHoroscopes.containsKey(rashiId)) {
+        final liveText = _liveHoroscopes[rashiId];
+        if (liveText != null && liveText.isNotEmpty) {
+          if (lang == 'en') {
+            prediction = liveText;
+            isLive = true;
+          }
+        }
+      }
+
       return RashiInfo(
-        id: data['id'],
+        id: rashiId,
         name: name,
         englishName: data['enName'],
         symbol: data['symbol'],
@@ -1172,6 +1289,7 @@ class PanchangaService with ChangeNotifier {
         luckyNumber: data['luckyNumber'],
         deity: deity,
         mantra: data['mantra'],
+        isLiveFetched: isLive,
       );
     }).toList();
   }
@@ -1407,28 +1525,354 @@ class PanchangaService with ChangeNotifier {
             case 'meena': return 'रविवार: आध्यात्मिक संतुष्टि। नारायण कवच का पाठ करें।';
           }
       }
+    } else if (lang == 'ta') {
+      switch (weekday) {
+        case DateTime.monday:
+          switch (rashiId) {
+            case 'mesha': return 'திங்கட்கிழமை: தன்னம்பிக்கை உயரும். சிவபெருமானுக்கு வில்வ அர்ச்சனை செய்வது தடைகளை நீக்கும்.';
+            case 'vrishabha': return 'திங்கட்கிழமை: குடும்பத்தில் அமைதி மற்றும் தன லாபம். சந்திரனை தியானித்து நலம் பெறுங்கள்.';
+            case 'mithuna': return 'திங்கட்கிழமை: புத்தி கூர்மையுடன் காரிய வெற்றி. ஓம் நமசிவாய மந்திரம் ஜபிப்பது நல்லது.';
+            case 'karka': return 'திங்கட்கிழமை: ராசி நாதன் சந்திரன் அருளால் பக்தி பெருகும். சிவபூஜை சிறந்தது.';
+            case 'simha': return 'திங்கட்கிழமை: வேலையில் நற்பெயர் கிடைக்கும். தாயின் ஆசி பெற்று தொடங்குங்கள்.';
+            case 'kanya': return 'திங்கட்கிழமை: புதிய திட்டங்களுக்கு ஏற்ற நாள். வெண் மலர்களால் ஈசனை பூஜியுங்கள்.';
+            case 'tula': return 'திங்கட்கிழமை: இனிய சுப செய்திகள் வந்து சேரும். கலை மற்றும் ஆன்மிகத்தில் நாட்டம்.';
+            case 'vrishchika': return 'திங்கட்கிழமை: தைரியத்தால் காரிய வெற்றி. ருத்ராஷ்டகம் பாராயணம் பகை விலக்கும்.';
+            case 'dhanu': return 'திங்கட்கிழமை: குருவருளால் அறிவு வளர்ச்சி. பெரியோரின் ஆசீர்வாதம் பலம் தரும்.';
+            case 'makara': return 'திங்கட்கிழமை: உழைப்புக்கு ஏற்ற நற்பலன். சிவலிங்கத்திற்கு பாலபிஷேகம் செய்யவும்.';
+            case 'kumbha': return 'திங்கட்கிழமை: தர்ம சிந்தனைகள் உயரும். மன அமைதியும் ஆன்ம பலமும் கூடும்.';
+            case 'meena': return 'திங்கட்கிழமை: ஆன்மிக எண்ணங்கள் ஈடேறும். சிவ தரிசனம் புண்ணியம் தரும்.';
+          }
+          break;
+        case DateTime.tuesday:
+          switch (rashiId) {
+            case 'mesha': return 'செவ்வாய்க்கிழமை: ராசி நாதன் செவ்வாயின் நாள்! தைரியமும் ஆற்றலும் பெருகும். அனுமன் சாலீசா ஜபிக்கவும்.';
+            case 'vrishabha': return 'செவ்வாய்க்கிழமை: பொறுமையுடன் காரியங்களை ஆற்றுங்கள். விநாயகருக்கு அருகம்புல் சாத்தவும்.';
+            case 'mithuna': return 'செவ்வாய்க்கிழமை: பேச்சில் நிதானம் தேவை. முருகப் பெருமானை வழிபட வெற்றி நிச்சயம்.';
+            case 'karka': return 'செவ்வாய்க்கிழமை: சுப விரயங்கள் உண்டாகும். அனுமனுக்கு செம்பருத்தி மலர் சாத்தவும்.';
+            case 'simha': return 'செவ்வாய்க்கிழமை: தலைமைப் பண்பு பாராட்டு பெறும். சூரிய நமஸ்காரமும் அனுமன் வழிபாடும் நன்மை தரும்.';
+            case 'kanya': return 'செவ்வாய்க்கிழமை: கடன் சுமை குறையும். சங்கடஹர கணபதி ஸ்தோத்திரம் ஜபிக்கவும்.';
+            case 'tula': return 'செவ்வாய்க்கிழமை: உறுதியான முடிவுகள் நற்பலன் தரும். கந்த சஷ்டி கவசம் படிக்கவும்.';
+            case 'vrishchika': return 'செவ்வாய்க்கிழமை: ராசி நாதன் அங்காரகன் அருள்! காரிய வெற்றி மற்றும் சத்ரு சம்ஹாரம்.';
+            case 'dhanu': return 'செவ்வாய்க்கிழமை: தர்ம காரியங்களில் வெற்றி. அனுமனுக்கு துளசி மாலை சாத்தவும்.';
+            case 'makara': return 'செவ்வாய்க்கிழமை: முயற்சிக்கு வெற்றி கிடைக்கும். பஜ்ரங் பாண் பாராயணம் நலம்.';
+            case 'kumbha': return 'செவ்வாய்க்கிழமை: தைரியத்துடன் முன்னேறுங்கள். விநாயகர் வழிபாடு விக்கினங்களை நீக்கும்.';
+            case 'meena': return 'செவ்வாய்க்கிழமை: புதிய வாய்ப்புகள் தேடி வரும். சுந்தரகாண்டம் பாராயணம் நன்மை தரும்.';
+          }
+          break;
+        case DateTime.wednesday:
+          switch (rashiId) {
+            case 'mesha': return 'புதன்கிழமை: கல்வி மற்றும் வியாபாரத்தில் வளர்ச்சி. விஷ்ணு சஹஸ்ரநாமம் கேட்கவும்.';
+            case 'vrishabha': return 'புதன்கிழமை: பொருளாதார முன்னேற்றம். ஸ்ரீ கிருஷ்ணருக்கு வெண்ணெய் நைவேத்தியம் செய்யவும்.';
+            case 'mithuna': return 'புதன்கிழமை: ராசி நாதன் புதனின் அருள்! வியாபாரம் மற்றும் பேச்சாற்றலில் மகத்தான வெற்றி.';
+            case 'karka': return 'புதன்கிழமை: மன நிம்மதி தரும் நாள். பாண்டுரங்க விட்டலனை தியானிக்கவும்.';
+            case 'simha': return 'புதன்கிழமை: நண்பர்களின் உதவி கிட்டும். கிருஷ்ணாஷ்டகம் படிக்கவும்.';
+            case 'kanya': return 'புதன்கிழமை: ராசி நாதன் புதன் நாள்! கல்வி மற்றும் தேர்வுகளில் அபார வெற்றி. கணபதி வழிபாடு.';
+            case 'tula': return 'புதன்கிழமை: கலை மற்றும் அழகுணர்ச்சி மிளிரும். லட்சுமி நாராயணர் ஸ்தோத்திரம் நலம்.';
+            case 'vrishchika': return 'புதன்கிழமை: நிதானமான செயல்பாட்டால் வெற்றி. பெருமாளுக்கு துளசி சாத்தவும்.';
+            case 'dhanu': return 'புதன்கிழமை: ஞானம் பெருகும் நன்னாள். ஹயக்ரீவர் ஸ்தோத்திரம் படிக்கவும்.';
+            case 'makara': return 'புதன்கிழமை: தொழிலில் சுப லாபம். கோபால கிருஷ்ணனை வழிபடவும்.';
+            case 'kumbha': return 'புதன்கிழமை: புதிய சிந்தனைகள் பலன் தரும். பெருமாள் கோவில் தரிசனம் நலம்.';
+            case 'meena': return 'புதன்கிழமை: ஆன்மிக சொற்பொழிவு அல்லது பஜனையில் பங்கு பெற மன அமைதி கூடும்.';
+          }
+          break;
+        case DateTime.thursday:
+          switch (rashiId) {
+            case 'mesha': return 'வியாழக்கிழமை: குருவருளால் பாக்கியோதயம். ராகவேந்திரர் அல்லது சாயிபாபா தரிசனம் செய்யவும்.';
+            case 'vrishabha': return 'வியாழக்கிழமை: சுப காரியங்களில் நாட்டம். குரு ஸ்தோத்திரம் படிக்க தன விருத்தி.';
+            case 'mithuna': return 'வியாழக்கிழமை: நற்போதனை மற்றும் ஞானம் கூடும். ஓம் குருவே நமஹ ஜபிக்கவும்.';
+            case 'karka': return 'வியாழக்கிழமை: ஆன்மிக தேஜஸ் பெருகும். தத்தாத்ரேயரை வழிபட இஷ்ட சித்தி.';
+            case 'simha': return 'வியாழக்கிழமை: உயர் அதிகாரிகளின் ஆதரவு. விஷ்ணுவுக்கு மஞ்சள் மலர் சாத்தவும்.';
+            case 'kanya': return 'வியாழக்கிழமை: புண்ணிய காரியங்களுக்கு நற்பலன். குரு சரித்திரம் பாராயணம் நலம்.';
+            case 'tula': return 'வியாழக்கிழமை: மங்களகரமான தொடக்கம். குரு பகவானை வழிபட நன்மை உண்டாகும்.';
+            case 'vrishchika': return 'வியாழக்கிழமை: தர்ம வழியில் வெற்றி. பெரியோர்களின் ஆசீர்வாதம் பெறவும்.';
+            case 'dhanu': return 'வியாழக்கிழமை: ராசி நாதன் குருவின் ஆட்சி நாள்! புகழ், கல்வி, செல்வம் பன்மடங்கு பெருகும்.';
+            case 'makara': return 'வியாழக்கிழமை: மேலதிகாரிகளின் ஒத்துழைப்பு. தத்தாத்ரேய கவசம் படிக்கவும்.';
+            case 'kumbha': return 'வியாழக்கிழமை: சத்சங்கத்தால் மகிழ்ச்சி. ராகவேந்திர அஷ்டோத்திரம் ஜபிக்கவும்.';
+            case 'meena': return 'வியாழக்கிழமை: ராசி நாதன் தேவகுருவின் நாள்! தெய்வீக அருள் மற்றும் ஆத்ம திருப்தி.';
+          }
+          break;
+        case DateTime.friday:
+          switch (rashiId) {
+            case 'mesha': return 'வெள்ளிக்கிழமை: மகாலட்சுமி அருளால் தன தானிய விருத்தி. கனகதாரா ஸ்தோத்திரம் படிக்கவும்.';
+            case 'vrishabha': return 'வெள்ளிக்கிழமை: ராசி நாதன் சுக்கிரனின் நாள்! செல்வம், சுப போகங்கள் பெருகும்.';
+            case 'mithuna': return 'வெள்ளிக்கிழமை: குடும்பத்தில் மகிழ்ச்சி. லலிதா சஹஸ்ரநாமம் கேட்பது புண்ணியம்.';
+            case 'karka': return 'வெள்ளிக்கிழமை: அம்பாள் வழிபாட்டால் சுபம். துர்க்கை அம்மனுக்கு நெய் தீபம் ஏற்றவும்.';
+            case 'simha': return 'வெள்ளிக்கிழமை: வசீகரம் மற்றும் கௌரவம் உயரும். புவனேஸ்வரி அம்மனை வழிபடவும்.';
+            case 'kanya': return 'வெள்ளிக்கிழமை: சுப செய்திகள் வந்து சேரும். சரஸ்வதி & லட்சுமி பூஜை நலம்.';
+            case 'tula': return 'வெள்ளிக்கிழமை: ராசி நாதன் சுக்கிரனின் அருளால் செல்வம், கலை மற்றும் மகிழ்ச்சி கூடும்.';
+            case 'vrishchika': return 'வெள்ளிக்கிழமை: சக்தி வழிபாட்டால் அச்சம் நீங்கும். சாமுண்டேஸ்வரி அம்மனை பூஜியுங்கள்.';
+            case 'dhanu': return 'வெள்ளிக்கிழமை: மங்கள காரியங்கள் இனிதே நடக்கும். லட்சுமி நாராயணர் வழிபாடு.';
+            case 'makara': return 'வெள்ளிக்கிழமை: வீட்டில் அமைதியும் அன்னபூரணி அருளால் வளமும் பெருகும்.';
+            case 'kumbha': return 'வெள்ளிக்கிழமை: சுப எண்ணங்களும் முக தேஜஸும் கூடும். காயத்ரி மந்திரம் ஜபிக்கவும்.';
+            case 'meena': return 'வெள்ளிக்கிழமை: கருணை மற்றும் தான தர்மத்தால் அம்பாளின் பரிபூரண அருள் கிட்டும்.';
+          }
+          break;
+        case DateTime.saturday:
+          switch (rashiId) {
+            case 'mesha': return 'சனிக்கிழமை: சனி பகவானின் அருளுக்கு நல்லெண்ணெய் தீபம் ஏற்றவும். அனுமன் சாலீசா படிக்கவும்.';
+            case 'vrishabha': return 'சனிக்கிழமை: கடின உழைப்புக்கு ஏற்ற நற்பலன் கிடைக்கும். சனி காயத்ரி ஜபிக்கவும்.';
+            case 'mithuna': return 'சனிக்கிழமை: கடமைகளை ஒழுங்குடன் ஆற்றுங்கள். திருப்பதி வெங்கடாசலபதியை தரிசிக்கவும்.';
+            case 'karka': return 'சனிக்கிழமை: சிவ வழிபாடும் சனி சாந்தி பூஜையும் மன அமைதியைத் தரும்.';
+            case 'simha': return 'சனிக்கிழமை: பொறுமையுடன் செயல்பட்டு காரிய வெற்றி பெறுங்கள். சனீஸ்வரர் ஸ்தோத்திரம் நலம்.';
+            case 'kanya': return 'சனிக்கிழமை: தர்ம காரியங்களில் வெற்றி. காகங்களுக்கு அன்னமிடுவது தோஷம் நீக்கும்.';
+            case 'tula': return 'சனிக்கிழமை: வேலையில் ஸ்திரத்தன்மை. அனுமனுக்கு செந்தூரம் சாத்தி வழிபடவும்.';
+            case 'vrishchika': return 'சனிக்கிழமை: ஏழரை சனி தாக்கங்கள் குறைய அனுமத் கவசம் பாராயணம் செய்யவும்.';
+            case 'dhanu': return 'சனிக்கிழமை: திருப்பதி ஏழுமலையான் நினைவால் சகல கஷ்டங்களும் தீரும்.';
+            case 'makara': return 'சனிக்கிழமை: ராசி நாதன் சனீஸ்வரனின் நாள்! நீதி, நேர்மையுடன் நடக்க வெற்றி நிச்சயம்.';
+            case 'kumbha': return 'சனிக்கிழமை: ராசி நாதன் சனி நாள்! தான தர்மங்களால் மகா புண்ணியம் மற்றும் ருத்ராபிஷேகம் நலம்.';
+            case 'meena': return 'சனிக்கிழமை: சேவை மனப்பான்மையால் ஈசன் அருள். நவகிரக கோவில் வலம் வரவும்.';
+          }
+          break;
+        case DateTime.sunday:
+        default:
+          switch (rashiId) {
+            case 'mesha': return 'ஞாயிற்றுக்கிழமை: சூரிய நாராயணனின் தேஜஸால் காரியங்களில் பெருவெற்றி. ஆதித்ய ஹிருதயம் படிக்கவும்.';
+            case 'vrishabha': return 'ஞாயிற்றுக்கிழமை: நல்ல ஆரோக்கியமும் புகழும் கூடும். சூரியனுக்கு நீர் அர்க்கியம் அர்ப்பணிக்கவும்.';
+            case 'mithuna': return 'ஞாயிற்றுக்கிழமை: முக்கிய முடிவுகளுக்கு உகந்த நன்னாள். காயத்ரி மந்திரம் ஜபிக்கவும்.';
+            case 'karka': return 'ஞாயிற்றுக்கிழமை: மன நிம்மதி கூடும். சிவ-சூரிய வழிபாடு மங்களம் தரும்.';
+            case 'simha': return 'ஞாயிற்றுக்கிழமை: ராசி நாதன் சூரியனின் பிரகாசமான நாள்! அளப்பரிய புகழ் மற்றும் தலைமைப் பதவி.';
+            case 'kanya': return 'ஞாயிற்றுக்கிழமை: புத்துணர்ச்சியும் உற்சாகமும் பெருகும். சூரிய நமஸ்காரம் நலம்.';
+            case 'tula': return 'ஞாயிற்றுக்கிழமை: சமூகத்தில் நற்பெயர். தந்தையின் ஆசி பெற்று நாளைத் தொடங்கவும்.';
+            case 'vrishchika': return 'ஞாயிற்றுக்கிழமை: மன வலிமையும் தைரியமும் கூடும். சூரிய மந்திரம் ஜபிக்கவும்.';
+            case 'dhanu': return 'ஞாயிற்றுக்கிழமை: ஆன்மிக பயணம் மற்றும் நற்சிந்தனைகள். விஷ்ணு சஹஸ்ரநாமம் கேட்கவும்.';
+            case 'makara': return 'ஞாயிற்றுக்கிழமை: கடின உழைப்பு அங்கீகரிக்கப்படும். சூரிய நாராயணரை வணங்கவும்.';
+            case 'kumbha': return 'ஞாயிற்றுக்கிழமை: அமைதியும் சுப பலன்களும் கிட்டும். சூர்யாஷ்டகம் படிக்கவும்.';
+            case 'meena': return 'ஞாயிற்றுக்கிழமை: ஆத்ம திருப்தி மற்றும் மன அமைதி. நாராயண கவசம் பாராயணம் நலம்.';
+          }
+      }
+    } else if (lang == 'ml') {
+      switch (weekday) {
+        case DateTime.monday:
+          switch (rashiId) {
+            case 'mesha': return 'തിങ്കളാഴ്ച: ആത്മവിശ്വാസം വർദ്ധിക്കും. ശിവലിംഗത്തിൽ ജലാഭിഷേകം നടത്തുന്നത് വിഘ്നങ്ങൾ മാറ്റും.';
+            case 'vrishabha': return 'തിങ്കളാഴ്ച: കുടുംബത്തിൽ ഐശ്വര്യവും ധനാഗമനവും. ചന്ദ്രധ്യാനം മനസ്സിന് ശാന്തി നൽകും.';
+            case 'mithuna': return 'തിങ്കളാഴ്ച: സർഗ്ഗാത്മകതയും വാക്ചാതുര്യവും. ഓം നമഃ ശിവായ ജപം ശുഭം.';
+            case 'karka': return 'തിങ്കളാഴ്ച: രാശീനാഥനായ ചന്ദ്രന്റെ ദിവസം! ഭക്തിയും ഈശ്വരാനുഗ്രഹവും വർദ്ധിക്കും.';
+            case 'simha': return 'തിങ്കളാഴ്ച: തൊഴിൽരംഗത്ത് ബഹുമാനം. മാതാവിന്റെ അനുഗ്രഹം വാങ്ങി തുടങ്ങുക.';
+            case 'kanya': return 'തിങ്കളാഴ്ച: പുതിയ കർമ്മങ്ങൾക്ക് തുടക്കം. വെളുത്ത പുഷ്പങ്ങൾ കൊണ്ട് ശിവപൂജ ശുഭം.';
+            case 'tula': return 'തിങ്കളാഴ്ച: ശുഭവാർത്തകൾ കേൾക്കും. കലാരംഗത്തും ഭക്തിമാർഗ്ഗത്തിലും താല്പര്യം.';
+            case 'vrishchika': return 'തിങ്കളാഴ്ച: ധൈര്യത്തോടെ കാര്യങ്ങൾ പൂർത്തിയാക്കും. രുദ്രാഷ്ടകം ജപിക്കുക.';
+            case 'dhanu': return 'തിങ്കളാഴ്ച: ഗുരുസ്മരണയാൽ ജ്ഞാനവർദ്ധനവ്. മുതിർന്നവരുടെ അനുഗ്രഹം തേടുക.';
+            case 'makara': return 'തിങ്കളാഴ്ച: കഠിനാധ്വാനത്തിന് ഉചിതമായ ഫലം. ക്ഷിരാഭിഷേകം നടത്തുക.';
+            case 'kumbha': return 'തിങ്കളാഴ്ച: സേവന താല്പര്യവും സമാധാനവും. ഈശ്വരപ്രാർത്ഥന ശക്തി പകരും.';
+            case 'meena': return 'തിങ്കളാഴ്ച: ആത്മീയ ചിന്തകൾ സഫലമാകും. ശിവക്ഷേത്ര ദർശനം പുണ്യം.';
+          }
+          break;
+        case DateTime.tuesday:
+          switch (rashiId) {
+            case 'mesha': return 'ചൊവ്വാഴ്ച: രാശീനാഥൻ ചൊവ്വയുടെ ദിവസം! അത്യുത്സാഹവും കർമ്മവിജയവും. ഹനുമാൻ ചാലീസ ജപിക്കുക.';
+            case 'vrishabha': return 'ചൊവ്വാഴ്ച: ക്ഷമയോടെ പ്രവർത്തിക്കുക. ഗണപതിക്ക് കറുകമാല സമർപ്പിക്കുക.';
+            case 'mithuna': return 'ചൊവ്വാഴ്ച: വാക്കുകളിൽ മിതത്വം പാലിക്കുക. സുബ്രഹ്മണ്യസ്വാമി ഭജനം വിജയം തരും.';
+            case 'karka': return 'ചൊവ്വാഴ്ച: ശുഭകാര്യങ്ങൾക്കായി ധനവ്യയം. ഹനുമാൻ സ്വാമിക്ക് പൂജ നടത്തുക.';
+            case 'simha': return 'ചൊവ്വാഴ്ച: നേതൃപാടവം പ്രശംസിക്കപ്പെടും. സൂര്യനമസ്കാരവും ഹനുമത് ധ്യാനവും നന്ന്.';
+            case 'kanya': return 'ചൊവ്വാഴ്ച: കടബാധ്യതകൾക്ക് പരിഹാരം. ഗണേശ സ്തോത്രം ജപിക്കുക.';
+            case 'tula': return 'ചൊവ്വാഴ്ച: ദൃഢനിശ്ചയം വിജയം തരും. കാർത്തികേയ പ്രാർത്ഥന ഉത്തമം.';
+            case 'vrishchika': return 'ചൊവ്വാഴ്ച: രാശീനാഥൻ ചൊവ്വയുടെ അനുഗ്രഹം! ശത്രുദോഷ പരിഹാരവും ഉന്നതിയും.';
+            case 'dhanu': return 'ചൊവ്വാഴ്ച: ധർമ്മമാർഗ്ഗത്തിൽ വിജയം. ഹനുമാന് തുളസിമാല സമർപ്പിക്കുക.';
+            case 'makara': return 'ചൊവ്വാഴ്ച: പ്രയത്നങ്ങൾക്ക് പ്രതിഫലം. ബജ്രംഗ് ബാൺ ജപിക്കുന്നത് ശുഭം.';
+            case 'kumbha': return 'ചൊവ്വാഴ്ച: ധൈര്യത്തോടെ മുന്നേറുക. ഗണപതിഹോമം വിഘ്നങ്ങൾ അകറ്റും.';
+            case 'meena': return 'ചൊവ്വാഴ്ച: പുതിയ അവസരങ്ങൾ ലഭ്യമാകും. സുന്ദരകാണ്ഡം പാരായണം ശുഭം.';
+          }
+          break;
+        case DateTime.wednesday:
+          switch (rashiId) {
+            case 'mesha': return 'ബുധനാഴ്ച: വ്യാപാരത്തിലും വിദ്യാഭ്യാസത്തിലും പുരോഗതി. വിഷ്ണുസഹസ്രനാമം കേൾക്കുക.';
+            case 'vrishabha': return 'ബുധനാഴ്ച: സാമ്പത്തിക ഐശ്വര്യം. ശ്രീകൃഷ്ണന് വെണ്ണ നിവേദിക്കുക.';
+            case 'mithuna': return 'ബുധനാഴ്ച: രാശീനാഥൻ ബുധന്റെ ദിവസം! ബുദ്ധിയും വാക്സാമർത്ഥ്യവും ശോഭിക്കും.';
+            case 'karka': return 'ബുധനാഴ്ച: ശാന്തവും പ്രസന്നവുമായ ദിനം. പാണ്ഡുരംഗ ഭജനം ശുഭം.';
+            case 'simha': return 'ബുധനാഴ്ച: സൗഹൃദങ്ങൾ ഉപകാരപ്പെടും. കൃഷ്ണാഷ്ടകം ജപിക്കുക.';
+            case 'kanya': return 'ബുധനാഴ്ച: രാശീനാഥൻ ബുധന്റെ അനുഗ്രഹം! പരീക്ഷകളിലും കണക്കുകൂട്ടലുകളിലും മഹാവിജയം.';
+            case 'tula': return 'ബുധനാഴ്ച: കലാരംഗത്ത് ശോഭിക്കും. ലക്ഷ്മീനാരായണ സ്തോത്രം ജപിക്കുക.';
+            case 'vrishchika': return 'ബുധനാഴ്ച: ശാന്തമായ പ്രവർത്തനങ്ങൾ ലക്ഷ്യത്തിലെത്തും. തുളസി സമർപ്പിക്കുക.';
+            case 'dhanu': return 'ബുധനാഴ്ച: വിജ്ഞാന സമ്പാദനത്തിന് ഉത്തമദിനം. ഹയഗ്രീവ സ്തോത്രം നന്ന്.';
+            case 'makara': return 'ബുധനാഴ്ച: തൊഴിൽ നേട്ടങ്ങൾ. ഗോപാലകൃഷ്ണനെ ധ്യാനിക്കുക.';
+            case 'kumbha': return 'ബുധനാഴ്ച: പുതിയ പദ്ധതികൾ വിജയിക്കും. വിഷ്ണുക്ഷേത്ര ദർശനം ശുഭം.';
+            case 'meena': return 'ബുധനാഴ്ച: സത്സംഗത്തിലും ഭജനയിലും പങ്കാളിയാവുക. മനോശാന്തി ലഭിക്കും.';
+          }
+          break;
+        case DateTime.thursday:
+          switch (rashiId) {
+            case 'mesha': return 'വ്യാഴാഴ്ച: ഗുരുക്കന്മാരുടെ അനുഗ്രഹം ലഭിക്കും. ഗുരുവായൂരപ്പനെ ഭജിക്കുക.';
+            case 'vrishabha': return 'വ്യാഴാഴ്ച: ധാർമ്മിക കാര്യങ്ങളിൽ താല്പര്യം. ഗുരുസ്തോത്രം ചൊല്ലുക.';
+            case 'mithuna': return 'വ്യാഴാഴ്ച: വിജ്ഞാനപ്രദാനവും പഠനനേട്ടങ്ങളും. ഓം ഗുരുഭ്യോ നമഃ ജപിക്കുക.';
+            case 'karka': return 'വ്യാഴാഴ്ച: ആത്മീയ പ്രഭാവം. ദത്താത്രേയസ്മരണ അഭീഷ്ടസിദ്ധി നൽകും.';
+            case 'simha': return 'വ്യാഴാഴ്ച: ഉന്നതസ്ഥാനവും ആദരവും. വിഷ്ണുവിന് മഞ്ഞപ്പൂക്കൾ ചാർത്തുക.';
+            case 'kanya': return 'വ്യാഴാഴ്ച: സൽകർമ്മങ്ങൾക്ക് ഫലം ലഭിക്കും. ഗുരുചരിത്രം പാരായണം ശുഭം.';
+            case 'tula': return 'വ്യാഴാഴ്ച: ശുഭകാര്യങ്ങൾക്ക് തുടക്കം. രാഘവേന്ദ്രസ്വാമി പ്രാർത്ഥന നന്ന്.';
+            case 'vrishchika': return 'വ്യാഴാഴ്ച: ധർമ്മനിഷ്ഠ വിജയം തരും. ഗുരുപാദ പൂജ നടത്തുക.';
+            case 'dhanu': return 'വ്യാഴാഴ്ച: രാശീനാഥൻ വ്യാഴത്തിന്റെ ദിവസം! കീർത്തിയും ഭാഗ്യവും വർദ്ധിക്കും.';
+            case 'makara': return 'വ്യാഴാഴ്ച: മേലധികാരികളുടെ പ്രീതി. ദത്താത്രേയ കവചം ജപിക്കുക.';
+            case 'kumbha': return 'വ്യാഴാഴ്ച: സത്സംഗാനന്ദം. രാഘവേന്ദ്ര അഷ്ടോത്തരം ജപിക്കുക.';
+            case 'meena': return 'വ്യാഴാഴ്ച: രാശീനാഥൻ ദേവഗുരുവിന്റെ ദിവസം! ദൈവിക കൃപയും ആത്മതൃപ്തിയും.';
+          }
+          break;
+        case DateTime.friday:
+          switch (rashiId) {
+            case 'mesha': return 'വെള്ളിയാഴ്ച: മഹാലക്ഷ്മീകൃപയാൽ സമ്പൽസമൃദ്ധി. കനകധാരാസ്തോത്രം ചൊല്ലുക.';
+            case 'vrishabha': return 'വെള്ളിയാഴ്ച: രാശീനാഥൻ ശുക്രന്റെ ദിവസം! സുഖഭോഗങ്ങളും ഐശ്വര്യവും.';
+            case 'mithuna': return 'വെള്ളിയാഴ്ച: കുടുംബത്തിൽ സന്തോഷം. ലളിതാസഹസ്രനാമം കേൾക്കുന്നത് ശ്രേഷ്ഠം.';
+            case 'karka': return 'വെള്ളിയാഴ്ച: ഭഗവതിസേവയാൽ സർവ്വമംഗളം. നെയ്വിളക്ക് കൊളുത്തുക.';
+            case 'simha': return 'വെള്ളിയാഴ്ച: വ്യക്തിപ്രഭാവവും ആദരവും. ഭുവനേശ്വരീദേവിയെ ധ്യാനിക്കുക.';
+            case 'kanya': return 'വെള്ളിയാഴ്ച: സന്തോഷവാർത്തകൾ. സരസ്വതീ-ലക്ഷ്മീപൂജ ഗുണകരം.';
+            case 'tula': return 'വെള്ളിയാഴ്ച: രാശീനാഥൻ ശുക്രന്റെ അനുഗ്രഹം! കലയും പ്രണയവും ഐശ്വര്യവും.';
+            case 'vrishchika': return 'വെള്ളിയാഴ്ച: ദേവീഭജനത്താൽ ഭയമുക്തി. ചാമുണ്ഡേശ്വരിയെ പ്രാർത്ഥിക്കുക.';
+            case 'dhanu': return 'വെള്ളിയാഴ്ച: മംഗളകാര്യങ്ങൾ സഫലമാകും. ലക്ഷ്മീനാരായണ പൂജ നടത്തുക.';
+            case 'makara': return 'വെള്ളിയാഴ്ച: ശാന്തിയും അന്നപൂർണ്ണേശ്വരീ കൃപയാൽ സമൃദ്ധിയും.';
+            case 'kumbha': return 'വെള്ളിയാഴ്ച: ശുഭചിന്തകൾ. ഗായത്രീമന്ത്രജപം പ്രകാശം ചൊരിയും.';
+            case 'meena': return 'വെള്ളിയാഴ്ച: കാരുണ്യപ്രവർത്തനങ്ങളാൽ ദേവിയുടെ അനുഗ്രഹം ലഭിക്കും.';
+          }
+          break;
+        case DateTime.saturday:
+          switch (rashiId) {
+            case 'mesha': return 'ശനിയാഴ്ച: ശനിദോഷശമനത്തിന് എള്ളുതിരി കത്തിക്കുക. ഹനുമാൻ ചാലീസ ജപിക്കുക.';
+            case 'vrishabha': return 'ശനിയാഴ്ച: കഠിനാധ്വാനം ഫലം കാണും. ശനിഗായത്രി ജപിക്കുന്നത് ഉത്തമം.';
+            case 'mithuna': return 'ശനിയാഴ്ച: ചിട്ടയായ പ്രവർത്തനങ്ങൾ ലക്ഷ്യത്തിലെത്തും. വെങ്കിടേശ്വരദർശനം നന്ന്.';
+            case 'karka': return 'ശനിയാഴ്ച: ശിവപൂജയും ശനിശാന്തിയും മനസ്സിന് കരുത്ത് പകരും.';
+            case 'simha': return 'ശനിയാഴ്ച: ക്ഷമ പാലിക്കുക. ശനീശ്വരസ്തോത്രം പാരായണം ചെയ്യുക.';
+            case 'kanya': return 'ശനിയാഴ്ച: പുണ്യകർമ്മങ്ങളിൽ താല്പര്യം. പക്ഷികൾക്ക് ആഹാരം നൽകുക.';
+            case 'tula': return 'ശനിയാഴ്ച: തൊഴിൽസ്ഥിരത. ഹനുമാൻ സ്വാമിക്ക് സിന്ദൂരം സമർപ്പിക്കുക.';
+            case 'vrishchika': return 'ശനിയാഴ്ച: കണ്ടകശനി ദോഷപരിഹാരത്തിന് ഹനുമത് കവചം ചൊല്ലുക.';
+            case 'dhanu': return 'ശനിയാഴ്ച: തിരുപ്പതി ബാലാജി സ്മരണ ദാരിദ്ര്യം അകറ്റും.';
+            case 'makara': return 'ശനിയാഴ്ച: രാശീനാഥൻ ശനീശ്വരന്റെ ദിവസം! നീതിയും സത്യവും കാത്തുസൂക്ഷിക്കുക.';
+            case 'kumbha': return 'ശനിയാഴ്ച: രാശീനാഥൻ ശനിയുടെ ദിവസം! ദാനധർമ്മങ്ങൾ ചെയ്യുക, രുദ്രാഭിഷേകം നന്ന്.';
+            case 'meena': return 'ശനിയാഴ്ച: സേവാമനോഭാവം ദൈവകൃപ നേടും. നവഗ്രഹപ്രദക്ഷിണം ചെയ്യുക.';
+          }
+          break;
+        case DateTime.sunday:
+        default:
+          switch (rashiId) {
+            case 'mesha': return 'ഞായറാഴ്ച: സൂര്യനാരായണന്റെ തേജസ്സാൽ സർവ്വകാര്യവിജയം. ആദിത്യഹൃദയം ജപിക്കുക.';
+            case 'vrishabha': return 'ഞായറാഴ്ച: ഉത്തമാരോഗ്യവും പ്രശസ്തിയും. സൂര്യന് അർഘ്യം സമർപ്പിക്കുക.';
+            case 'mithuna': return 'ഞായറാഴ്ച: നിർണ്ണായക തീരുമാനങ്ങൾക്ക് അനുകൂല ദിനം. ഗായത്രി ജപിക്കുക.';
+            case 'karka': return 'ഞായറാഴ്ച: മനോശാന്തി ലഭിക്കും. ശിവ-സൂര്യ ഉപാസന മംഗളകരം.';
+            case 'simha': return 'ഞായറാഴ്ച: രാശീനാഥൻ സൂര്യന്റെ ഉജ്ജ്വല ദിനം! അത്യുന്നത പദവിയും പ്രഭാവവും.';
+            case 'kanya': return 'ഞായറാഴ്ച: നവോന്മേഷവും ഉന്മേഷവും. സൂര്യനമസ്കാരം ആരോഗ്യത്തിന് ഉത്തമം.';
+            case 'tula': return 'ഞായറാഴ്ച: സമൂഹത്തിൽ ബഹുമാനം. പിതാവിന്റെ അനുഗ്രഹം വാങ്ങുക.';
+            case 'vrishchika': return 'ഞായറാഴ്ച: ആത്മധൈര്യവും ഊർജ്ജസ്വലതയും. സൂര്യമന്ത്രം ജപിക്കുക.';
+            case 'dhanu': return 'ഞായറാഴ്ച: തീർത്ഥയാത്രകൾക്കും സങ്കല്പങ്ങൾക്കും നന്ന്. വിഷ്ണുസഹസ്രനാമം കേൾക്കുക.';
+            case 'makara': return 'ഞായറാഴ്ച: പ്രയത്നങ്ങൾക്ക് അംഗീകാരം. സൂര്യദേവനെ വണങ്ങുക.';
+            case 'kumbha': return 'ഞായറാഴ്ച: ശാന്തിയും ശുഭഫലങ്ങളും. സൂര്യാഷ്ടകം ചൊല്ലുക.';
+            case 'meena': return 'ഞായറാഴ്ച: ആത്മതൃപ്തിയും ഈശ്വരാധീനവും. നാരായണകവചം ജപിക്കുക.';
+          }
+      }
     }
 
-    // Default / English
-    final dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    final dayName = dayNames[(weekday - 1).clamp(0, 6)];
+    // Default / English (84 distinct astrological combinations)
     switch (weekday) {
-      case DateTime.wednesday:
-        return '$dayName: Auspicious planetary alignment with Mercury & Lord Krishna. High intellect, successful communication, and positive growth.';
-      case DateTime.thursday:
-        return '$dayName: Blessed by Jupiter (Guru) and Lord Venkateshwara. Divine wisdom, spiritual advancement, and family harmony.';
-      case DateTime.friday:
-        return '$dayName: Grace of Goddess Mahalakshmi and Venus brings abundance, prosperity, and creative artistic joy.';
-      case DateTime.saturday:
-        return '$dayName: Dedicated to Lord Shani and Hanuman. Sincere discipline, duty, and perseverance bring divine protection.';
-      case DateTime.sunday:
-        return '$dayName: Radiant energy of Lord Surya Narayana brings health, vitality, leadership, and victorious endeavors.';
       case DateTime.monday:
-        return '$dayName: Serene cosmic grace of Lord Shiva and Moon. Deep mental peace, intuition, and devotional fulfillment.';
+        switch (rashiId) {
+          case 'mesha': return 'Monday: The Moon stimulates your creative instincts. Practice mindfulness and invoke Lord Shiva with Om Namah Shivaya for mental clarity.';
+          case 'vrishabha': return 'Monday: Favorable day for financial planning and family harmony. Channel inner peace through quiet meditation on Chandra Dev.';
+          case 'mithuna': return 'Monday: Quick wit and adaptability bring breakthroughs in communications. Reciting Shiva Panchakshara Stotra clears mental clutter.';
+          case 'karka': return 'Monday: Ruled by the Moon, your intuition and spiritual devotion peak today. Offer white flowers or milk abhishekam to Lord Shiva.';
+          case 'simha': return 'Monday: Strong leadership and public appreciation at work. Seek maternal blessings to ensure your endeavors bear sweet fruit.';
+          case 'kanya': return 'Monday: Methodical focus aids in resolving pending intellectual projects. Chanting Maha Mrityunjaya Mantra brings calmness.';
+          case 'tula': return 'Monday: Balanced negotiations and pleasant social interactions. Immersing in serene devotional music restores inner equilibrium.';
+          case 'vrishchika': return 'Monday: Courage and emotional resilience turn challenges into victories. Meditate on Lord Rudra for inner strength.';
+          case 'dhanu': return 'Monday: Philosophical insights and learning opportunities flourish. Respect elders and teachers for auspicious momentum.';
+          case 'makara': return 'Monday: Persistent determination yields tangible rewards. A humble prayer at a Shiva temple brings immense fulfillment.';
+          case 'kumbha': return 'Monday: Altruistic thoughts and humanitarian projects gain support. Peaceful meditation brings emotional contentment.';
+          case 'meena': return 'Monday: Deep spiritual inclinations and divine inspirations arise. Contemplating the cosmic form of Shiva grants tranquility.';
+        }
+        break;
       case DateTime.tuesday:
+        switch (rashiId) {
+          case 'mesha': return 'Tuesday: Your ruling planet Mars bestows intense vitality and ambition. Chanting Hanuman Chalisa shields you and brings total victory.';
+          case 'vrishabha': return 'Tuesday: Exercise patience and deliberate action over haste. Offering Durva grass to Lord Ganesha dissolves unexpected obstacles.';
+          case 'mithuna': return 'Tuesday: Maintain mindful speech in discussions. Chanting the sacred Subramanya Mantra turns conflicts into peaceful resolutions.';
+          case 'karka': return 'Tuesday: Channel your emotional energies into constructive spiritual service. Offer red vermilion or flowers to Lord Hanuman.';
+          case 'simha': return 'Tuesday: Your innate authority shines brightly in team efforts. Practice Surya Namaskar and meditate on Lord Hanuman for fearless energy.';
+          case 'kanya': return 'Tuesday: Strategic financial and organizational steps bring lasting relief. Recite Sankata Nashana Ganesha Stotram for success.';
+          case 'tula': return 'Tuesday: Decisiveness is your greatest asset today. Invoking Lord Kartikeya grants clarity and victorious momentum.';
+          case 'vrishchika': return 'Tuesday: Your ruling planet Mars amplifies your focus and courage. Chanting Subramanya Ashtakam clears all negativity.';
+          case 'dhanu': return 'Tuesday: Righteous actions lead to prosperity and triumph. Offering a Tulasi garland to Lord Hanuman ensures supreme protection.';
+          case 'makara': return 'Tuesday: Diligent hard work is rewarded with steady progress. Reading the Bajrang Baan removes fatigue and doubt.';
+          case 'kumbha': return 'Tuesday: Bold initiatives receive cosmic backing. Worship Lord Ganesha at sunrise to keep all paths unobstructed.';
+          case 'meena': return 'Tuesday: New spiritual and material opportunities present themselves. Chanting the sacred verses of Sundarkand brings divine grace.';
+        }
+        break;
+      case DateTime.wednesday:
+        switch (rashiId) {
+          case 'mesha': return 'Wednesday: Excellent day for commerce, business expansion, and studies. Listening to Vishnu Sahasranamam sharpens your intellect.';
+          case 'vrishabha': return 'Wednesday: Material stability and profitable agreements. Offering butter or sweets to Lord Krishna invites sweetness and prosperity.';
+          case 'mithuna': return 'Wednesday: Your ruling planet Mercury is at its peak! Exceptional brilliance in negotiations and writing. Devote actions to Sri Krishna.';
+          case 'karka': return 'Wednesday: A peaceful and harmonious day for domestic happiness. Chanting the divine names of Panduranga Vitthala dissolves anxiety.';
+          case 'simha': return 'Wednesday: Joyful camaraderie and valuable connections with friends. Chanting Krishnashtakam brings radiant joy throughout the day.';
+          case 'kanya': return 'Wednesday: Ruled by Mercury, your analytical and problem-solving powers excel. Offer prayers to Lord Ganesha for flawless execution.';
+          case 'tula': return 'Wednesday: Aesthetic appreciation and artistic endeavors flourish. Reciting Sri Lakshmi Narayana Hridaya Stotram brings grace.';
+          case 'vrishchika': return 'Wednesday: Deliberate, thoughtful steps ensure steady triumph. Offering fresh Tulasi leaves to Lord Krishna brings peace.';
+          case 'dhanu': return 'Wednesday: An auspicious day for higher learning and spiritual reading. Recite Sri Hayagriva Stotram for supreme wisdom.';
+          case 'makara': return 'Wednesday: Commercial acumen and practical investments prosper. Meditating on Gopala Krishna uplifts your spirits.';
+          case 'kumbha': return 'Wednesday: Innovative ideas and visionary plans gain traction. Visiting a Vishnu temple brings auspicious harmony.';
+          case 'meena': return 'Wednesday: Deep devotion and spiritual discussions bring solace. Immersing in Krishna Bhajans fills your home with bliss.';
+        }
+        break;
+      case DateTime.thursday:
+        switch (rashiId) {
+          case 'mesha': return 'Thursday: Divine fortune smiles upon you through Guru\'s grace. Seek the holy blessings of Sri Raghavendra Swamy or Sai Baba.';
+          case 'vrishabha': return 'Thursday: Religious rituals and sacred offerings enhance domestic joy. Reciting Guru Stotram invites spiritual and material wealth.';
+          case 'mithuna': return 'Thursday: Knowledge sharing and mentorship bring deep satisfaction. Chanting Om Sri Gurubhyo Namah attracts cosmic guidance.';
+          case 'karka': return 'Thursday: Spiritual radiance and divine benevolence surround you. Meditating on Lord Dattatreya fulfills cherished wishes.';
+          case 'simha': return 'Thursday: High status and mutual respect from authority figures. Offering yellow flowers to Lord Vishnu brings immense favor.';
+          case 'kanya': return 'Thursday: Virtuous deeds and selfless charity bear fruit. Reading chapters from Guru Charitra brings serenity and protection.';
+          case 'tula': return 'Thursday: Auspicious beginnings for sacred ceremonies and plans. Chanting Guru Mantras brings tranquility to the mind.';
+          case 'vrishchika': return 'Thursday: Walking the path of righteousness ensures unshakeable victory. Receive the sacred blessings of elders.';
+          case 'dhanu': return 'Thursday: Ruled by Jupiter (Brihaspati), wisdom and prosperity multiply. Offering prayers to Lord Venkateshwara brings unbounded grace.';
+          case 'makara': return 'Thursday: Supportive relationships with senior leaders and mentors. Reciting Dattatreya Vajra Kavach shields against all distress.';
+          case 'kumbha': return 'Thursday: Blissful satsang and spiritual elevation. Chanting the Ashtottara of Guru Raghavendra brings tranquility.';
+          case 'meena': return 'Thursday: Your ruling planet Jupiter blesses you with profound divine bliss. Performing Guru Pada Puja brings supreme peace.';
+        }
+        break;
+      case DateTime.friday:
+        switch (rashiId) {
+          case 'mesha': return 'Friday: Goddess Mahalakshmi showers financial prosperity and comfort. Chanting Kanakadhara Stotram invites abundance.';
+          case 'vrishabha': return 'Friday: Your ruling planet Venus radiates luxury, beauty, and love. Reciting Mahalakshmi Ashtakam multiplies household joy.';
+          case 'mithuna': return 'Friday: Harmonious relationships and joyful reunions with loved ones. Listening to Lalitha Sahasranamam is highly auspicious.';
+          case 'karka': return 'Friday: Divine motherly protection and blessings of Goddess Durga. Light a pure ghee diya in your sacred pooja altar.';
+          case 'simha': return 'Friday: Magnetic charisma, elegance, and societal honor. Meditate upon Goddess Bhuvaneshwari for radiant charm.';
+          case 'kanya': return 'Friday: Auspicious news and joyful achievements in work. Worship Goddess Saraswati and Lakshmi for wisdom and wealth.';
+          case 'tula': return 'Friday: Your ruling planet Venus empowers romance, art, and opulence. Chanting Sri Suktam brings enduring prosperity.';
+          case 'vrishchika': return 'Friday: Spiritual shakti removes fear of adversaries. Offer prayers to Goddess Chamundeshwari for invulnerability.';
+          case 'dhanu': return 'Friday: Auspicious social and devotional events proceed seamlessly. Worship Lakshmi Narayana for auspicious growth.';
+          case 'makara': return 'Friday: Deep contentment, peace, and abundance in provisions. Goddess Annapoorneshwari blesses your family with nourishment.';
+          case 'kumbha': return 'Friday: Noble thoughts and radiant clarity of vision. Chanting Gayatri Mantra at twilight enhances your aura.';
+          case 'meena': return 'Friday: Compassion, charity, and devotional surrender bring blessings. Contemplate Goddess Mookambika for sublime peace.';
+        }
+        break;
+      case DateTime.saturday:
+        switch (rashiId) {
+          case 'mesha': return 'Saturday: Saturn\'s transit demands disciplined focus in your actions. Light a sesame oil lamp and chant Hanuman Chalisa for victory.';
+          case 'vrishabha': return 'Saturday: Diligent perseverance yields fruitful, lasting rewards. Chanting Shani Gayatri Mantra alleviates all karmic burdens.';
+          case 'mithuna': return 'Saturday: Methodical attention to duty brings steady advancement. Visiting Lord Venkateshwara\'s shrine brings protection.';
+          case 'karka': return 'Saturday: Shiva worship and Shani Shanti prayers bring great peace. Helping the needy dissolves negative planetary effects.';
+          case 'simha': return 'Saturday: Practice patience, humbleness, and measured responses. Chanting Shanaishchara Stotram neutralizes stressful obstacles.';
+          case 'kanya': return 'Saturday: Righteous efforts bring gradual but solid triumphs. Feeding birds and crows brings immense spiritual merit.';
+          case 'tula': return 'Saturday: Stability and security in professional commitments. Offering sindoor to Lord Hanuman blesses you with fearlessness.';
+          case 'vrishchika': return 'Saturday: Overcome challenging cycles with spiritual fortitude. Reciting Sri Hanuman Raksha Kavach ensures divine shield.';
+          case 'dhanu': return 'Saturday: Contemplating Lord Tirupati Balaji dispels sorrow and poverty. Engage in quiet reflection and charity.';
+          case 'makara': return 'Saturday: Your ruling planet Saturn rewards integrity and patience. Chanting Shani Vajra Panjara Kavach brings success.';
+          case 'kumbha': return 'Saturday: Your ruling planet Saturn highlights selfless service. Performing Rudrabhishekam bestows great auspiciousness.';
+          case 'meena': return 'Saturday: An attitude of humble service attracts divine grace. Circumambulating the Navagraha shrine brings tranquility.';
+        }
+        break;
+      case DateTime.sunday:
       default:
-        return '$dayName: Dynamic courage of Mars and Lord Hanuman. Bold initiatives and victory over all challenges.';
+        switch (rashiId) {
+          case 'mesha': return 'Sunday: Surya Narayana\'s radiant solar energy brings vitality and victory. Chanting Aditya Hridaya Stotram ensures success.';
+          case 'vrishabha': return 'Sunday: Robust health, vitality, and renowned goodwill. Offer water (Arghya) to the rising Sun for boundless energy.';
+          case 'mithuna': return 'Sunday: Auspicious day for decisive initiatives and strategic clarity. Chanting the sacred Gayatri Mantra illuminates the mind.';
+          case 'karka': return 'Sunday: Emotional restoration and peaceful spiritual contemplation. Worship of Lord Shiva and Surya brings balance.';
+          case 'simha': return 'Sunday: Your ruling planet the Sun shines at peak brilliance! Boundless charisma and leadership. Recite Aditya Hridayam.';
+          case 'kanya': return 'Sunday: Rejuvenated vitality and fresh enthusiasm. Practicing Surya Namaskar brings vibrant wellness and focus.';
+          case 'tula': return 'Sunday: Elevated social standing and recognition. Begin your day with fatherly blessings for smooth success.';
+          case 'vrishchika': return 'Sunday: Dynamic vigor and unyielding courage. Chanting the Surya Beej Mantra elevates confidence.';
+          case 'dhanu': return 'Sunday: Auspicious for spiritual pilgrimages and noble resolutions. Listening to Vishnu Sahasranamam brings serenity.';
+          case 'makara': return 'Sunday: Your steadfast dedication earns sincere appreciation. Bow down before the morning Sun with gratitude.';
+          case 'kumbha': return 'Sunday: Peaceful harmony and auspicious outcomes in personal affairs. Chanting Suryashtakam dispels all gloom.';
+          case 'meena': return 'Sunday: Soulful spiritual fulfillment and divine grace. Reciting Narayana Kavach ensures total protection and bliss.';
+        }
     }
+    return 'Daily auspicious blessings from celestial alignments. Recite sacred mantras for peace and prosperity.';
   }
 
   // --- Localized Helpers ---
