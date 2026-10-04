@@ -2,7 +2,7 @@ name: bhakti
 description: "Bhakti – Divine Devotional Audio, Daily Shlokas, Vedic Panchanga, Sacred Wallpapers & Smart Devotional Reminders."
 publish_to: 'none'
 
-version: 1.0.24+27
+version: 1.0.25+28
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
