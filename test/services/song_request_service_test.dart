@@ -20,7 +20,7 @@ void main() {
   });
 
   group('SongRequestService Tests', () {
-    test('Submitting a song request adds request and awards +20 tokens', () async {
+    test('Submitting a song request adds request and awards +5 tokens', () async {
       final initialBalance = sevaService.tokenBalance;
 
       final success = await requestService.submitRequest(
@@ -37,8 +37,8 @@ void main() {
       expect(requestService.requests.first.deity, 'Lord Krishna');
       expect(requestService.requests.first.status, 'pending');
 
-      // Verify +20 tokens awarded
-      expect(sevaService.tokenBalance, initialBalance + 20);
+      // Verify +5 tokens awarded
+      expect(sevaService.tokenBalance, initialBalance + 5);
       expect(sevaService.history.first.title, contains('Song Request'));
     });
 

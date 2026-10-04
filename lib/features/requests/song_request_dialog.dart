@@ -76,7 +76,7 @@ class _SongRequestDialogState extends State<SongRequestDialog> {
                 Icon(Icons.stars_rounded, color: AppColors.goldLight),
                 SizedBox(width: 8),
                 Expanded(
-                  child: Text('Song request submitted! +20 Seva Tokens awarded 🙏🪙'),
+                  child: Text('Song request submitted! +5 Seva Tokens awarded 🙏🪙'),
                 ),
               ],
             ),
@@ -161,7 +161,7 @@ class _SongRequestDialogState extends State<SongRequestDialog> {
                         ),
                         const SizedBox(height: 2),
                         const Text(
-                          'Earn +20 Seva Tokens for your request',
+                          'Earn +5 Seva Tokens for your request',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -205,7 +205,7 @@ class _SongRequestDialogState extends State<SongRequestDialog> {
                             SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'Your request helps us expand the sacred collection. You will receive +20 Seva Tokens automatically!',
+                                'Your request helps us expand the sacred collection. You will receive +5 Seva Tokens automatically!',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF6D4C41),

@@ -36,6 +36,41 @@ class PreferencesService extends ChangeNotifier {
     return success;
   }
 
+  // --- Devotee Persistent User ID & Sacred Recovery Passkey ---
+  static const String keyDevoteePasskey = 'bhakti_devotee_recovery_passkey';
+
+  String getDevoteeUserId() {
+    String? uid = _prefs.getString('bhakti_devotee_uid');
+    if (uid == null || uid.isEmpty) {
+      uid = 'devotee_${DateTime.now().millisecondsSinceEpoch}';
+      _prefs.setString('bhakti_devotee_uid', uid);
+    }
+    return uid;
+  }
+
+  String getDevoteePasskey() {
+    String? passkey = _prefs.getString(keyDevoteePasskey);
+    if (passkey == null || passkey.isEmpty) {
+      passkey = _generateUniquePasskey();
+      _prefs.setString(keyDevoteePasskey, passkey);
+    }
+    return passkey;
+  }
+
+  Future<bool> setDevoteePasskey(String passkey) async {
+    final clean = passkey.trim().toUpperCase();
+    final success = await _prefs.setString(keyDevoteePasskey, clean);
+    notifyListeners();
+    return success;
+  }
+
+  String _generateUniquePasskey() {
+    final deities = ['KRISHNA', 'RAMA', 'SHIVA', 'GANESHA', 'HANUMAN', 'LAKSHMI', 'GOVINDA', 'SHANMUKHA'];
+    final randInt = 1000 + (DateTime.now().microsecondsSinceEpoch % 9000);
+    final deity = deities[DateTime.now().millisecondsSinceEpoch % deities.length];
+    return 'BHAKTI-$randInt-$deity';
+  }
+
   // --- Favorites ---
   List<String> getFavoriteSongIds() {
     return List<String>.from(_prefs.getStringList(AppConstants.keyFavorites) ?? const []);

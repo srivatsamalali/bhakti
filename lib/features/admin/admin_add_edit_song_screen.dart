@@ -419,7 +419,7 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
         try {
           if (mounted) {
             await context.read<SevaTokenService>().awardTokens(
-              amount: 50,
+              amount: 15,
               title: 'Song Upload Contribution 🎵',
               description: 'Uploaded "${songModel.title}" to the sacred library',
             );

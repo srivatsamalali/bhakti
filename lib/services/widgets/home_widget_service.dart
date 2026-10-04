@@ -10,9 +10,9 @@ class HomeWidgetService {
   static const String androidWidgetName = 'BhaktiWidgetProvider';
 
   static Future<void> initialize() async {
-    if (kIsWeb) return;
+    if (kIsWeb || (!Platform.isIOS && !Platform.isAndroid)) return;
     try {
-      if (Platform.isIOS || Platform.isMacOS) {
+      if (Platform.isIOS) {
         await HomeWidget.setAppGroupId(appGroupId);
       }
     } catch (e) {
@@ -26,7 +26,7 @@ class HomeWidgetService {
     SongModel? currentSong,
     bool isPlaying = false,
   }) async {
-    if (kIsWeb || songs.isEmpty) return;
+    if (kIsWeb || (!Platform.isIOS && !Platform.isAndroid) || songs.isEmpty) return;
     try {
       final jsonList = songs.map((song) {
         return {
@@ -75,7 +75,7 @@ class HomeWidgetService {
     bool isPlaying = true,
     String? deity,
   }) async {
-    if (kIsWeb) return;
+    if (kIsWeb || (!Platform.isIOS && !Platform.isAndroid)) return;
     try {
       await HomeWidget.saveWidgetData<String>('widget_active_song_id', song.id);
       await HomeWidget.saveWidgetData<String>('widget_title', song.title);

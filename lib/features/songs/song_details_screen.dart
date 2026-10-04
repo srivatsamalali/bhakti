@@ -254,7 +254,6 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
                   children: [
                     // Grand Devotional Playback Action Bar
                     Container(
-                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFFFFFDF9), Color(0xFFFFF8EE)],
@@ -276,7 +275,9 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
                         color: AppColors.goldPrimary,
                         cornerSize: 20,
                         strokeWidth: 1.4,
-                        child: Column(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
                             children: [
                               Row(
                                 children: [
@@ -403,7 +404,8 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                ),
+                const SizedBox(height: 20),
 
                     // Metadata Cards (Deity, Duration, Artist)
                     Container(

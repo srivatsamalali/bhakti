@@ -54,4 +54,32 @@ class SongRequestModel {
     status: json['status'] as String? ?? 'pending',
     votesCount: (json['votesCount'] as num?)?.toInt() ?? 1,
   );
+
+  SongRequestModel copyWith({
+    String? id,
+    String? songTitle,
+    String? deity,
+    String? language,
+    String? singerOrComposer,
+    String? referenceUrl,
+    String? notes,
+    DateTime? requestedAt,
+    String? requestedByUserId,
+    String? status,
+    int? votesCount,
+  }) {
+    return SongRequestModel(
+      id: id ?? this.id,
+      songTitle: songTitle ?? this.songTitle,
+      deity: deity ?? this.deity,
+      language: language ?? this.language,
+      singerOrComposer: singerOrComposer ?? this.singerOrComposer,
+      referenceUrl: referenceUrl ?? this.referenceUrl,
+      notes: notes ?? this.notes,
+      requestedAt: requestedAt ?? this.requestedAt,
+      requestedByUserId: requestedByUserId ?? this.requestedByUserId,
+      status: status ?? this.status,
+      votesCount: votesCount ?? this.votesCount,
+    );
+  }
 }

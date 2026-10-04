@@ -112,15 +112,50 @@ class SongRequestService extends ChangeNotifier {
     _requests.insert(0, request);
     await _cacheRequestsLocally();
 
-    // 🌟 Award +20 Seva Tokens for active community contribution!
+    // 🌟 Award +5 Seva Tokens for active community contribution!
     await _tokenService.awardTokens(
-      amount: 20,
+      amount: 5,
       title: 'Devotional Song Request 📜',
       description: 'Requested "${request.songTitle}" for the community',
     );
 
     notifyListeners();
     return true;
+  }
+
+  Future<void> updateStatus(String requestId, String newStatus) async {
+    final index = _requests.indexWhere((r) => r.id == requestId);
+    if (index != -1) {
+      _requests[index] = _requests[index].copyWith(status: newStatus);
+      await _cacheRequestsLocally();
+
+      try {
+        final fs = _firestore;
+        if (fs != null) {
+          await fs.collection('song_requests').doc(requestId).update({'status': newStatus});
+        }
+      } catch (e) {
+        debugPrint('Notice updating status in Firestore: $e');
+      }
+
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteRequest(String requestId) async {
+    _requests.removeWhere((r) => r.id == requestId);
+    await _cacheRequestsLocally();
+
+    try {
+      final fs = _firestore;
+      if (fs != null) {
+        await fs.collection('song_requests').doc(requestId).delete();
+      }
+    } catch (e) {
+      debugPrint('Notice deleting request from Firestore: $e');
+    }
+
+    notifyListeners();
   }
 
   Future<void> _cacheRequestsLocally() async {

@@ -198,27 +198,78 @@ service firebase.storage {
 
 ---
 
-## 📱 Release Build Instructions
+---
 
-### Android Release (Google Play Store)
-1. Ensure your signing key is configured in `android/key.properties`.
-2. Generate an Android App Bundle (AAB):
-```bash
-flutter build appbundle --release
-```
-3. The generated file is located at `build/app/outputs/bundle/release/app-release.aab`.
+## 🚀 GitHub Actions CI/CD Pipeline
 
-### iOS Release (Apple App Store)
-1. Open the iOS project in Xcode:
-```bash
-open ios/Runner.xcworkspace
+The project includes an automated, production-grade GitHub Actions CI/CD pipeline configured in [android-ci.yml](file:///.github/workflows/android-ci.yml).
+
+### Workflow Flow
+
+```text
+git push origin main
+       ↓
+GitHub Actions (Android CI)
+       ↓
+Increment version in pubspec.yaml & commit [skip ci]
+       ↓
+flutter pub get
+       ↓
+flutter analyze
+       ↓
+flutter test
+       ↓
+Build Release AAB (flutter build appbundle --release)
+       ↓
+Upload AAB as GitHub Artifact
+       ↓
+Download AAB from GitHub Actions
+       ↓
+Manually upload to Google Play Console
 ```
-2. Select your Apple Developer Team under **Signing & Capabilities**.
-3. Build the production IPA:
-```bash
-flutter build ipa --release
+
+### Automatic Version Management
+
+Whenever code is pushed to the `main` branch, the CI/CD pipeline automatically increments:
+- **PATCH** version by `+1` (increments `versionName`)
+- **BUILD NUMBER** by `+1` (increments Android `versionCode`)
+- Major and Minor versions remain unchanged.
+
+**Versioning progression:**
+```text
+1.0.20+23
+→ 1.0.21+24
+→ 1.0.22+25
+→ 1.0.23+26
 ```
-4. Upload via Xcode Organizer or `xcrun altool`.
+
+### Pull Requests
+
+For Pull Requests targeting `main`:
+- Runs dependency installation (`flutter pub get`), static analysis (`flutter analyze`), and test suite (`flutter test`).
+- **No version bump**, **no repository commits**, and **no AAB builds** occur on Pull Requests.
+
+### Downloading the Built AAB
+
+1. Navigate to your repository on **GitHub**.
+2. Go to **Actions** → **Android CI**.
+3. Select the latest successful workflow run on `main`.
+4. Scroll to the **Artifacts** section at the bottom.
+5. Download the artifact (e.g., `bhakti-aab-v1.0.21-build24`).
+6. Manually upload the downloaded `.aab` file to **Google Play Console** (Internal, Closed, or Production track).
+
+### GitHub Secrets for Android Signing
+
+To build a release-signed AAB in CI, configure these repository secrets under **Settings > Secrets and variables > Actions**:
+
+| Secret Name | Description | Example / Notes |
+|---|---|---|
+| `ANDROID_KEYSTORE_BASE64` | Base64-encoded keystore file | `base64 -i upload-keystore.jks` |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore password | Keystore password |
+| `ANDROID_KEY_ALIAS` | Key alias in keystore | Key alias |
+| `ANDROID_KEY_PASSWORD` | Key password | Key password |
+
+*Note: If signing secrets are omitted, the workflow builds a test bundle using the debug keystore.*
 
 ---
 

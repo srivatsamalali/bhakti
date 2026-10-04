@@ -104,9 +104,21 @@ class DevotionalReminderService with ChangeNotifier {
         defaultPresentList: true,
       );
 
+      const DarwinInitializationSettings macOSSettings = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+        defaultPresentAlert: true,
+        defaultPresentSound: true,
+        defaultPresentBadge: true,
+        defaultPresentBanner: true,
+        defaultPresentList: true,
+      );
+
       const InitializationSettings initSettings = InitializationSettings(
         android: androidSettings,
         iOS: iosSettings,
+        macOS: macOSSettings,
       );
 
       await _notificationsPlugin.initialize(
@@ -123,7 +135,7 @@ class DevotionalReminderService with ChangeNotifier {
     }
   }
 
-  /// Explicitly requests notification permissions from iOS / Android
+  /// Explicitly requests notification permissions from iOS / Android / macOS
   Future<bool> requestNotificationPermissions() async {
     try {
       if (!_isInitialized) {
@@ -146,6 +158,18 @@ class DevotionalReminderService with ChangeNotifier {
         } catch (_) {
           return true;
         }
+      } else if (Platform.isMacOS) {
+        final macos = _notificationsPlugin.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>();
+        if (macos != null) {
+          final bool? result = await macos.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+            critical: true,
+          );
+          if (result == true) return true;
+        }
+        return true;
       } else if (Platform.isAndroid) {
         final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
             _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
@@ -270,6 +294,14 @@ class DevotionalReminderService with ChangeNotifier {
           icon: '@mipmap/ic_launcher',
         ),
         iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+          presentBanner: true,
+          presentList: true,
+          interruptionLevel: InterruptionLevel.timeSensitive,
+        ),
+        macOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
@@ -425,6 +457,14 @@ class DevotionalReminderService with ChangeNotifier {
           icon: '@mipmap/ic_launcher',
         ),
         iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+          presentBanner: true,
+          presentList: true,
+          interruptionLevel: InterruptionLevel.timeSensitive,
+        ),
+        macOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,

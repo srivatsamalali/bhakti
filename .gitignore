@@ -59,5 +59,12 @@ migrate_working_dir/
 /android/captures/
 **/android/local.properties
 
+# Android Release Signing & Keystores (Never commit!)
+**/key.properties
+*.jks
+*.keystore
+**/*.jks
+**/*.keystore
+
 # Widget Preview related
 .widget_preview/

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -64,7 +65,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   }
 
   void _initHomeWidgetNavigation() {
-    if (kIsWeb) return;
+    if (kIsWeb || (!Platform.isIOS && !Platform.isAndroid)) return;
     try {
       HomeWidget.initiallyLaunchedFromHomeWidget().then(_handleWidgetUri);
       _widgetClickSubscription = HomeWidget.widgetClicked.listen(_handleWidgetUri);
@@ -235,13 +236,13 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               icon: Icons.home_rounded,
               label: 'Home',
               isSelected: _currentIndex == 0,
-              onTap: () => setState(() => _currentIndex = 0),
+              onTap: () => _navigateToTab(0),
             ),
             _buildSidebarNavItem(
               icon: Icons.library_music_rounded,
               label: 'Explore Chants',
               isSelected: _currentIndex == 1,
-              onTap: () => setState(() => _currentIndex = 1),
+              onTap: () => _navigateToTab(1),
             ),
             _buildSidebarNavItem(
               icon: Icons.public_rounded,
@@ -257,13 +258,13 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               icon: Icons.favorite_rounded,
               label: 'Favorites',
               isSelected: _currentIndex == 2,
-              onTap: () => setState(() => _currentIndex = 2),
+              onTap: () => _navigateToTab(2),
             ),
             _buildSidebarNavItem(
               icon: Icons.settings_rounded,
               label: 'Settings',
               isSelected: _currentIndex == 3,
-              onTap: () => setState(() => _currentIndex = 3),
+              onTap: () => _navigateToTab(3),
             ),
 
             const SizedBox(height: 12),

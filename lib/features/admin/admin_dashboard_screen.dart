@@ -8,10 +8,12 @@ import '../../repositories/category_repository.dart';
 import '../../repositories/song_repository.dart';
 import '../../services/firebase/auth_service.dart';
 import '../../services/firebase/firestore_service.dart';
+import '../../services/firebase/song_request_service.dart';
 import '../../services/preferences/preferences_service.dart';
 import '../../widgets/deepam_loader.dart';
 import 'admin_add_edit_song_screen.dart';
 import 'admin_categories_screen.dart';
+import 'admin_song_requests_screen.dart';
 
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -305,9 +307,48 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         title: Text(context.tr('adminDashboard')),
         centerTitle: true,
         actions: [
+          Consumer<SongRequestService>(
+            builder: (context, reqService, _) {
+              final pendingCount = reqService.requests.where((r) => r.status == 'pending').length;
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.mark_email_unread_rounded),
+                    tooltip: 'Devotee Song Requests',
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const AdminSongRequestsScreen()),
+                      );
+                    },
+                  ),
+                  if (pendingCount > 0)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.error,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '$pendingCount',
+                          style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
           PopupMenuButton<String>(
             onSelected: (val) async {
-              if (val == 'categories') {
+              if (val == 'requests') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AdminSongRequestsScreen()),
+                );
+              } else if (val == 'categories') {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const AdminCategoriesScreen()),
                 );
@@ -321,6 +362,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               }
             },
             itemBuilder: (ctx) => [
+              const PopupMenuItem(
+                value: 'requests',
+                child: Text('Devotee Song Requests 📜'),
+              ),
               PopupMenuItem(
                 value: 'categories',
                 child: Text(context.tr('manageCategories')),
@@ -410,6 +455,98 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ],
               ),
               const SizedBox(height: 14),
+
+              // Devotee Song Requests Banner Card
+              Consumer<SongRequestService>(
+                builder: (context, reqService, _) {
+                  final pendingCount = reqService.requests.where((r) => r.status == 'pending').length;
+                  final totalCount = reqService.requests.length;
+
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFFE2B258), width: 1.2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFE2B258).withOpacity(0.12),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(18),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const AdminSongRequestsScreen()),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFFFFF8E7), Color(0xFFFDE8BA)],
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(color: const Color(0xFFE2B258)),
+                                ),
+                                child: const Icon(Icons.mark_email_unread_rounded, color: Color(0xFF8D5B00), size: 24),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Text(
+                                          'User Song Requests 📜',
+                                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF2E1A11)),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        if (pendingCount > 0)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.error,
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: Text(
+                                              '$pendingCount NEW',
+                                              style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Text(
+                                      totalCount == 0
+                                          ? 'View and fulfill hymns requested by devotees'
+                                          : '$totalCount total requests ($pendingCount awaiting review)',
+                                      style: const TextStyle(fontSize: 12, color: Color(0xFF736155)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Color(0xFF8D5B00)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 10),
 
               // AI Companion Management Card
               _buildAiAdminCard(context.watch<PreferencesService>()),
