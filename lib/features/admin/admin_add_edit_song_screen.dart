@@ -41,6 +41,7 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
 
   // Multi-Language Sacred Lyrics Controllers
   late TextEditingController _lyricsKnController;
+  late TextEditingController _lyricsTeController;
   late TextEditingController _lyricsEnController;
   late TextEditingController _lyricsHiController;
   late TextEditingController _lyricsTaController;
@@ -71,6 +72,7 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
 
     final loc = song?.lyricsLocalized ?? {};
     _lyricsKnController = TextEditingController(text: loc['kn'] ?? (song?.language == 'kn' ? (song?.lyrics ?? '') : ''));
+    _lyricsTeController = TextEditingController(text: loc['te'] ?? (song?.language == 'te' ? (song?.lyrics ?? '') : ''));
     _lyricsEnController = TextEditingController(text: loc['en'] ?? (song?.language == 'en' ? (song?.lyrics ?? '') : ''));
     _lyricsHiController = TextEditingController(text: loc['hi'] ?? (song?.language == 'hi' ? (song?.lyrics ?? '') : ''));
     _lyricsTaController = TextEditingController(text: loc['ta'] ?? (song?.language == 'ta' ? (song?.lyrics ?? '') : ''));
@@ -91,6 +93,7 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
     _artistController.dispose();
     _albumController.dispose();
     _lyricsKnController.dispose();
+    _lyricsTeController.dispose();
     _lyricsEnController.dispose();
     _lyricsHiController.dispose();
     _lyricsTaController.dispose();
@@ -382,6 +385,7 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
 
       final Map<String, String> lyricsLocalized = {};
       if (_lyricsKnController.text.trim().isNotEmpty) lyricsLocalized['kn'] = _lyricsKnController.text.trim();
+      if (_lyricsTeController.text.trim().isNotEmpty) lyricsLocalized['te'] = _lyricsTeController.text.trim();
       if (_lyricsEnController.text.trim().isNotEmpty) lyricsLocalized['en'] = _lyricsEnController.text.trim();
       if (_lyricsHiController.text.trim().isNotEmpty) lyricsLocalized['hi'] = _lyricsHiController.text.trim();
       if (_lyricsTaController.text.trim().isNotEmpty) lyricsLocalized['ta'] = _lyricsTaController.text.trim();
@@ -389,6 +393,7 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
 
       final primaryLyrics = lyricsLocalized[_selectedLanguage] ??
           lyricsLocalized['kn'] ??
+          lyricsLocalized['te'] ??
           lyricsLocalized['en'] ??
           lyricsLocalized['hi'] ??
           lyricsLocalized['ta'] ??
@@ -702,6 +707,8 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
     switch (lang) {
       case 'kn':
         return _lyricsKnController;
+      case 'te':
+        return _lyricsTeController;
       case 'en':
         return _lyricsEnController;
       case 'hi':
@@ -717,6 +724,7 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
 
   static const List<Map<String, String>> _lyricsLanguageDefs = [
     {'code': 'kn', 'label': 'Kannada', 'native': 'ಕನ್ನಡ', 'icon': '🌸'},
+    {'code': 'te', 'label': 'Telugu', 'native': 'తెలుగు', 'icon': '🪔'},
     {'code': 'en', 'label': 'English', 'native': 'English', 'icon': '🌐'},
     {'code': 'hi', 'label': 'Hindi', 'native': 'हिन्दी', 'icon': '🕉️'},
     {'code': 'ta', 'label': 'Tamil', 'native': 'தமிழ்', 'icon': '🪷'},
@@ -732,6 +740,7 @@ class _AdminAddEditSongScreenState extends State<AdminAddEditSongScreen> {
 
     int filledCount = 0;
     if (_lyricsKnController.text.trim().isNotEmpty) filledCount++;
+    if (_lyricsTeController.text.trim().isNotEmpty) filledCount++;
     if (_lyricsEnController.text.trim().isNotEmpty) filledCount++;
     if (_lyricsHiController.text.trim().isNotEmpty) filledCount++;
     if (_lyricsTaController.text.trim().isNotEmpty) filledCount++;

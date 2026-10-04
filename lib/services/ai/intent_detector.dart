@@ -38,12 +38,13 @@ class AiParsedIntent {
 
 /// Normalizes text and extracts deterministic devotional intents and entities
 class IntentDetector {
-  // Known canonical song IDs and their aliases across 5 languages & transliterations
+  // Known canonical song IDs and their aliases across 6 languages & transliterations
   static const Map<String, List<String>> _songAliases = {
     'lalitha_sahasranamam': [
       'lalitha sahasranamam', 'lalitha sahasranama', 'lalita sahasranamam', 'lalita sahasranama',
       'lalitha sahasra', 'lalita sahasra', 'lalitha', 'lalita', 'tripura sundari',
-      'ಲಲಿತಾ ಸಹಸ್ರನಾಮ', 'ಲಲಿತಾ ಸಹಸ್ರನಾಮಂ', 'ಲಲಿತಾ', 'ಶ್ರೀ ಲಲಿತಾ',
+      'లಲಿತಾ ಸಹಸ್ರನಾಮ', 'ಲಲಿತಾ ಸಹಸ್ರನಾಮಂ', 'ಲಲಿತಾ', 'ಶ್ರೀ ಲಲಿತಾ',
+      'లలితా సహస్రనామం', 'లలితా సహస్రనామ', 'లలిత', 'శ్రీ లలిత',
       'ललिता सहस्रनाम', 'ललिता सहस्रनामम', 'ललिता', 'श्री ललिता',
       'லலிதா சஹஸ்ரநாமம்', 'லலிதா', 'ஸ்ரீ லலிதா',
       'ലളിതാ സഹസ്രനാമം', 'ലളിത', 'ശ്രീ ലളിത'
@@ -51,6 +52,7 @@ class IntentDetector {
     'vishnu_sahasranamam': [
       'vishnu sahasranamam', 'vishnu sahasranama', 'vishnusahasranamam', 'maha vishnu', 'vishnu',
       'ವಿಷ್ಣು ಸಹಸ್ರನಾಮ', 'ವಿಷ್ಣು ಸಹಸ್ರನಾಮಂ', 'ವಿಷ್ಣು', 'ಮಹಾವಿಷ್ಣು',
+      'విష్ణు సహస్రనామం', 'విష్ణు సహస్రనామ', 'విష్ణు', 'మహావిష్ణు',
       'विष्णु सहस्रनाम', 'विष्णु सहस्रनामम', 'विष्णु', 'महाविष्णु',
       'விஷ்ணு சஹஸ்ரநாமம்', 'விஷ்ணு', 'மகாவிஷ்ணு',
       'വിഷ്ണു സഹസ്രനാമം', 'വിഷ്ണു', 'മഹാവിഷ്ണു'
@@ -58,6 +60,7 @@ class IntentDetector {
     'hanuman_chalisa': [
       'hanuman chalisa', 'hanuman chalisaa', 'hanuman', 'anjaneya', 'maruti',
       'ಹನುಮಾನ್ ಚಾಲೀಸಾ', 'ಹನುಮಾನ್ ಚಾಲೀಸ', 'ಹನುಮಂತ', 'ಆಂಜನೇಯ',
+      'హనుమాన్ చాలీసా', 'హనుమాన్', 'ఆంజనేయ', 'మారుతి',
       'हनुमान चालीसा', 'हनुमान', 'बजरंगबली', 'अंजनेय',
       'அனுமன் சாலிசா', 'ஹனுமான் சாலீஸா', 'ஆஞ்சநேயர்',
       'ഹനുമാൻ ചാലീസ', 'ഹനുമാൻ', 'ആഞ്ജനേയ'
@@ -65,6 +68,7 @@ class IntentDetector {
     'shiva_panchakshari': [
       'shiva panchakshari', 'shiva panchakshara', 'om namah shivaya', 'panchakshari', 'shiva stotra', 'shiva', 'mahadev',
       'ಶಿವ ಪಂಚಾಕ್ಷರಿ', 'ಶಿವ ಪಂಚಾಕ್ಷರ', 'ಓಂ ನಮಃ ಶಿವಾಯ', 'ಪಂಚಾಕ್ಷರಿ', 'ಶಿವ', 'ಮಹಾದೇವ',
+      'శివ పంచాక్షరి', 'శివ పంచాక్షర', 'ఓం నమః శివాయ', 'పంచాక్షరి', 'శివుడు', 'మహాదేవుడు',
       'शिव पंचाक्षर', 'शिव पंचाक्षरी', 'ॐ नमः शिवाय', 'पंचाक्षर', 'शिव', 'महादेव',
       'சிவ பஞ்சாட்சர', 'ஓம் நம சிவாய', 'பஞ்சாட்சரம்', 'சிவன்',
       'ശിവ പഞ്ചാക്ഷര', 'ഓം നമഃ ശിവായ', 'പഞ്ചാക്ഷരി', 'ശിവൻ'
@@ -88,7 +92,7 @@ class IntentDetector {
       if (matchedSongId != null) break;
     }
 
-    // 2. Lyrics Intent (e.g. "Give me lyrics of Lalitha Sahasranamam", "Nanage Lalitha Sahasra na Maada Sahitya Kodu", "ಸಾಹಿತ್ಯ ಕೊಡಿ", "बोल चाहिए")
+    // 2. Lyrics Intent (e.g. "Give me lyrics of Lalitha Sahasranamam", "Nanage Lalitha Sahasra na Maada Sahitya Kodu", "ಸಾಹಿತ್ಯ ಕೊಡಿ", "సాహిత్యం కావాలి", "बोल चाहिए")
     if (_isLyricsCommand(lower)) {
       return AiParsedIntent(
         type: AiIntentType.showLyrics,
@@ -99,7 +103,7 @@ class IntentDetector {
       );
     }
 
-    // 3. Meaning & Significance Intent (e.g. "Kannada dalli Hanuman Chalisa meaning kodi", "ಭಾವಾರ್ಥ ತಿಳಿಸಿ")
+    // 3. Meaning & Significance Intent (e.g. "Kannada dalli Hanuman Chalisa meaning kodi", "ಭಾವಾರ್ಥ ತಿಳಿಸಿ", "భావార్థం చెప్పండి")
     if (_isMeaningCommand(lower)) {
       return AiParsedIntent(
         type: AiIntentType.showMeaning,
@@ -148,9 +152,12 @@ class IntentDetector {
       return const AiParsedIntent(type: AiIntentType.appHelp, confidence: 0.95);
     }
 
-    // 8. Language Search Intent (e.g. "What is available in Kannada?")
+    // 8. Language Search Intent (e.g. "What is available in Kannada / Telugu?")
     if (lower.contains('available in kannada') || lower.contains('kannada songs') || lower.contains('ಕನ್ನಡದಲ್ಲಿ ಯಾವ ಹಾಡುಗಳು') || lower.contains('ಕನ್ನಡ ಹಾಡುಗಳು')) {
       return const AiParsedIntent(type: AiIntentType.searchLanguage, requestedLanguage: 'kn', confidence: 0.90);
+    }
+    if (lower.contains('available in telugu') || lower.contains('telugu songs') || lower.contains('తెలుగులో ఏ పాటలు ఉన్నాయి') || lower.contains('తెలుగు పాటలు')) {
+      return const AiParsedIntent(type: AiIntentType.searchLanguage, requestedLanguage: 'te', confidence: 0.90);
     }
     if (lower.contains('available in hindi') || lower.contains('hindi songs') || lower.contains('हिन्दी में क्या है') || lower.contains('हिंदी गाने')) {
       return const AiParsedIntent(type: AiIntentType.searchLanguage, requestedLanguage: 'hi', confidence: 0.90);
@@ -163,17 +170,17 @@ class IntentDetector {
     }
 
     // 9. Category Search Intent
-    if (lower.contains('stotra') || lower.contains('ಸ್ತೋತ್ರ') || lower.contains('स्तोत्र')) {
+    if (lower.contains('stotra') || lower.contains('ಸ್ತೋತ್ರ') || lower.contains('స్తోత్ర') || lower.contains('स्तोत्र')) {
       return const AiParsedIntent(type: AiIntentType.searchCategory, categoryQuery: 'stotras', confidence: 0.90);
     }
-    if (lower.contains('sahasranama') || lower.contains('ಸಹಸ್ರನಾಮ') || lower.contains('सहस्रनाम')) {
+    if (lower.contains('sahasranama') || lower.contains('ಸಹಸ್ರನಾಮ') || lower.contains('సహస్రనామ') || lower.contains('सहस्रनाम')) {
       return const AiParsedIntent(type: AiIntentType.searchCategory, categoryQuery: 'sahasranamam', confidence: 0.90);
     }
-    if (lower.contains('chalisa') || lower.contains('ಚಾಲೀಸಾ') || lower.contains('चालीसा')) {
+    if (lower.contains('chalisa') || lower.contains('ಚಾಲೀಸಾ') || lower.contains('చాలీసా') || lower.contains('चालीसा')) {
       return const AiParsedIntent(type: AiIntentType.searchCategory, categoryQuery: 'chalisa', confidence: 0.90);
     }
 
-    // 10. General Devotional Questions (e.g. "What is...", "Who is...", "Explain...", "ಏನು?", "क्या है?", "என்ன?")
+    // 10. General Devotional Questions (e.g. "What is...", "Who is...", "Explain...", "ಏನು?", "ఏమిటి?", "क्या है?", "என்ன?")
     if (_isQuestionCommand(lower)) {
       return AiParsedIntent(
         type: AiIntentType.generalDevotionalQuestion,
@@ -207,6 +214,7 @@ class IntentDetector {
     return text == 'pause' || text == 'stop' ||
         text.contains('pause') || text.contains('stop song') ||
         text.contains('ನಿಲ್ಲಿಸಿ') || text.contains('ಸ್ಟಾಪ್') ||
+        text.contains('ఆపండి') || text.contains('ఆపు') ||
         text.contains('रोकें') || text.contains('बंद करो') ||
         text.contains('நிறுத்து') || text.contains('നിർത്തുക');
   }
@@ -215,23 +223,25 @@ class IntentDetector {
     return text == 'resume' || text == 'continue' ||
         text.contains('resume') || text.contains('play again') ||
         (text.contains('ಮುಂದುವರಿಸಿ') || (text.contains('ಪ್ಲೇ ಮಾಡಿ') && !text.contains('ಹಾಡು'))) ||
+        (text.contains('కొనసాగించు') || (text.contains('ప్లే చేయండి') && !text.contains('పాట'))) ||
         text.contains('चालू करें') || text.contains('पुनः चलाएं') ||
         text.contains('தொடரவும்') || text.contains('തുടരുക');
   }
 
   static bool _isNextCommand(String text) {
-    return text.contains('next') || text.contains('ಮುಂದಿನ') || text.contains('अगला') ||
+    return text.contains('next') || text.contains('ಮುಂದಿನ') || text.contains('తరువాతి') || text.contains('अगला') ||
         text.contains('அடுத்த') || text.contains('അടുത്ത');
   }
 
   static bool _isPreviousCommand(String text) {
     return text.contains('previous') || text.contains('prev') || text.contains('ಹಿಂದಿನ') ||
-        text.contains('पिछला') || text.contains('முந்தைய') || text.contains('മുമ്പത്തെ');
+        text.contains('మునుపటి') || text.contains('पिछला') || text.contains('முந்தைய') || text.contains('മുമ്പത്തെ');
   }
 
   static bool _isFavoritesCommand(String text) {
     return text.contains('favorite') || text.contains('favourites') || text.contains('liked') ||
         text.contains('ಮೆಚ್ಚಿನ') || text.contains('ಪಸಂದ್') ||
+        text.contains('ఇష్టమైన') ||
         text.contains('पसंदीदा') || text.contains('मनपसंद') ||
         text.contains('விருப்பமான') || text.contains('പ്രിയപ്പെട്ട');
   }
@@ -239,6 +249,7 @@ class IntentDetector {
   static bool _isRecentsCommand(String text) {
     return text.contains('recent') || text.contains('history') ||
         text.contains('ಇತ್ತೀಚೆಗೆ') || text.contains('ಹಿಂದೆ ಕೇಳಿದ') ||
+        text.contains('ఇటీవల') || text.contains('గతంలో విన్నవి') ||
         text.contains('हाल ही में') || text.contains('इतिहास') ||
         text.contains('சமீபத்திய') || text.contains('അടുത്തിടെ');
   }
@@ -246,6 +257,7 @@ class IntentDetector {
   static bool _isHelpCommand(String text) {
     return text == 'help' || text.contains('how to use') || text.contains('help me') ||
         text.contains('ಸಹಾಯ') || text.contains('ಮಾರ್ಗದರ್ಶನ') ||
+        text.contains('సహాయం') ||
         text.contains('मदद') || text.contains('सहायता') ||
         text.contains('உதவி') || text.contains('സഹായം');
   }
@@ -254,6 +266,7 @@ class IntentDetector {
     return text.contains('lyrics') || text.contains('lyric') || text.contains('words') || text.contains('text') ||
         text.contains('sahitya') || text.contains('sahithya') || text.contains('saahitya') ||
         text.contains('ಸಾಹಿತ್ಯ') || text.contains('ಪದಗಳು') || text.contains('ವರಹಾ') ||
+        text.contains('సాహిత్యం') || text.contains('లిరిక్స్') || text.contains('పాట సాహిత్యం') ||
         text.contains('bol') || text.contains('boliye') || text.contains('गीत के बोल') || text.contains('बोल') || text.contains('लिरिक्स') ||
         text.contains('varigal') || text.contains('varigalai') || text.contains('வரிகள்') || text.contains('பாடல் வரிகள்') ||
         text.contains('varikal') || text.contains('വരികൾ') || text.contains('സാഹിത്യം');
@@ -263,6 +276,7 @@ class IntentDetector {
     return text.contains('meaning') || text.contains('significance') || text.contains('explain meaning') ||
         text.contains('artha') || text.contains('artham') || text.contains('bhavartha') || text.contains('mahatva') || text.contains('bhavarth') ||
         text.contains('ಅರ್ಥ') || text.contains('ಮಹತ್ವ') || text.contains('ಭಾವಾರ್ಥ') ||
+        text.contains('అర్థం') || text.contains('భావార్థం') || text.contains('వివరణ') || text.contains('మహత్త్వం') ||
         text.contains('अर्थ') || text.contains('महत्व') || text.contains('भावार्थ') ||
         text.contains('பொருள்') || text.contains('அர்த்தம்') || text.contains('விளக்கம்') ||
         text.contains('അർത്ഥം') || text.contains('പ്രാധാന്യം');
@@ -272,7 +286,8 @@ class IntentDetector {
     return text.startsWith('play') || text.contains('play ') || text.contains(' play') ||
         text.contains('play madi') || text.contains('play maadi') || text.contains('haaku') || text.contains('haaki') ||
         text.contains('keli') || text.contains('kelisi') || text.contains('ಪ್ಲೇ ಮಾಡಿ') || text.contains('ಹಾಕಿ') ||
-        text.contains('ಬಜಾವೋ') || text.contains('बजाओ') || text.contains('सुनाओ') || text.contains('चलाओ') || text.contains('chalao') || text.contains('bajao') || text.contains('sunao') ||
+        text.contains('ప్లే చేయండి') || text.contains('పాడండి') || text.contains('వినిపించండి') || text.contains('వేయండి') ||
+        text.contains('బಜಾವೋ') || text.contains('बजाओ') || text.contains('सुनाओ') || text.contains('चलाओ') || text.contains('chalao') || text.contains('bajao') || text.contains('sunao') ||
         text.contains('padu') || text.contains('paadu') || text.contains('பாடு') || text.contains('பாடவும்') || text.contains('போடு') ||
         text.contains('paduka') || text.contains('പാടുക') || text.contains('കേൾപ്പിക്കുക');
   }
@@ -281,7 +296,9 @@ class IntentDetector {
     return !text.contains('?') && !text.contains('what') && !text.contains('meaning') &&
         !text.contains('lyrics') && !text.contains('sahitya') && !text.contains('sahithya') &&
         !text.contains('artha') && !text.contains('who') && !text.contains('ಏನು') &&
-        !text.contains('ಅರ್ಥ') && !text.contains('ಸಾಹಿತ್ಯ') && !text.contains('क्या') &&
+        !text.contains('ಅರ್ಥ') && !text.contains('ಸಾಹಿತ್ಯ') &&
+        !text.contains('ఏమిటి') && !text.contains('అర్థం') && !text.contains('సాహిత్యం') &&
+        !text.contains('क्या') &&
         !text.contains('बोल') && !text.contains('வரிகள்');
   }
 
@@ -289,6 +306,7 @@ class IntentDetector {
     return text.contains('?') || text.contains('what is') || text.contains('who is') ||
         text.contains('tell me about') || text.contains('explain') || text.contains('vivarisi') || text.contains('tilisi') ||
         text.contains('ಏನು') || text.contains('ಹೇಳಿ') || text.contains('ತಿಳಿಸಿ') || text.contains('ಯಾರು') ||
+        text.contains('ఏమిటి') || text.contains('చెప్పండి') || text.contains('వివరించండి') || text.contains('ఎవరు') ||
         text.contains('क्या है') || text.contains('बताएं') || text.contains('बताओ') || text.contains('कौन है') ||
         text.contains('என்ன') || text.contains('சொல்லுங்கள்') || text.contains('யார்') ||
         text.contains('എന്താണ്') || text.contains('പറയൂ') || text.contains('ആരാണ്');
@@ -296,7 +314,7 @@ class IntentDetector {
 
   static String _extractSongEntity(String input) {
     return input
-        .replaceAll(RegExp(r'(play|song|sing|listen|keli|haadu|madi|maadi|bajao|karo|batao|chalao|kodi|beku|sahitya|sahithya|lyrics|meaning|artha)', caseSensitive: false), '')
+        .replaceAll(RegExp(r'(play|song|sing|listen|keli|haadu|madi|maadi|bajao|karo|batao|chalao|kodi|beku|sahitya|sahithya|lyrics|meaning|artha|cheyandi|ivvandi|kavali|sahityam|artham)', caseSensitive: false), '')
         .trim();
   }
 }

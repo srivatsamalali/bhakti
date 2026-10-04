@@ -570,6 +570,15 @@ class PanchangaService with ChangeNotifier {
         case 'amavasya': return 'ಸರ್ವಪಿತೃ ಮಹಾಲಯ ಅಮಾವಾಸ್ಯೆ';
         case 'purnima': return 'ಹುಣ್ಣಿಮೆ (ಶ್ರೀ ಸತ್ಯನಾರಾಯಣ ವ್ರತ)';
       }
+    } else if (lang == 'te') {
+      switch (key) {
+        case 'ekadashi': return 'ఏకాదశి వ్రతం (స్మార్త & వైష్ణవ)';
+        case 'shani_pradosha': return 'శని ప్రదోష వ్రతం';
+        case 'soma_pradosha': return 'సోమ ప్రదోష వ్రతం';
+        case 'pradosha': return 'ప్రదోష వ్రతం';
+        case 'amavasya': return 'మహాలయ సర్వపితృ అమావాస్య';
+        case 'purnima': return 'పూర్ణిమ / పౌర్ణమి (శ్రీ సత్యనారాయణ వ్రతం)';
+      }
     } else if (lang == 'hi') {
       switch (key) {
         case 'ekadashi': return 'एकादशी व्रत (स्मार्त व वैष्णव)';
@@ -618,6 +627,14 @@ class PanchangaService with ChangeNotifier {
         case 'satyanarayana': return 'ಶ್ರೀ ಸತ್ಯನಾರಾಯಣ ಸ್ವಾಮಿ';
         case 'ganesha': return 'ಶ್ರೀ ಮಹಾಗಣಪತಿ';
       }
+    } else if (lang == 'te') {
+      switch (key) {
+        case 'vishnu': return 'శ్రీ మహావిష్ణువు';
+        case 'shiva': return 'శ్రీ పరమేశ్వరుడు & పార్వతి';
+        case 'pitru': return 'పితృ దేవతలు & సూర్య భగవాన్';
+        case 'satyanarayana': return 'శ్రీ సత్యనారాయణ స్వామి';
+        case 'ganesha': return 'శ్రీ మహాగణపతి';
+      }
     } else if (lang == 'hi') {
       switch (key) {
         case 'vishnu': return 'भगवान विष्णु';
@@ -662,6 +679,14 @@ class PanchangaService with ChangeNotifier {
         case 'purnima': return 'ಪೂರ್ಣ ಚಂದ್ರ ದರ್ಶನ ಹಾಗೂ ಸತ್ಯನಾರಾಯಣ ಕಥಾ ಪಾರಾಯಣ.';
         case 'sankashti': return 'ವಿಘ್ನನಿವಾರಕ ಗಣೇಶನಿಗೆ ಗರಿಕೆ ಅರ್ಪಣೆ ಹಾಗೂ ಚಂದ್ರೋದಯ ಪೂಜೆ.';
       }
+    } else if (lang == 'te') {
+      switch (key) {
+        case 'ekadashi': return 'ఆధ్యాత్మిక పవిత్రత కొరకు ఉపవాసం మరియు విష్ణు సహస్రనామ పారాయణం.';
+        case 'pradosha': return 'సంధ్యా సమయ దోష నివారణ శివపూజ మరియు రుద్రాభిషేకం.';
+        case 'amavasya': return 'పితృ తర్పణం, దాన ధర్మాలు మరియు పుణ్య ప్రాప్తి.';
+        case 'purnima': return 'పూర్ణ చంద్ర దర్శనం మరియు సత్యనారాయణ వ్రత కథా పారాయణం.';
+        case 'sankashti': return 'విఘ్ననివారక గణపతికి గరిక సమర్పణ మరియు చంద్రోదయ పూజ.';
+      }
     } else if (lang == 'hi') {
       switch (key) {
         case 'ekadashi': return 'आत्मिक शुद्धि, उपवास व विष्णु सहस्रनाम पाठ।';
@@ -690,25 +715,25 @@ class PanchangaService with ChangeNotifier {
       if (m == 2 && d == 17) {
         return {
           'isSolar': true,
-          'name': lang == 'kn' ? 'ಕಂಕಣ ಸೂರ್ಯ ಗ್ರಹಣ ☀️' : (lang == 'hi' ? 'कंकण सूर्य ग्रहण ☀️' : 'Annular Solar Eclipse ☀️'),
+          'name': lang == 'kn' ? 'ಕಂಕಣ ಸೂರ್ಯ ಗ್ರಹಣ ☀️' : (lang == 'te' ? 'కంకణ సూర్య గ్రహణం ☀️' : (lang == 'hi' ? 'कंकण सूर्य ग्रहण ☀️' : 'Annular Solar Eclipse ☀️')),
         };
       }
       if (m == 3 && d == 3) {
         return {
           'isSolar': false,
-          'name': lang == 'kn' ? 'ಸಂಪೂರ್ಣ ಚಂದ್ರ ಗ್ರಹಣ 🌘' : (lang == 'hi' ? 'पूर्ण चंद्र ग्रहण 🌘' : 'Total Lunar Eclipse 🌘'),
+          'name': lang == 'kn' ? 'ಸಂಪೂರ್ಣ ಚಂದ್ರ ಗ್ರಹಣ 🌘' : (lang == 'te' ? 'సంపూర్ణ చంద్ర గ్రహణం 🌘' : (lang == 'hi' ? 'पूर्ण चंद्र ग्रहण 🌘' : 'Total Lunar Eclipse 🌘')),
         };
       }
       if (m == 8 && d == 12) {
         return {
           'isSolar': true,
-          'name': lang == 'kn' ? 'ಸಂಪೂರ್ಣ ಸೂರ್ಯ ಗ್ರಹಣ ☀️' : (lang == 'hi' ? 'पूर्ण सूर्य ग्रहण ☀️' : 'Total Solar Eclipse ☀️'),
+          'name': lang == 'kn' ? 'ಸಂಪೂರ್ಣ ಸೂರ್ಯ ಗ್ರಹಣ ☀️' : (lang == 'te' ? 'సంపూర్ణ సూర్య గ్రహణం ☀️' : (lang == 'hi' ? 'पूर्ण सूर्य ग्रहण ☀️' : 'Total Solar Eclipse ☀️')),
         };
       }
       if (m == 8 && d == 28) {
         return {
           'isSolar': false,
-          'name': lang == 'kn' ? 'ಭಾಗಶಃ ಚಂದ್ರ ಗ್ರಹಣ 🌘' : (lang == 'hi' ? 'खंडग्रास चंद्र ग्रहण 🌘' : 'Partial Lunar Eclipse 🌘'),
+          'name': lang == 'kn' ? 'ಭಾಗಶಃ ಚಂದ್ರ ಗ್ರಹಣ 🌘' : (lang == 'te' ? 'పాక్షిక చంద్ర గ్రహణం 🌘' : (lang == 'hi' ? 'खंडग्रास चंद्र ग्रहण 🌘' : 'Partial Lunar Eclipse 🌘')),
         };
       }
     } else if (y == 2025) {
@@ -760,35 +785,47 @@ class PanchangaService with ChangeNotifier {
       } else if (isHunnime) {
         fest = (lang == 'kn')
             ? 'ಹುಣ್ಣಿಮೆ (ಪೂರ್ಣಿಮಾ)'
-            : (lang == 'hi' ? 'पूर्णिमा व्रत' : (lang == 'ta' ? 'பௌர்ணமி' : (lang == 'ml' ? 'പൗർണ്ണമി' : 'Hunnime / Purnima')));
+            : (lang == 'te'
+                ? 'పౌర్ణమి (వ్రతం)'
+                : (lang == 'hi' ? 'पूर्णिमा व्रत' : (lang == 'ta' ? 'பௌர்ணமி' : (lang == 'ml' ? 'പൗർണ്ണമി' : 'Hunnime / Purnima'))));
         isAuspicious = true;
       } else if (isAmavasya) {
         fest = (lang == 'kn')
             ? 'ಅಮಾವಾಸ್ಯೆ'
-            : (lang == 'hi' ? 'अमावस्या' : (lang == 'ta' ? 'அமாவாசை' : (lang == 'ml' ? 'അമാവാസി' : 'Amavasya')));
+            : (lang == 'te'
+                ? 'అమావాస్య'
+                : (lang == 'hi' ? 'अमावस्या' : (lang == 'ta' ? 'அமாவாசை' : (lang == 'ml' ? 'അമാവാസി' : 'Amavasya'))));
         isAuspicious = true;
       } else if (isKrishna && tithiNum == 4) {
         fest = (weekday == DateTime.tuesday)
-            ? (lang == 'kn' ? 'ಅಂಗಾರಕಿ ಸಂಕಷ್ಟಿ' : (lang == 'hi' ? 'अंगारकी संकष्टी' : 'Angarki Sankashti'))
-            : (lang == 'kn' ? 'ಸಂಕಷ್ಟಿ ಚತುರ್ಥಿ' : (lang == 'hi' ? 'संकष्टी चतुर्थी' : 'Sankashti'));
+            ? (lang == 'kn'
+                ? 'ಅಂಗಾರಕಿ ಸಂಕಷ್ಟಿ'
+                : (lang == 'te' ? 'అంగారక సంకష్టహర చతుర్థి' : (lang == 'hi' ? 'अंगारकी संकष्टी' : 'Angarki Sankashti')))
+            : (lang == 'kn'
+                ? 'ಸಂಕಷ್ಟಿ ಚತುರ್ಥಿ'
+                : (lang == 'te' ? 'సంకష్టహర చతుర్థి' : (lang == 'hi' ? 'संकष्टी चतुर्थी' : 'Sankashti')));
         isAuspicious = true;
       } else if (tithiNum == 11) {
-        fest = (lang == 'kn') ? 'ಏಕಾದಶಿ ವ್ರತ' : (lang == 'hi' ? 'एकादशी' : 'Ekadashi');
+        fest = (lang == 'kn')
+            ? 'ಏಕಾದಶಿ ವ್ರತ'
+            : (lang == 'te' ? 'ఏకాదశి వ్రతం' : (lang == 'hi' ? 'एकादशी' : 'Ekadashi'));
         isAuspicious = true;
       } else if (tithiNum == 13) {
-        fest = (lang == 'kn') ? 'ಪ್ರದೋಷ ವ್ರತ' : (lang == 'hi' ? 'प्रदोष' : 'Pradosha');
+        fest = (lang == 'kn')
+            ? 'ಪ್ರದೋಷ ವ್ರತ'
+            : (lang == 'te' ? 'ప్రదోష వ్రతం' : (lang == 'hi' ? 'प्रदोष' : 'Pradosha'));
         isAuspicious = true;
       }
 
       final tithiLabel = isHunnime
-          ? (lang == 'kn' ? 'ಹುಣ್ಣಿಮೆ' : (lang == 'hi' ? 'पूर्णिमा' : 'Purnima'))
+          ? (lang == 'kn' ? 'ಹುಣ್ಣಿಮೆ' : (lang == 'te' ? 'పౌర్ణమి' : (lang == 'hi' ? 'पूर्णिमा' : 'Purnima')))
           : (isAmavasya
-              ? (lang == 'kn' ? 'ಅಮಾವಾಸ್ಯೆ' : (lang == 'hi' ? 'अमावस्या' : 'Amavasya'))
+              ? (lang == 'kn' ? 'ಅಮಾವಾಸ್ಯೆ' : (lang == 'te' ? 'అమావాస్య' : (lang == 'hi' ? 'अमावस्या' : 'Amavasya')))
               : _getLocalizedTithi(tithiNum, isKrishna: isKrishna, lang: lang));
 
       final pakshaLabel = isKrishna
-          ? (lang == 'kn' ? 'ಕೃಷ್ಣ' : (lang == 'hi' ? 'कृष्ण' : 'Krishna'))
-          : (lang == 'kn' ? 'ಶುಕ್ಲ' : (lang == 'hi' ? 'शुक्ल' : 'Shukla'));
+          ? (lang == 'kn' ? 'ಕೃಷ್ಣ' : (lang == 'te' ? 'కృష్ణ' : (lang == 'hi' ? 'कृष्ण' : 'Krishna')))
+          : (lang == 'kn' ? 'ಶುಕ್ಲ' : (lang == 'te' ? 'శుక్ల' : (lang == 'hi' ? 'शुक्ल' : 'Shukla')));
 
       days.add(VedicDayInfo(
         day: d,
@@ -844,7 +881,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ ഹനുമാൻ & ഗണപതി',
         'deityEn': 'Lord Hanuman & Ganesha',
         'mantra': 'ಓಂ ಹಂ ಹನುಮತೇ ನಮಃ / ॐ हं हनुमते नमः',
+        'teName': 'మేషం (Mesha)',
+        'rulingPlanetTe': 'కుజుడు (Mars)',
+        'elementTe': 'అగ్ని తత్వం',
+        'luckyColorTe': 'ఎర్ర రంగు',
+        'deityTe': 'శ్రీ సుబ్రహ్మణ్య & ఆంజనేయ',
         'predictionKn': _getDaySpecificPrediction('mesha', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('mesha', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('mesha', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('mesha', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('mesha', weekday, 'ml'),
@@ -878,7 +921,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ മഹാലക്ഷ്മി',
         'deityEn': 'Goddess Mahalakshmi',
         'mantra': 'ಓಂ ಶ್ರೀಂ ಮಹಾಲಕ್ಷ್ಮ್ಯೈ ನಮಃ / ॐ श्रीं महालक्ष्म्यै नमः',
+        'teName': 'వృషభం (Vrishabha)',
+        'rulingPlanetTe': 'శుక్రుడు (Venus)',
+        'elementTe': 'భూమి తత్వం',
+        'luckyColorTe': 'తెలుపు రంగు',
+        'deityTe': 'శ్రీ మహాలక్ష్మి',
         'predictionKn': _getDaySpecificPrediction('vrishabha', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('vrishabha', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('vrishabha', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('vrishabha', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('vrishabha', weekday, 'ml'),
@@ -912,7 +961,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ കൃഷ്ണൻ & വിഷ്ണു',
         'deityEn': 'Lord Krishna & Vishnu',
         'mantra': 'ಓಂ ಕ್ಲೀಂ ಕೃಷ್ಣಾಯ ನಮಃ / ॐ क्लीं कृष्णाय नमः',
+        'teName': 'మిథునం (Mithuna)',
+        'rulingPlanetTe': 'బుధుడు (Mercury)',
+        'elementTe': 'వాయు తత్వం',
+        'luckyColorTe': 'ఆకుపచ్చ',
+        'deityTe': 'శ్రీ విష్ణువు & సరస్వతి',
         'predictionKn': _getDaySpecificPrediction('mithuna', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('mithuna', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('mithuna', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('mithuna', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('mithuna', weekday, 'ml'),
@@ -946,7 +1001,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ പരമേശ്വരൻ',
         'deityEn': 'Lord Shiva (Chandramouleshwara)',
         'mantra': 'ಓಂ ನಮಃ ಶಿವಾಯ / ॐ नमः शिवाय',
+        'teName': 'కర్కాటకం (Karka)',
+        'rulingPlanetTe': 'చంద్రుడు (Moon)',
+        'elementTe': 'జల తత్వం',
+        'luckyColorTe': 'ముత్యపు తెలుపు',
+        'deityTe': 'శ్రీ చంద్రమౌళీశ్వర శివుడు',
         'predictionKn': _getDaySpecificPrediction('karka', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('karka', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('karka', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('karka', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('karka', weekday, 'ml'),
@@ -980,7 +1041,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ സൂര്യ നാരായണൻ',
         'deityEn': 'Lord Surya Narayana',
         'mantra': 'ಓಂ ಘೃಣಿಃ ಸೂರ್ಯಾಯ ನಮಃ / ॐ घृणिः सूर्याय नमः',
+        'teName': 'సింహం (Simha)',
+        'rulingPlanetTe': 'సూర్యుడు (Sun)',
+        'elementTe': 'అగ్ని తత్వం',
+        'luckyColorTe': 'బంగారు వర్ణం',
+        'deityTe': 'శ్రీ సూర్యనారాయణ స్వామి',
         'predictionKn': _getDaySpecificPrediction('simha', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('simha', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('simha', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('simha', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('simha', weekday, 'ml'),
@@ -1014,7 +1081,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ സിദ്ധി വിനായകൻ',
         'deityEn': 'Lord Siddhi Vinayaka',
         'mantra': 'ಓಂ ಗಂ ಗಣಪತಯೇ ನಮಃ / ॐ गं गणपतये नमः',
+        'teName': 'కన్య (Kanya)',
+        'rulingPlanetTe': 'బుధుడు (Mercury)',
+        'elementTe': 'భూమి తత్వం',
+        'luckyColorTe': 'పచ్చ రంగు',
+        'deityTe': 'శ్రీ మహావిష్ణువు',
         'predictionKn': _getDaySpecificPrediction('kanya', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('kanya', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('kanya', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('kanya', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('kanya', weekday, 'ml'),
@@ -1048,7 +1121,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ ലളിതാ ത്രിപുരസുന്ദരി',
         'deityEn': 'Goddess Lalitha Tripura Sundari',
         'mantra': 'ಓಂ ಐಂ ಹ್ರೀಂ ಶ್ರೀಂ ತ್ರಿಪುರಸುಂದರ್ಯೈ ನಮಃ',
+        'teName': 'తుల (Tula)',
+        'rulingPlanetTe': 'శుక్రుడు (Venus)',
+        'elementTe': 'వాయు తత్వం',
+        'luckyColorTe': 'ఆకాశ నీలం',
+        'deityTe': 'శ్రీ అన్నపూర్ణా & మహాలక్ష్మి',
         'predictionKn': _getDaySpecificPrediction('tula', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('tula', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('tula', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('tula', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('tula', weekday, 'ml'),
@@ -1082,7 +1161,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ സുബ്രഹ്മണ്യൻ',
         'deityEn': 'Lord Subramanya / Kartikeya',
         'mantra': 'ಓಂ ಶರವಣಭವಾಯ ನಮಃ / ॐ शरवणभवाय नमः',
+        'teName': 'వృశ్చికం (Vrishchika)',
+        'rulingPlanetTe': 'కుజుడు (Mars)',
+        'elementTe': 'జల తత్వం',
+        'luckyColorTe': 'సిందూర ఎరుపు',
+        'deityTe': 'శ్రీ సుబ్రహ్మణ్యేశ్వర',
         'predictionKn': _getDaySpecificPrediction('vrishchika', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('vrishchika', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('vrishchika', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('vrishchika', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('vrishchika', weekday, 'ml'),
@@ -1116,7 +1201,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ വെങ്കിടേശ്വരൻ',
         'deityEn': 'Lord Venkateshwara',
         'mantra': 'ಓಂ ನಮೋ ನಾರಾಯಣಾಯ / ॐ नमो नारायणाय',
+        'teName': 'ధనుస్సు (Dhanu)',
+        'rulingPlanetTe': 'బృహస్పతి (Jupiter)',
+        'elementTe': 'అగ్ని తత్వం',
+        'luckyColorTe': 'పసుపు వర్ణం',
+        'deityTe': 'శ్రీ దత్తాత్రేయుడు',
         'predictionKn': _getDaySpecificPrediction('dhanu', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('dhanu', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('dhanu', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('dhanu', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('dhanu', weekday, 'ml'),
@@ -1150,7 +1241,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ ശനീശ്വരൻ & ഹനുമാൻ',
         'deityEn': 'Lord Shani & Hanuman',
         'mantra': 'ಓಂ ಶಂ ಶನೈಶ್ಚರಾಯ ನಮಃ / ॐ शं शनैश्चराय नमः',
+        'teName': 'మకరం (Makara)',
+        'rulingPlanetTe': 'శనీశ్వరుడు (Saturn)',
+        'elementTe': 'భూమి తత్వం',
+        'luckyColorTe': 'నీలి వర్ణం',
+        'deityTe': 'శ్రీ వేంకటేశ్వర స్వామి',
         'predictionKn': _getDaySpecificPrediction('makara', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('makara', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('makara', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('makara', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('makara', weekday, 'ml'),
@@ -1184,7 +1281,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ രുദ്രൻ',
         'deityEn': 'Lord Rudra Shiva',
         'mantra': 'ಓಂ ಜುಂ ಸಃ ರುದ್ರಾಯ ನಮಃ / ॐ जुं सः रुद्राय नमः',
+        'teName': 'కుంభం (Kumbha)',
+        'rulingPlanetTe': 'శనీశ్వరుడు (Saturn)',
+        'elementTe': 'వాయు తత్వం',
+        'luckyColorTe': 'గాఢ నీలం',
+        'deityTe': 'శ్రీ రుద్ర దేవుడు',
         'predictionKn': _getDaySpecificPrediction('kumbha', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('kumbha', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('kumbha', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('kumbha', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('kumbha', weekday, 'ml'),
@@ -1218,7 +1321,13 @@ class PanchangaService with ChangeNotifier {
         'deityMl': 'ശ്രീ ഗുരു രാഘവേന്ദ്രൻ',
         'deityEn': 'Sri Guru Raghavendra & Dattatreya',
         'mantra': 'ಓಂ ಶ್ರೀ ರಾಘವೇಂದ್ರಾಯ ನಮಃ / ॐ श्री गुरुभ्यो नमः',
+        'teName': 'మీనం (Meena)',
+        'rulingPlanetTe': 'బృహస్పతి (Jupiter)',
+        'elementTe': 'జల తత్వం',
+        'luckyColorTe': 'బంగారు పసుపు',
+        'deityTe': 'శ్రీ రాఘవేంద్ర స్వామి',
         'predictionKn': _getDaySpecificPrediction('meena', weekday, 'kn'),
+        'predictionTe': _getDaySpecificPrediction('meena', weekday, 'te'),
         'predictionHi': _getDaySpecificPrediction('meena', weekday, 'hi'),
         'predictionTa': _getDaySpecificPrediction('meena', weekday, 'ta'),
         'predictionMl': _getDaySpecificPrediction('meena', weekday, 'ml'),
@@ -1243,6 +1352,13 @@ class PanchangaService with ChangeNotifier {
         prediction = data['predictionKn'];
         luckyColor = data['luckyColorKn'];
         deity = data['deityKn'];
+      } else if (lang == 'te') {
+        name = data['teName'] ?? data['enName'];
+        planet = data['rulingPlanetTe'] ?? data['rulingPlanetEn'];
+        element = data['elementTe'] ?? data['elementEn'];
+        prediction = data['predictionTe'] ?? data['predictionEn'];
+        luckyColor = data['luckyColorTe'] ?? data['luckyColorEn'];
+        deity = data['deityTe'] ?? data['deityEn'];
       } else if (lang == 'hi') {
         name = data['hiName'];
         planet = data['rulingPlanetHi'];
@@ -1408,6 +1524,121 @@ class PanchangaService with ChangeNotifier {
             case 'makara': return 'ಭಾನುವಾರ: ಶ್ರಮ ಸಾರ್ಥಕವಾಗುತ್ತದೆ. ಸೂರ್ಯ ನಾರಾಯಣ ದೇವರಿಗೆ ನಮಸ್ಕರಿಸಿ.';
             case 'kumbha': return 'ಭಾನುವಾರ: ಶಾಂತಿ ಹಾಗೂ ಶುಭಫಲ. ಸೂರ್ಯ ಅಷ್ಟಕಂ ಪಠಿಸಿ.';
             case 'meena': return 'ಭಾನುವಾರ: ಆಧ್ಯಾತ್ಮಿಕ ಸಂತೃಪ್ತಿ. ನಾರಾಯಣ ಕವಚ ಪಠಣದಿಂದ ರಕ್ಷಣೆ.';
+          }
+      }
+    } else if (lang == 'te') {
+      switch (weekday) {
+        case DateTime.monday:
+          switch (rashiId) {
+            case 'mesha': return 'సోమవారం: ఆత్మవిశ్వాసం పెరుగుతుంది. శివునికి జలాభిషేకం చేయడం వల్ల ఆటంకాలు తొలగిపోతాయి.';
+            case 'vrishabha': return 'సోమవారం: కుటుంబంలో సామరస్యం మరియు ధనాగమనం. చంద్ర ధ్యానంతో మనస్సుకు ప్రశాంతత లభిస్తుంది.';
+            case 'mithuna': return 'సోమవారం: సృజనాత్మక పనులలో ప్రగతి. శివ పంచాక్షరీ జపంతో మానసిక స్పష్టత కలుగుతుంది.';
+            case 'karka': return 'సోమవారం: రాశ్యాధిపతి చంద్రుని దినం! భక్తిభావం, దైవానుగ్రహం పుష్కలంగా ఉంటాయి. శివార్చన శుభప్రదం.';
+            case 'simha': return 'సోమవారం: కార్యరంగంలో గౌరవం. తల్లి ఆశీస్సులు తీసుకోండి, సంకల్పం సిద్ధిస్తుంది.';
+            case 'kanya': return 'సోమవారం: నూతన పథకాలకు శ్రీకారం. తెల్లటి పుష్పాలతో శివపూజ చేయడం అత్యంత మంగళకరం.';
+            case 'tula': return 'సోమవారం: శుభవార్తలు వింటారు. కళాత్మక మరియు ఆధ్యాత్మిక కార్యక్రమాలకు అనుకూలమైన రోజు.';
+            case 'vrishchika': return 'సోమవారం: ధైర్యంతో పనులను పూర్తి చేస్తారు. రుద్రాష్టకం పఠనంతో శత్రుభయం దూరం.';
+            case 'dhanu': return 'సోమవారం: గురుకృపతో జ్ఞానాభివృద్ధి. పెద్దల ఆశీర్వాదంతో రోజును ప్రారంభించండి.';
+            case 'makara': return 'సోమవారం: శ్రమకు తగిన ఫలితం లభిస్తుంది. శివాలయ దర్శనం, క్షీరాభిషేకం శుభం.';
+            case 'kumbha': return 'సోమవారం: సమాజ సేవ, దైవకార్యాలపై ఆసక్తి. మానసిక ప్రశాంతత పెరుగుతుంది.';
+            case 'meena': return 'సోమవారం: ఆధ్యాత్మిక ఆలోచనలు ఫలిస్తాయి. శివలింగ దర్శనంతో పుణ్యప్రాప్తి.';
+          }
+          break;
+        case DateTime.tuesday:
+          switch (rashiId) {
+            case 'mesha': return 'మంగళవారం: రాశ్యాధిపతి కుజుని దినం! అపార శక్తి, ఉత్సాహం. హనుమాన్ చాలీసా పఠనంతో విజయం.';
+            case 'vrishabha': return 'మంగళవారం: ఆతురత వద్దు, ఓపికతో పనిచేయండి. గణపతికి గరిక సమర్పించండి.';
+            case 'mithuna': return 'మంగళవారం: సంభాషణలో సంయమనం పాటించండి. సుబ్రహ్మణ్య స్వామి ప్రార్థనతో జయం.';
+            case 'karka': return 'మంగళవారం: ఆధ్యాత్మిక కార్యాలకు ధనవ్యయం. ఆంజనేయస్వామికి ఎర్రని పుష్పాలు సమర్పించండి.';
+            case 'simha': return 'మంగళవారం: పరాక్రమం, నాయకత్వ గుణాలు ప్రకాశిస్తాయి. దుర్గా స్తుతి పఠించడం శ్రేయస్కరం.';
+            case 'kanya': return 'మంగళవారం: కీలక నిర్ణయాలలో పెద్దల సలహాలు తీసుకోండి. సుబ్రహ్మణ్యాష్టకం చదవండి.';
+            case 'tula': return 'మంగళవారం: ఆర్థిక వ్యవహారాల్లో అప్రమత్తత అవసరం. లక్ష్మీ నరసింహ స్తోత్రం చదవండి.';
+            case 'vrishchika': return 'మంగళవారం: రాశ్యాధిపతి కుజుని దినం! శత్రువులపై విజయం. హనుమాన్ దండకం పఠించండి.';
+            case 'dhanu': return 'మంగళవారం: ఆత్మబలం, సంకల్ప శుద్ధి పెరుగుతాయి. రామనామ జపంతో మనశ్శాంతి.';
+            case 'makara': return 'మంగళవారం: స్థిరాస్తి, భూసంబంధ వ్యవహారాలలో ప్రగతి. ఆంజనేయ స్వామి సిందూర పూజ శుభం.';
+            case 'kumbha': return 'మంగళవారం: స్నేహితుల సహకారం లభిస్తుంది. సుబ్రహ్మణ్యేశ్వర స్వామి దర్శనం శ్రేష్టం.';
+            case 'meena': return 'మంగళవారం: దైవచింతనతో రోజును ప్రారంభించండి. హనుమంతునికి తమలపాకుల మాల సమర్పించండి.';
+          }
+          break;
+        case DateTime.wednesday:
+          switch (rashiId) {
+            case 'mesha': return 'బుధవారం: వ్యాపార, వాణిజ్యాలలో లాభాలు. విష్ణు సహస్రనామ పారాయణం అత్యంత శుభకరం.';
+            case 'vrishabha': return 'బుధవారం: మిత్రుల కలయిక, శుభకార్య చర్చలు. శ్రీకృష్ణునికి తులసీదళాలు సమర్పించండి.';
+            case 'mithuna': return 'బుధవారం: రాశ్యాధిపతి బుధుని దినం! వాక్చాతుర్యం, విద్యారంగంలో అద్భుత విజయాలు.';
+            case 'karka': return 'బుధవారం: మానసిక ఉల్లాసం, కుటుంబ సౌఖ్యం. నారాయణ కవచం పఠించండి.';
+            case 'simha': return 'బుధవారం: ఆర్థిక ప్రణాళికలు సఫలమవుతాయి. గణపతి అథర్వశీర్ష పఠనం శుభప్రదం.';
+            case 'kanya': return 'బుధవారం: రాశ్యాధిపతి బుధుని దినం! మేధోశక్తి, ఆలోచనలలో స్పష్టత. విష్ణు అష్టోత్తరం చదవండి.';
+            case 'tula': return 'బుధవారం: ప్రయాణాలు అనుకూలిస్తాయి. సరస్వతీ దేవిని ఆరాధించండి.';
+            case 'vrishchika': return 'బుధవారం: శ్రమతో కూడిన పనులు విజయవంతమవుతాయి. లక్ష్మీ నారాయణ హృదయం పఠించండి.';
+            case 'dhanu': return 'బుధవారం: విద్యా, ఉద్యోగాలలో నూతన అవకాశాలు. హయగ్రీవ స్తోత్రం పఠించండి.';
+            case 'makara': return 'బుధవారం: దూరపు బంధువుల నుండి శుభవార్తలు. విష్ణు పూజతో సంపూర్ణ రక్ష.';
+            case 'kumbha': return 'బుధవారం: పరిశోధన, కళారంగాలలో రాణింపు. శ్రీకృష్ణునికి వెన్న నైవేద్యం పెట్టండి.';
+            case 'meena': return 'బుధవారం: ధార్మిక యాత్రలు, సత్సంగాలలో పాల్గొంటారు. పురుష సూక్తం చదవండి.';
+          }
+          break;
+        case DateTime.thursday:
+          switch (rashiId) {
+            case 'mesha': return 'గురువారం: దైవానుగ్రహంతో పనులన్నీ సులువవుతాయి. శ్రీ దత్తాత్రేయ స్తోత్రం చదవండి.';
+            case 'vrishabha': return 'గురువారం: గౌరవ మర్యాదలు, ధనలాభం. రాఘవేంద్ర స్వామి అష్టాక్షర మంత్రం జపించండి.';
+            case 'mithuna': return 'గురువారం: ఆధ్యాత్మిక సాధనలో పురోగతి. గురు పాదుకా స్తోత్రం పఠించండి.';
+            case 'karka': return 'గురువారం: మనశ్శాంతి, కుటుంబంలో ఆనందం. సాయిబాబా లేదా రాఘవేంద్రుల దర్శనం శుభం.';
+            case 'simha': return 'గురువారం: ఉన్నతాధికారుల మన్ననలు పొందుతారు. దక్షిణామూర్తి స్తోత్రం చదవండి.';
+            case 'kanya': return 'గురువారం: ఆర్థిక విషయాలలో జాగ్రత్తగా నిర్ణయాలు తీసుకోండి. విష్ణు సహస్రనామం పారాయణం చేయండి.';
+            case 'tula': return 'గురువారం: గృహంలో శుభకార్యాలు జరిగే సూచన. గురు కృపతో సకల కార్యసిద్ధి.';
+            case 'vrishchika': return 'గురువారం: ఆత్మపరిశీలన, ధ్యానానికి అనుకూల సమయం. శివ గురు స్తుతి చదవండి.';
+            case 'dhanu': return 'గురువారం: రాశ్యాధిపతి బృహస్పతి దినం! అదృష్టం, విద్య, విజ్ఞానాభివృద్ధి. దత్తాత్రేయ పూజ శ్రేష్టం.';
+            case 'makara': return 'గురువారం: స్థిరమైన పురోగతి. బ్రాహ్మణులకు లేదా గురువులకు సేవ చేయడం పుణ్యప్రదం.';
+            case 'kumbha': return 'గురువారం: సద్గురువుల ఆశీస్సులు లభిస్తాయి. పసుపు రంగు పుష్పాలతో విష్ణు పూజ చేయండి.';
+            case 'meena': return 'గురువారం: రాశ్యాధిపతి బృహస్పతి దినం! దివ్య జ్ఞానం, ధార్మిక చింతన. గురు చరిత్రా పారాయణం శుభం.';
+          }
+          break;
+        case DateTime.friday:
+          switch (rashiId) {
+            case 'mesha': return 'శుక్రవారం: లక్ష్మీదేవి అనుగ్రహంతో ఐశ్వర్య ప్రాప్తి. కనకధారా స్తోత్రం పఠించండి.';
+            case 'vrishabha': return 'శుక్రవారం: రాశ్యాధిపతి శుక్రుని దినం! శోభాయమానమైన రోజు. శ్రీ సూక్తం పఠించండి.';
+            case 'mithuna': return 'శుక్రవారం: ఆనందం, కళారంగాలలో ఆసక్తి. మహాలక్ష్మీ అష్టకం చదవండి.';
+            case 'karka': return 'శుక్రవారం: గృహంలో సుఖశాంతులు. లలితా సహస్రనామ స్తోత్ర పఠనం అమిత శుభకరం.';
+            case 'simha': return 'శుక్రవారం: ఆభరణాలు, వస్త్ర ప్రాప్తి. దుర్గా సప్తశతీ శ్లోకాలు పఠించండి.';
+            case 'kanya': return 'శుక్రవారం: వ్యాపార విస్తరణ, స్నేహ సంబంధాలు బలపడతాయి. అష్టలక్ష్మీ స్తోత్రం చదవండి.';
+            case 'tula': return 'శుక్రవారం: రాశ్యాధిపతి శుక్రుని దినం! సంపూర్ణ సౌభాగ్యం. లక్ష్మీ పూజతో ధనవర్షం.';
+            case 'vrishchika': return 'శుక్రవారం: ఆధ్యాత్మిక అనుభూతులు. గౌరీ దేవికి కుంకుమార్చన చేయండి.';
+            case 'dhanu': return 'శుక్రవారం: శుభకార్యాలకు శ్రీకారం. అన్నపూర్ణా స్తోత్రం పఠించండి.';
+            case 'makara': return 'శుక్రవారం: శాంతి, సంతోషాలు. లక్ష్మీ నారాయణుల సేవతో అదృష్టం.';
+            case 'kumbha': return 'శుక్రవారం: నూతన మిత్రుల పరిచయం. దుర్గా చాలీసా లేదా స్తోత్రం చదవండి.';
+            case 'meena': return 'శుక్రవారం: భక్తిభావం, దానగుణం పెరుగుతాయి. కామాక్షీ లేదా మీనాక్షీ దేవి స్తుతి చదవండి.';
+          }
+          break;
+        case DateTime.saturday:
+          switch (rashiId) {
+            case 'mesha': return 'శనివారం: ఆంజనేయస్వామి ఆరాధనతో శని దోషాలు తొలగిపోతాయి. హనుమాన్ చాలీసా చదవండి.';
+            case 'vrishabha': return 'శనివారం: ఓపిక, క్రమశిక్షణతో విజయం. వేంకటేశ్వర సుప్రభాతం వినండి.';
+            case 'mithuna': return 'శనివారం: శ్రమకు తగిన గుర్తింపు లభిస్తుంది. శని గాయత్రీ మంత్రం జపించండి.';
+            case 'karka': return 'శనివారం: అనవసర ఆందోళనలు వీడండి. శివాభిషేకం, తైలాభిషేకం శుభకరం.';
+            case 'simha': return 'శనివారం: ధర్మబద్ధమైన జీవనంతో సకల విజయాలు. శని చాలీసా పఠించండి.';
+            case 'kanya': return 'శనివారం: పనులలో ఏకాగ్రత పాటించండి. హనుమంతునికి ఆకుపూజ శ్రేష్టం.';
+            case 'tula': return 'శనివారం: వృత్తి ఉద్యోగాలలో స్థిరత్వం. ఆంజనేయస్వామికి సిందూర పూజ చేయండి.';
+            case 'vrishchika': return 'శనివారం: ఆత్మస్థైర్యంతో సమస్యలను అధిగమిస్తారు. హనుమాన్ కవచం పఠించండి.';
+            case 'dhanu': return 'శనివారం: వేంకటేశ్వర స్వామి ధ్యానంతో దుఃఖాలు నివారణవుతాయి. అన్నదానం చేయండి.';
+            case 'makara': return 'శనివారం: రాశ్యాధిపతి శని దినం! న్యాయం, ధర్మం రక్షిస్తాయి. శని వజ్ర పంజర కవచం చదవండి.';
+            case 'kumbha': return 'శనివారం: రాశ్యాధిపతి శని దినం! నిస్వార్థ సేవతో దైవానుగ్రహం. రుద్రాభిషేకం శుభం.';
+            case 'meena': return 'శనివారం: వినయపూర్వక సేవతో కష్టాలు దూరం. నవగ్రహ ప్రదక్షిణ చేయండి.';
+          }
+          break;
+        case DateTime.sunday:
+        default:
+          switch (rashiId) {
+            case 'mesha': return 'ఆదివారం: సూర్యనారాయణుని తేజస్సుతో ఆరోగ్యం, విజయం. ఆదిత్య హృదయ స్తోత్రం పఠించండి.';
+            case 'vrishabha': return 'ఆదివారం: సంపూర్ణ ఆరోగ్యం, కీర్తి ప్రతిష్టలు. సూర్య భగవానునికి అర్ఘ్యం సమర్పించండి.';
+            case 'mithuna': return 'ఆదివారం: స్పష్టమైన నిర్ణయాలతో పురోగతి. గాయత్రీ మహామంత్రం జపించండి.';
+            case 'karka': return 'ఆదివారం: ప్రశాంతమైన ఆలోచనలు. శివ, సూర్య ఆరాధనతో అంతరంగ శాంతి.';
+            case 'simha': return 'ఆదివారం: రాశ్యాధిపతి సూర్యుని దినం! తేజస్సు, నాయకత్వం ప్రకాశిస్తాయి. ఆదిత్య హృదయం చదవండి.';
+            case 'kanya': return 'ఆదివారం: నవోత్సాహం, చురుకుదనం. సూర్య నమస్కారాలు చేయడం అత్యంత శ్రేష్టం.';
+            case 'tula': return 'ఆదివారం: సమాజంలో గౌరవ ప్రతిష్టలు. తండ్రి ఆశీస్సులు తీసుకోండి.';
+            case 'vrishchika': return 'ఆదివారం: అపార ధైర్యం, శక్తి. సూర్య బీజ మంత్రం జపించండి.';
+            case 'dhanu': return 'ఆదివారం: పుణ్యక్షేత్ర దర్శనం, సత్సంకల్పాలు. విష్ణు సహస్రనామం వినండి.';
+            case 'makara': return 'ఆదివారం: కృషికి తగ్గ ప్రశంసలు. ఉదయపు సూర్య నమస్కారంతో రోజంతా ఉత్తేజం.';
+            case 'kumbha': return 'ఆదివారం: గృహంలో ప్రశాంతత. సూర్యాష్టకం పఠించడం వల్ల దోషాలు నివారణ.';
+            case 'meena': return 'ఆదివారం: ఆత్మసంతృప్తి, దైవకృప. నారాయణ కవచం పఠించండి.';
           }
       }
     } else if (lang == 'hi') {
@@ -1881,36 +2112,42 @@ class PanchangaService with ChangeNotifier {
     switch (weekday) {
       case DateTime.monday:
         if (lang == 'kn') return 'ಸೋಮವಾರ';
+        if (lang == 'te') return 'సోమవారం';
         if (lang == 'hi') return 'सोमवार';
         if (lang == 'ta') return 'திங்கட்கிழமை';
         if (lang == 'ml') return 'തിങ്കളാഴ്ച';
         return 'Monday (Somavara)';
       case DateTime.tuesday:
         if (lang == 'kn') return 'ಮಂಗಳವಾರ (ಅಂಗಾರಕ)';
+        if (lang == 'te') return 'మంగళవారం (అంగారకుడు)';
         if (lang == 'hi') return 'मंगलवार (अंगारक)';
         if (lang == 'ta') return 'செவ்வாய்க்கிழமை';
         if (lang == 'ml') return 'ചൊവ്വാഴ്ച';
         return 'Tuesday (Mangalavara)';
       case DateTime.wednesday:
         if (lang == 'kn') return 'ಬುಧವಾರ';
+        if (lang == 'te') return 'బుధవారం';
         if (lang == 'hi') return 'बुधवार';
         if (lang == 'ta') return 'புதன்கிழமை';
         if (lang == 'ml') return 'ബുധനാഴ്ച';
         return 'Wednesday (Budhavara)';
       case DateTime.thursday:
         if (lang == 'kn') return 'ಗುರುವಾರ';
+        if (lang == 'te') return 'గురువారం';
         if (lang == 'hi') return 'गुरुवार';
         if (lang == 'ta') return 'வியாழக்கிழமை';
         if (lang == 'ml') return 'വ്യാഴാഴ്ച';
         return 'Thursday (Guruvara)';
       case DateTime.friday:
         if (lang == 'kn') return 'ಶುಕ್ರವಾರ';
+        if (lang == 'te') return 'శుక్రవారం';
         if (lang == 'hi') return 'शुक्रवार';
         if (lang == 'ta') return 'வெள்ளிக்கிழமை';
         if (lang == 'ml') return 'വെള്ളിയാഴ്ച';
         return 'Friday (Shukravara)';
       case DateTime.saturday:
         if (lang == 'kn') return 'ಶನಿವಾರ';
+        if (lang == 'te') return 'శనివారం';
         if (lang == 'hi') return 'शनिवार';
         if (lang == 'ta') return 'சனிக்கிழமை';
         if (lang == 'ml') return 'ശനിയാഴ്ച';
@@ -1918,6 +2155,7 @@ class PanchangaService with ChangeNotifier {
       case DateTime.sunday:
       default:
         if (lang == 'kn') return 'ಭಾನುವಾರ (ಆದಿತ್ಯವಾರ)';
+        if (lang == 'te') return 'ఆదివారం (భానువారం)';
         if (lang == 'hi') return 'रविवार (भानुवार)';
         if (lang == 'ta') return 'ஞாயிற்றுக்கிழமை';
         if (lang == 'ml') return 'ഞായറാഴ്ച';
@@ -1933,6 +2171,12 @@ class PanchangaService with ChangeNotifier {
       isKrishna ? 'ಅಮಾವಾಸ್ಯೆ' : 'ಹುಣ್ಣಿಮೆ'
     ];
 
+    final tithiNamesTe = [
+      'పాడ్యమి', 'విదియ', 'తదియ', 'చవితి', 'పంచమి',
+      'షష్ఠి', 'సప్తమి', 'అష్టమి', 'నవమి', 'దశమి',
+      'ఏకాదశి', 'ద్వాదశి', 'త్రయోదశి', 'చతుర్దశి',
+      isKrishna ? 'అమావాస్య' : 'పౌర్ణమి'
+    ];
     final tithiNamesHi = [
       'प्रतिपदा', 'द्वितीया', 'तृतीया', 'चतुर्थी', 'पंचमी',
       'षष्ठी', 'सप्तमी', 'अष्टमी', 'नवमी', 'दशमी',
@@ -1964,6 +2208,7 @@ class PanchangaService with ChangeNotifier {
     final idx = (tithiNum - 1).clamp(0, 14);
 
     if (lang == 'kn') return '${tithiNamesKn[idx]} (ತಿಥಿ)';
+    if (lang == 'te') return '${tithiNamesTe[idx]} (తిథి)';
     if (lang == 'hi') return '${tithiNamesHi[idx]} (तिथि)';
     if (lang == 'ta') return '${tithiNamesTa[idx]} (திதி)';
     if (lang == 'ml') return '${tithiNamesMl[idx]} (തിഥി)';
@@ -1973,12 +2218,14 @@ class PanchangaService with ChangeNotifier {
   String _getLocalizedPaksha({required bool isKrishna, required String lang}) {
     if (isKrishna) {
       if (lang == 'kn') return 'ಕೃಷ್ಣ ಪಕ್ಷ';
+      if (lang == 'te') return 'కృష్ణ పక్షం';
       if (lang == 'hi') return 'कृष्ण पक्ष';
       if (lang == 'ta') return 'தேய்பிறை (கிருஷ்ண பக்ஷம்)';
       if (lang == 'ml') return 'കൃഷ്ണ പക്ഷം';
       return 'Krishna Paksha (Waning)';
     }
     if (lang == 'kn') return 'ಶುಕ್ಲ ಪಕ್ಷ';
+    if (lang == 'te') return 'శుక్ల పక్షం';
     if (lang == 'hi') return 'शुक्ल पक्ष';
     if (lang == 'ta') return 'வளர்பிறை (சுக்ல பக்ஷம்)';
     if (lang == 'ml') return 'ശുക്ല പക്ഷം';
@@ -1994,6 +2241,13 @@ class PanchangaService with ChangeNotifier {
       'ಶತಭಿಷಾ', 'ಪೂರ್ವಾಭಾದ್ರಪದ', 'ಉತ್ತರಾಭಾದ್ರಪದ', 'ರೇವತಿ'
     ];
 
+    final nakshatrasTe = [
+      'అశ్విని', 'భరణి', 'కృత్తిక', 'రోహిణి', 'మృగశిర', 'ఆరుద్ర',
+      'పునర్వసు', 'పుష్యమి', 'ఆశ్లేష', 'మఖ', 'పుబ్బ (పూర్వఫల్గుణి)', 'ఉత్తర (ఉత్తరఫల్గుణి)',
+      'హస్త', 'చిత్త', 'స్వాతి', 'విశాఖ', 'అనూరాధ', 'జ్యేష్ఠ',
+      'మూల', 'పూర్వాషాఢ', 'ఉత్తరాషాఢ', 'శ్రవణం', 'ధనిష్ఠ',
+      'శతభిషం', 'పూర్వాభాద్ర', 'ఉత్తరాభాద్ర', 'రేవతి'
+    ];
     final nakshatrasHi = [
       'अश्विनी', 'भरणी', 'कृत्तिका', 'रोहिणी', 'मृगशिरा', 'आर्द्रा',
       'पुनर्वसु', 'पुष्य', 'आश्लेषा', 'मघा', 'पूर्वा फाल्गुनी', 'उत्तरा फाल्गुनी',
@@ -2028,6 +2282,7 @@ class PanchangaService with ChangeNotifier {
 
     final safeIdx = idx.clamp(0, 26);
     if (lang == 'kn') return '${nakshatrasKn[safeIdx]} ನಕ್ಷತ್ರ';
+    if (lang == 'te') return '${nakshatrasTe[safeIdx]} నక్షత్రం';
     if (lang == 'hi') return '${nakshatrasHi[safeIdx]} नक्षत्र';
     if (lang == 'ta') return '${nakshatrasTa[safeIdx]} நட்சத்திரம்';
     if (lang == 'ml') return '${nakshatrasMl[safeIdx]} നക്ഷത്രം';
@@ -2043,6 +2298,13 @@ class PanchangaService with ChangeNotifier {
       'ಬ್ರಹ್ಮ', 'ಐಂದ್ರ', 'ವೈಧೃತಿ'
     ];
 
+    final yogasTe = [
+      'విష్కంభ', 'ప్రీతి', 'ఆయుష్మాన్', 'సౌభాగ్య', 'శోభన', 'అతిగండ',
+      'సుకర్మ', 'ధృతి', 'శూల', 'గండ', 'వృద్ధి', 'ధ్రువ',
+      'వ్యాఘాత', 'హర్షణ', 'వజ్ర', 'సిద్ధి', 'వ్యతీపాత', 'వరీయాన్',
+      'పరిఘ', 'శివ', 'సిద్ధ', 'సాధ్య', 'శుభ', 'శుక్ల',
+      'బ్రహ్మ', 'ఐంద్ర', 'వైధృతి'
+    ];
     final yogasHi = [
       'विष्कुम्भ', 'प्रीति', 'आयुष्मान', 'सौभाग्य', 'शोभन', 'अतिगण्ड',
       'सुकर्मा', 'धृति', 'शूल', 'गण्ड', 'वृद्धि', 'ध्रुव',
@@ -2061,6 +2323,7 @@ class PanchangaService with ChangeNotifier {
 
     final safeIdx = idx.clamp(0, 26);
     if (lang == 'kn') return '${yogasKn[safeIdx]} ಯೋಗ';
+    if (lang == 'te') return '${yogasTe[safeIdx]} యోగం';
     if (lang == 'hi') return '${yogasHi[safeIdx]} योग';
     if (lang == 'ta') return '${yogasEn[safeIdx]} யோகம்';
     if (lang == 'ml') return '${yogasEn[safeIdx]} യോഗം';
@@ -2073,6 +2336,10 @@ class PanchangaService with ChangeNotifier {
       'ಶಕುನಿ', 'ಚತುಷ್ಪಾದ', 'ನಾಗ', 'ಕಿಂಸ್ತುಘ್ನ'
     ];
 
+    final karanaNamesTe = [
+      'బవ', 'బాలవ', 'కౌలవ', 'తైతిల', 'గరజి', 'వణిజ', 'భద్ర (విష్టి)',
+      'శకుని', 'చతుష్పాత్', 'నాగవంతి', 'కింస్తుఘ్న'
+    ];
     final karanaNamesHi = [
       'बव', 'बालव', 'कौलव', 'तैतिल', 'गरज', 'वणिज', 'भद्रा (विष्टि)',
       'शकुनि', 'चतुष्पाद', 'नाग', 'किंस्तुघ्न'
@@ -2094,6 +2361,7 @@ class PanchangaService with ChangeNotifier {
 
     final safeIdx = karanaIdx.clamp(0, 10);
     if (lang == 'kn') return '${karanaNamesKn[safeIdx]} ಕರಣ';
+    if (lang == 'te') return '${karanaNamesTe[safeIdx]} కరణం';
     if (lang == 'hi') return '${karanaNamesHi[safeIdx]} करण';
     if (lang == 'ta') return '${karanaNamesEn[safeIdx]} கரணம்';
     if (lang == 'ml') return '${karanaNamesEn[safeIdx]} കരണം';
@@ -2103,6 +2371,7 @@ class PanchangaService with ChangeNotifier {
   String _getLocalizedDeity(int weekday, bool isSankashti, bool isEkadashi, bool isPradosha, {required String lang}) {
     if (isSankashti) {
       if (lang == 'kn') return 'ಶ್ರೀ ಮಹಾಗಣಪತಿ 🌺 – ಸಂಕಷ್ಟಿ ವ್ರತ';
+      if (lang == 'te') return 'శ్రీ మహాగణపతి 🌺 – సంకష్టహర చతుర్థి వ్రతం';
       if (lang == 'hi') return 'श्री महागणपति 🌺 – संकष्टी व्रत';
       if (lang == 'ta') return 'ஸ்ரீ விநாயகர் 🌺 – சங்கடஹர சதுர்த்தி';
       if (lang == 'ml') return 'ശ്രീ മഹാഗണപതി 🌺 – സങ്കഷ്ടി';
@@ -2110,6 +2379,7 @@ class PanchangaService with ChangeNotifier {
     }
     if (isEkadashi) {
       if (lang == 'kn') return 'ಶ್ರೀ ಮಹಾವಿಷ್ಣು 🪷 – ಏಕಾದಶಿ ವ್ರತ';
+      if (lang == 'te') return 'శ్రీ మహావిష్ణువు 🪷 – ఏకాదశి వ్రతం';
       if (lang == 'hi') return 'भगवान विष्णु 🪷 – एकादशी व्रत';
       if (lang == 'ta') return 'ஸ்ரீ மகாவிஷ்ணு 🪷 – ஏகாதசி';
       if (lang == 'ml') return 'ശ്രീ മഹാവിഷ്ണു 🪷 – ഏകാദശി';
@@ -2117,6 +2387,7 @@ class PanchangaService with ChangeNotifier {
     }
     if (isPradosha) {
       if (lang == 'kn') return 'ಶ್ರೀ ಪರಮೇಶ್ವರ 🔱 – ಪ್ರದೋಷ ವ್ರತ';
+      if (lang == 'te') return 'శ్రీ పరమేశ్వరుడు 🔱 – ప్రదోష వ్రతం';
       if (lang == 'hi') return 'भगवान शिव 🔱 – प्रदोष व्रत';
       if (lang == 'ta') return 'ஸ்ரீ சிவபெருமான் 🔱 – பிரதோஷம்';
       if (lang == 'ml') return 'ശ്രീ പരമേശ്വരൻ 🔱 – പ്രദോഷം';
@@ -2126,36 +2397,42 @@ class PanchangaService with ChangeNotifier {
     switch (weekday) {
       case DateTime.monday:
         if (lang == 'kn') return 'ಶ್ರೀ ಪರಮೇಶ್ವರ 🔱 – ಸೋಮವಾರ ವ್ರತ';
+        if (lang == 'te') return 'శ్రీ పరమేశ్వరుడు 🔱 – సోమవారం వ్రతం';
         if (lang == 'hi') return 'भगवान शिव 🔱 – सोमवार व्रत';
         if (lang == 'ta') return 'ஸ்ரீ சிவபெருமான் 🔱 – திங்கட்கிழமை';
         if (lang == 'ml') return 'ശ്രീ പരമേശ്വരൻ 🔱 – സോമവാരം';
         return 'Lord Shiva 🔱 – Somavara Vrata';
       case DateTime.tuesday:
         if (lang == 'kn') return 'ಶ್ರೀ ಹನುಮಾನ್ ಮತ್ತು ಗಣೇಶ 🌺 – ಮಂಗಳವಾರ';
+        if (lang == 'te') return 'శ్రీ హనుమాన్ & గణపతి 🌺 – మంగళవారం';
         if (lang == 'hi') return 'भगवान हनुमान व गणेश 🌺 – मंगलवार';
         if (lang == 'ta') return 'ஸ்ரீ அனுமன் & விநாயகர் 🌺 – செவ்வாய்';
         if (lang == 'ml') return 'ശ്രീ ഹനുമാൻ & ഗണപതി 🌺 – ചൊവ്വാഴ്ച';
         return 'Lord Hanuman & Ganesha 🌺 – Mangalavara';
       case DateTime.wednesday:
         if (lang == 'kn') return 'ಶ್ರೀ ಕೃಷ್ಣ ಮತ್ತು ವಿಟ್ಠಲ 🦚 – ಬುಧವಾರ';
+        if (lang == 'te') return 'శ్రీ కృష్ణ & విఠల 🦚 – బుధవారం';
         if (lang == 'hi') return 'भगवान कृष्ण व विट्ठल 🦚 – बुधवार';
         if (lang == 'ta') return 'ஸ்ரீ கிருஷ்ணர் & விட்டலர் 🦚 – புதன்';
         if (lang == 'ml') return 'ശ്രീ കൃഷ്ണൻ & വിഠലൻ 🦚 – ബുധനാഴ്ച';
         return 'Lord Krishna & Vitthala 🦚 – Budhavara';
       case DateTime.thursday:
         if (lang == 'kn') return 'ಶ್ರೀ ಗುರು ರಾಯರು ಮತ್ತು ವಿಷ್ಣು 🪷 – ಗುರುವಾರ';
+        if (lang == 'te') return 'శ్రీ గురు & మహావిష్ణువు 🪷 – గురువారం';
         if (lang == 'hi') return 'श्री गुरु व भगवान विष्णु 🪷 – गुरुवार';
         if (lang == 'ta') return 'ஸ்ரீ குரு ராகவேந்திரர் & விஷ்ணு 🪷 – வியாழன்';
         if (lang == 'ml') return 'ശ്രീ ഗുരു & മഹാവിഷ്ണു 🪷 – വ്യാഴാഴ്ച';
         return 'Lord Vishnu & Sri Guru 🪷 – Guruvara';
       case DateTime.friday:
         if (lang == 'kn') return 'ಶ್ರೀ ಮಹಾಲಕ್ಷ್ಮೀ ಮತ್ತು ಲಲಿತಾದೇವಿ ✨ – ಶುಕ್ರವಾರ';
+        if (lang == 'te') return 'శ్రీ మహాలక్ష్మి & లలితా దేవి ✨ – శుక్రవారం';
         if (lang == 'hi') return 'माँ महालक्ष्मी व ललिता देवी ✨ – शुक्रवार';
         if (lang == 'ta') return 'ஸ்ரீ மகாலட்சுமி & லலிதா தேவி ✨ – வெள்ளி';
         if (lang == 'ml') return 'ശ്രീ മഹാലക്ഷ്മി & ലളിതാദേവി ✨ – വെള്ളിയാഴ്ച';
         return 'Goddess Mahalakshmi & Lalitha ✨ – Shukravara';
       case DateTime.saturday:
         if (lang == 'kn') return 'ಶ್ರೀ ವೆಂಕಟೇಶ್ವರ ಮತ್ತು ಶನಿದೇವ 🙏 – ಶನಿವಾರ';
+        if (lang == 'te') return 'శ్రీ వేంకటేశ్వర & శనీశ్వరుడు 🙏 – శనివారం';
         if (lang == 'hi') return 'भगवान वेंकटेश्वर व शनिदेव 🙏 – शनिवार';
         if (lang == 'ta') return 'ஸ்ரீ வெங்கடேஸ்வரர் & சனி பகவான் 🙏 – சனி';
         if (lang == 'ml') return 'ശ്രീ വെങ്കിടേശ്വരൻ & ശനിദേവൻ 🙏 – ശനിയാഴ്ച';
@@ -2163,6 +2440,7 @@ class PanchangaService with ChangeNotifier {
       case DateTime.sunday:
       default:
         if (lang == 'kn') return 'ಶ್ರೀ ಸೂರ್ಯ ನಾರಾಯಣ ☀️ – ಭಾನುವಾರ';
+        if (lang == 'te') return 'శ్రీ సూర్య నారాయణ ☀️ – ఆదివారం';
         if (lang == 'hi') return 'भगवान सूर्य नारायण ☀️ – रविवार';
         if (lang == 'ta') return 'ஸ்ரீ சூரிய நாராயணன் ☀️ – ஞாயிறு';
         if (lang == 'ml') return 'ശ്രീ സൂര്യ നാരായണൻ ☀️ – ഞായറാഴ്ച';
@@ -2173,6 +2451,7 @@ class PanchangaService with ChangeNotifier {
   String _getLocalizedOccasion(String key, String lang) {
     if (key == 'angarki_sankashti') {
       if (lang == 'kn') return 'ಇಂದು ಪರಮ ಪವಿತ್ರ ಅಂಗಾರಕಿ ಸಂಕಷ್ಟಿ ಚತುರ್ಥಿ! ಚಂದ್ರೋದಯ ಪೂಜೆ.';
+      if (lang == 'te') return 'నేడు పరమ పవిత్ర అంగారకి సంకష్టహర చతుర్థి! చంద్రోదయ పూజ.';
       if (lang == 'hi') return 'आज परम पावन अंगारकी संकष्टी चतुर्थी! चंद्रोदय अर्घ्य व्रत।';
       if (lang == 'ta') return 'இன்று புனித அங்காரக சங்கடஹர சதுர்த்தி விரதம்!';
       if (lang == 'ml') return 'ഇന്ന് പവിത്രമായ അംഗാരക സങ്കഷ്ടി ചതുർത്ഥി!';
@@ -2180,6 +2459,7 @@ class PanchangaService with ChangeNotifier {
     }
     if (key == 'sankashti') {
       if (lang == 'kn') return 'ಇಂದು ಸಂಕಷ್ಟಹರ ಚತುರ್ಥಿ ವ್ರತ! ಗಣೇಶ ಪೂಜೆ ಮತ್ತು ಚಂದ್ರೋದಯ ದರ್ಶನ.';
+      if (lang == 'te') return 'నేడు సంకష్టహర చతుర్థి వ్రతం! గణపతి పూజ మరియు చంద్ర దర్శనం.';
       if (lang == 'hi') return 'आज संकष्टी चतुर्थी व्रत! गणेश पूजन व चंद्र दर्शन।';
       if (lang == 'ta') return 'இன்று சங்கடஹர சதுர்த்தி விரதம்!';
       if (lang == 'ml') return 'ഇന്ന് സങ്കഷ്ടഹര ചതുർത്ഥി!';
@@ -2187,16 +2467,19 @@ class PanchangaService with ChangeNotifier {
     }
     if (key == 'vinayaka_chaturthi') {
       if (lang == 'kn') return 'ಇಂದು ಶುಕ್ಲ ಪಕ್ಷ ವಿನಾಯಕ ಚತುರ್ಥಿ ಪೂಜೆ.';
+      if (lang == 'te') return 'నేడు శుక్ల పక్ష వినాయక చతుర్థి పూజ.';
       if (lang == 'hi') return 'आज शुक्ल पक्ष विनायक चतुर्थी पूजन।';
       return 'Today is Shukla Vinayaka Chaturthi!';
     }
     if (key == 'ekadashi') {
       if (lang == 'kn') return 'ಇಂದು ಪರಮ ಪವಿತ್ರ ಏಕಾದಶೀ ಮಹಾವ್ರತ! ಹರಿನಾಮ ಸಂಕೀರ್ತನೆ.';
+      if (lang == 'te') return 'నేడు పరమ పవిత్ర ఏకాదశీ మహావ్రతం! హరినామ సంకీర్తన.';
       if (lang == 'hi') return 'आज परम पावन एकादशी महाव्रत! हरि नाम संकीर्तन।';
       return 'Today is Auspicious Ekadashi Mahavrata!';
     }
     if (key == 'pradosha') {
       if (lang == 'kn') return 'ಇಂದು ಪ್ರದೋಷ ಕಾಲದ ಶಿವ ಆರಾಧನೆ ಮತ್ತು ರುದ್ರಾಭಿಷೇಕ.';
+      if (lang == 'te') return 'నేడు ప్రదోష కాల శివారాధన మరియు రుద్రాభిషేకం.';
       if (lang == 'hi') return 'आज प्रदोष काल शिव आराधना एवं रुद्राभिषेक।';
       return 'Today is Sacred Pradosha Twilight Worship!';
     }

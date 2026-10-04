@@ -560,6 +560,8 @@ class DevotionalReminderService with ChangeNotifier {
     switch (lang) {
       case 'kn':
         return '🙏 ಭಕ್ತಿ ಆ್ಯಪ್‌ಗೆ ಆತ್ಮೀಯ ಸ್ವಾಗತ!';
+      case 'te':
+        return '🙏 భక్తి యాప్‌కు సాదర స్వాగతం!';
       case 'hi':
         return '🙏 भक्ति ऐप में आपका हार्दिक स्वागत है!';
       case 'ta':
@@ -575,6 +577,8 @@ class DevotionalReminderService with ChangeNotifier {
     switch (lang) {
       case 'kn':
         return 'ಭಕ್ತಿ ಆ್ಯಪ್ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು. ಲೈವ್ ಪಂಚಾಂಗ, ದಿನದ ರಾಶಿ ವಿವರಗಳು, ಪವಿತ್ರ ಶ್ಲೋಕಗಳು ಮತ್ತು ಭಕ್ತಿಗೀತೆಗಳೊಂದಿಗೆ ದೈವೀ ಅನುಭವ ಪಡೆಯಿರಿ.';
+      case 'te':
+        return 'భక్తి యాప్ డౌన్‌లోడ్ చేసుకున్నందుకు ధన్యవాదాలు! ప్రత్యక్ష పంచాంగం, రాశి ఫలితాలు, పవిత్ర శ్లోకాలు మరియు భక్తి గీతాలతో దైవిక అనుభూతిని పొందండి.';
       case 'hi':
         return 'भक्ति ऐप डाउनलोड करने के लिए धन्यवाद! दैनिक पंचांग, दैनिक ज्ञान, राशि विवरण और भक्ति गीतों के साथ दिव्य अनुभव प्राप्त करें।';
       case 'ta':
@@ -607,6 +611,8 @@ class DevotionalReminderService with ChangeNotifier {
     switch (lang) {
       case 'kn':
         return '🌅 ಬ್ರಾಹ್ಮೀ ಮುಹೂರ್ತ ಮತ್ತು ಸುಪ್ರಭಾತ';
+      case 'te':
+        return '🌅 బ్రాహ్మీ ముహూర్తం & సుప్రభాతం';
       case 'hi':
         return '🌅 ब्रह्म मुहूर्त एवं सुप्रभातम्';
       case 'ta':
@@ -622,6 +628,8 @@ class DevotionalReminderService with ChangeNotifier {
     switch (lang) {
       case 'kn':
         return 'ಇಂದು ${p.tithi} (${p.dayOfWeek}). ಶ್ರೀ ವೆಂಕಟೇಶ್ವರ ಸುಪ್ರಭಾತದೊಂದಿಗೆ ದಿನವನ್ನು ಆರಂಭಿಸಿ.';
+      case 'te':
+        return 'నేడు ${p.tithi} (${p.dayOfWeek}). శ్రీ వేంకటేశ్వర సుప్రభాతంతో మీ రోజును ప్రారంభించండి.';
       case 'hi':
         return 'आज ${p.tithi} (${p.dayOfWeek}) है। श्री वेंकटेश्वर सुप्रभातम् के साथ दिन की शुरुआत करें।';
       case 'ta':
@@ -637,6 +645,8 @@ class DevotionalReminderService with ChangeNotifier {
     switch (lang) {
       case 'kn':
         return '🪔 ಸಂಧ್ಯಾ ದೀಪ ಮತ್ತು ಆರತಿ';
+      case 'te':
+        return '🪔 సంధ్యా దీపం & హారతి';
       case 'hi':
         return '🪔 संध्या दीप एवं आरती';
       case 'ta':
@@ -652,6 +662,8 @@ class DevotionalReminderService with ChangeNotifier {
     switch (lang) {
       case 'kn':
         return 'ಪವಿತ್ರ ಸಂಧ್ಯಾ ಸಮಯ. ದೀಪ ಬೆಳಗಿಸಿ ಶ್ರೀ ಲಲಿತಾ ಸಹಸ್ರನಾಮ ಅಥವಾ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ ಪಠಿಸಿ.';
+      case 'te':
+        return 'పవిత్ర సంధ్యా సమయం. దీపం వెలిగించి శ్రీ లలితా సహస్రనామం లేదా విష్ణు సహస్రనామం పఠించండి.';
       case 'hi':
         return 'शुभ संध्या काल। पावन दीप प्रज्वलित कर श्री ललिता सहस्रनाम का पाठ करें।';
       case 'ta':
@@ -667,6 +679,8 @@ class DevotionalReminderService with ChangeNotifier {
     switch (lang) {
       case 'kn':
         return '🌙 ಶಾಂತಿ ಮಂತ್ರ ಮತ್ತು ರಾತ್ರಿ ಪ್ರಾರ್ಥನೆ';
+      case 'te':
+        return '🌙 శాంతి మంత్రం & రాత్రి ప్రార్థన';
       case 'hi':
         return '🌙 शांति मंत्र एवं रात्रि प्रार्थना';
       case 'ta':
@@ -682,6 +696,8 @@ class DevotionalReminderService with ChangeNotifier {
     switch (lang) {
       case 'kn':
         return '॥ ॐ ಶಾಂತಿಃ ಶಾಂತಿಃ ಶಾಂತಿಃ ॥ ಮನಸ್ಸಿಗೆ ಶಾಂತಿ, ನೆಮ್ಮದಿಯ ನಿದ್ರೆ ಪ್ರಾಪ್ತಿಯಾಗಲಿ.';
+      case 'te':
+        return '॥ ఓం శాంతిః శాంతిః శాంతిః ॥ మీ మనస్సుకు ప్రశాంతత మరియు సుఖ నిద్ర లభించుగాక.';
       case 'hi':
         return '॥ ॐ शान्तिः शान्तिः शान्तिः ॥ आपका मन शांत रहे और सुखद निद्रा प्राप्त हो।';
       case 'ta':

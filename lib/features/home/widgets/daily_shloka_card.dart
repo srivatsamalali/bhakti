@@ -60,6 +60,8 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
       String ttsLang = 'sa-IN';
       if (lang == 'kn') {
         ttsLang = 'kn-IN';
+      } else if (lang == 'te') {
+        ttsLang = 'te-IN';
       } else if (lang == 'hi') {
         ttsLang = 'hi-IN';
       } else if (lang == 'ta') {
@@ -92,11 +94,17 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
             : todayWisdom.category == 'Dasa Sahitya'
                 ? 'ದಾಸ ಸಾಹಿತ್ಯಾಮೃತ'
                 : 'ದಿನದ ಪವಿತ್ರ ಶ್ಲೋಕ')
-        : (todayWisdom.category == 'Vachana'
-            ? 'Daily Sacred Vachana'
-            : todayWisdom.category == 'Dasa Sahitya'
-                ? 'Dasa Sahitya Amrutha'
-                : 'Daily Sacred Shloka');
+        : currentLang == 'te'
+            ? (todayWisdom.category == 'Vachana'
+                ? 'నేటి పవిత్ర వచనం'
+                : todayWisdom.category == 'Dasa Sahitya'
+                    ? 'దాస సాహిత్యామృతం'
+                    : 'నేటి పవిత్ర శ్లోకం')
+            : (todayWisdom.category == 'Vachana'
+                ? 'Daily Sacred Vachana'
+                : todayWisdom.category == 'Dasa Sahitya'
+                    ? 'Dasa Sahitya Amrutha'
+                    : 'Daily Sacred Shloka');
 
     final authorDisplay = todayWisdom.getAuthor(currentLang);
     final verseText = todayWisdom.getVerse(currentLang);

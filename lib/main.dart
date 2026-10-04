@@ -174,6 +174,7 @@ class _BhaktiAppState extends State<BhaktiApp> {
             locale: Locale(currentLangCode),
             supportedLocales: const [
               Locale(AppConstants.langKannada),
+              Locale(AppConstants.langTelugu),
               Locale(AppConstants.langEnglish),
               Locale(AppConstants.langHindi),
               Locale(AppConstants.langTamil),

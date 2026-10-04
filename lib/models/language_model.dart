@@ -19,6 +19,12 @@ class LanguageModel {
       scriptSymbol: 'ಕ',
     ),
     LanguageModel(
+      code: 'te',
+      nativeName: 'తెలుగు',
+      englishName: 'Telugu',
+      scriptSymbol: 'తె',
+    ),
+    LanguageModel(
       code: 'en',
       nativeName: 'English',
       englishName: 'English',

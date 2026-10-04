@@ -493,6 +493,7 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
 
                       const lyricsLanguages = [
                         {'code': 'kn', 'label': 'Kannada', 'native': 'ಕನ್ನಡ', 'icon': '🌸'},
+                        {'code': 'te', 'label': 'Telugu', 'native': 'తెలుగు', 'icon': '🪔'},
                         {'code': 'en', 'label': 'English', 'native': 'English', 'icon': '🌐'},
                         {'code': 'hi', 'label': 'Hindi', 'native': 'हिन्दी', 'icon': '🕉️'},
                         {'code': 'ta', 'label': 'Tamil', 'native': 'தமிழ்', 'icon': '🪷'},

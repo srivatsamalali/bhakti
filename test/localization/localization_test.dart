@@ -5,7 +5,7 @@ import 'package:bhakti/core/localization/app_strings.dart';
 
 void main() {
   group('Localization Tests', () {
-    test('All 5 languages have essential key translations', () {
+    test('All 6 languages have essential key translations', () {
       final requiredKeys = [
         'appName',
         'appTagline',
@@ -21,7 +21,7 @@ void main() {
         'adminPortal',
       ];
 
-      for (var lang in ['en', 'kn', 'hi', 'ta', 'ml']) {
+      for (var lang in ['en', 'kn', 'te', 'hi', 'ta', 'ml']) {
         final dict = AppStrings.localizedValues[lang];
         expect(dict, isNotNull, reason: 'Language $lang dictionary should exist');
 
@@ -35,6 +35,9 @@ void main() {
     test('AppLocalizations translates correctly per locale', () {
       final knLoc = AppLocalizations(const Locale('kn'));
       expect(knLoc.translate('play'), 'ಪ್ಲೇ');
+
+      final teLoc = AppLocalizations(const Locale('te'));
+      expect(teLoc.translate('play'), 'ప్లే');
 
       final hiLoc = AppLocalizations(const Locale('hi'));
       expect(hiLoc.translate('play'), 'चलाएं');

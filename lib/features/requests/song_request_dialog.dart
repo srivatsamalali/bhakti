@@ -302,7 +302,7 @@ class _SongRequestDialogState extends State<SongRequestDialog> {
                               DropdownMenuItem(value: AppConstants.langHindi, child: Text('हिन्दी (Hindi)')),
                               DropdownMenuItem(value: AppConstants.langTamil, child: Text('தமிழ் (Tamil)')),
                               DropdownMenuItem(value: AppConstants.langMalayalam, child: Text('മലയാളം (Malayalam)')),
-                              DropdownMenuItem(value: 'te', child: Text('తెలుగు (Telugu)')),
+                              DropdownMenuItem(value: AppConstants.langTelugu, child: Text('తెలుగు (Telugu)')),
                               DropdownMenuItem(value: AppConstants.langEnglish, child: Text('English (Global)')),
                             ],
                             onChanged: (val) {

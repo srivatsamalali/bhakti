@@ -139,6 +139,32 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
         case 'nakshatra': return 'നക്ഷത്രം';
         case 'live_sync': return 'തത്സമയ പഞ്ചാംഗം';
       }
+    } else if (lang == 'te') {
+      switch (key) {
+        case 'tab_today': return 'ఈ రోజు';
+        case 'tab_calendar': return 'క్యాలెండర్';
+        case 'tab_rashi': return 'రాశి ఫలాలు';
+        case 'auspicious': return 'శుభ సమయం';
+        case 'inauspicious': return 'రాహుకాలం / యమగండం';
+        case 'brahma': return 'బ్రహ్మ ముహూర్తం';
+        case 'abhijit': return 'అభిజిత్ ముహూర్తం';
+        case 'rahu': return 'రాహు కాలం';
+        case 'yama': return 'యమగండం';
+        case 'gulika': return 'గుళిక కాలం';
+        case 'festivals': return 'రాబోయే పవిత్ర వ్రతాలు & పండుగలు';
+        case 'badge': return 'పంచాంగం';
+        case 'today': return 'ఈ రోజు';
+        case 'rashi_title': return 'దైనందిన రాశి ఫలాలు & కుండలి మార్గదర్శనం';
+        case 'lucky_color': return 'శుభ రంగు';
+        case 'lucky_num': return 'శుభ సంఖ్య';
+        case 'ruler': return 'అధిపతి';
+        case 'mantra': return 'మంత్ర జపం';
+        case 'deity': return 'ఆరాధ్య దైవం';
+        case 'tithi': return 'తిథి';
+        case 'paksha': return 'పక్షం';
+        case 'nakshatra': return 'నక్షత్రం';
+        case 'live_sync': return 'లైవ్ పంచాంగ సింక్';
+      }
     }
 
     switch (key) {
@@ -822,6 +848,8 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
       return ['ஞாயிறு', 'திங்கள்', 'செவ்வாய்', 'புதன்', 'வியாழன்', 'வெள்ளி', 'சனி'];
     } else if (lang == 'ml') {
       return ['ഞായർ', 'തിങ്കൾ', 'ചൊവ്വ', 'ബുധൻ', 'വ്യാഴം', 'വെള്ളി', 'ശനി'];
+    } else if (lang == 'te') {
+      return ['ఆది', 'సోమ', 'మంగళ', 'బుధ', 'గురు', 'శుక్ర', 'శని'];
     }
     return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   }
@@ -1072,7 +1100,11 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                   const Icon(Icons.celebration_rounded, color: Color(0xFFE65100), size: 16),
                   const SizedBox(width: 6),
                   Text(
-                    (lang == 'kn') ? 'ಈ ತಿಂಗಳ ಪವಿತ್ರ ವ್ರತಗಳು & ವಿಶೇಷ ದಿನಗಳು' : 'Vratas & Special Days This Month',
+                    (lang == 'kn')
+                        ? 'ಈ ತಿಂಗಳ ಪವಿತ್ರ ವ್ರತಗಳು & ವಿಶೇಷ ದಿನಗಳು'
+                        : (lang == 'te'
+                            ? 'ఈ నెల పవిత్ర వ్రతాలు & విశేష దినాలు'
+                            : 'Vratas & Special Days This Month'),
                     style: const TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.bold,
@@ -1090,19 +1122,30 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                 if (d.isGrahana) {
                   eventIcon = '🌘';
                   tagColor = const Color(0xFFC62828);
-                  eventTitle = d.grahanaName ?? ((lang == 'kn') ? 'ಗ್ರಹಣ ಕಾಲ' : 'Eclipse');
+                  eventTitle = d.grahanaName ??
+                      ((lang == 'kn')
+                          ? 'ಗ್ರಹಣ ಕಾಲ'
+                          : (lang == 'te' ? 'గ్రహణ కాలం' : 'Eclipse'));
                   if (d.festivalName != null && d.festivalName != d.grahanaName) {
                     eventTitle += ' • ${d.festivalName}';
                   }
                 } else if (d.isHunnime) {
                   eventIcon = '🌕';
                   tagColor = const Color(0xFFE65100);
-                  final hunnimeTitle = (lang == 'kn') ? 'ಹುಣ್ಣಿಮೆ (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)' : 'Purnima / Full Moon';
+                  final hunnimeTitle = (lang == 'kn')
+                      ? 'ಹುಣ್ಣಿಮೆ (ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ)'
+                      : (lang == 'te'
+                          ? 'పౌర్ణమి (సత్యనారాయణ వ్రతం)'
+                          : 'Purnima / Full Moon');
                   eventTitle = d.festivalName != null ? '${d.festivalName!} • $hunnimeTitle' : hunnimeTitle;
                 } else if (d.isAmavasya) {
                   eventIcon = '🌑';
                   tagColor = const Color(0xFF455A64);
-                  final amavasyaTitle = (lang == 'kn') ? 'ಅಮಾವಾಸ್ಯೆ (ಪಿತೃ ತರ್ಪಣ/ಶಾಂತಿ)' : 'Amavasya / New Moon';
+                  final amavasyaTitle = (lang == 'kn')
+                      ? 'ಅಮಾವಾಸ್ಯೆ (ಪಿತೃ ತರ್ಪಣ/ಶಾಂತಿ)'
+                      : (lang == 'te'
+                          ? 'అమావాస్య (పితృ తర్పణం/శాంతి)'
+                          : 'Amavasya / New Moon');
                   eventTitle = d.festivalName != null ? '${d.festivalName!} • $amavasyaTitle' : amavasyaTitle;
                 }
 
@@ -1148,9 +1191,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
 
     String dateBadge = '';
     if (day.isToday) {
-      dateBadge = (lang == 'kn') ? 'ಇಂದು' : (lang == 'hi' ? 'आज' : 'Today');
+      dateBadge = (lang == 'kn') ? 'ಇಂದು' : (lang == 'te' ? 'ఈ రోజు' : (lang == 'hi' ? 'आज' : 'Today'));
     } else if (isTomorrow) {
-      dateBadge = (lang == 'kn') ? 'ನಾಳೆ' : (lang == 'hi' ? 'कल' : 'Tomorrow');
+      dateBadge = (lang == 'kn') ? 'ನಾಳೆ' : (lang == 'te' ? 'రేపు' : (lang == 'hi' ? 'कल' : 'Tomorrow'));
     }
 
     showDialog(
@@ -1260,7 +1303,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            day.grahanaName ?? ((lang == 'kn') ? 'ಗ್ರಹಣ ಕಾಲ' : 'Eclipse Period'),
+                            day.grahanaName ??
+                                ((lang == 'kn')
+                                    ? 'ಗ್ರಹಣ ಕಾಲ'
+                                    : (lang == 'te' ? 'గ్రహణ కాలం' : 'Eclipse Period')),
                             style: const TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.bold,
@@ -1271,7 +1317,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                           Text(
                             (lang == 'kn')
                                 ? 'ಗ್ರಹಣ ಸಮಯದಲ್ಲಿ ಜಪ-ಧ್ಯಾನ ಮತ್ತು ಈಶ್ವರ ಸ್ಮರಣೆ ಶ್ರೇಷ್ಠ. ಆಹಾರ ಸೇವನೆ ವರ್ಜಿಸಿ.'
-                                : 'Chanting and meditation during eclipse brings highest spiritual merit.',
+                                : (lang == 'te'
+                                    ? 'గ్రహణ సమయంలో జప-ధ్యానం మరియు ఈశ్వర స్మరణ శ్రేష్ఠం. ఆహారం తీసుకోరాదు.'
+                                    : 'Chanting and meditation during eclipse brings highest spiritual merit.'),
                             style: const TextStyle(fontSize: 10.5, color: Color(0xFF5D4037)),
                           ),
                         ],
@@ -1303,7 +1351,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            (lang == 'kn') ? 'ಹುಣ್ಣಿಮೆ (ಪೌರ್ಣಮಿ)' : 'Purnima (Full Moon)',
+                            (lang == 'kn')
+                                ? 'ಹುಣ್ಣಿಮೆ (ಪೌರ್ಣಮಿ)'
+                                : (lang == 'te' ? 'పౌర్ణమి' : 'Purnima (Full Moon)'),
                             style: const TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.bold,
@@ -1314,7 +1364,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                           Text(
                             (lang == 'kn')
                                 ? 'ಶ್ರೀ ಸತ್ಯನಾರಾಯಣ ಪೂಜೆ, ಲಕ್ಷ್ಮೀ ಆರಾಧನೆ ಹಾಗೂ ದೇವಸ್ಥಾನ ದರ್ಶನಕ್ಕೆ ಅತ್ಯಂತ ಶುಭದಾಯಕ.'
-                                : 'Auspicious day for Sri Satyanarayana Vrata, Lakshmi Puja, and divine blessings.',
+                                : (lang == 'te'
+                                    ? 'శ్రీ సత్యనారాయణ వ్రతం, లక్ష్మీ ఆరాధన మరియు ఆలయ దర్శనానికి అత్యంత శుభప్రదం.'
+                                    : 'Auspicious day for Sri Satyanarayana Vrata, Lakshmi Puja, and divine blessings.'),
                             style: const TextStyle(fontSize: 10.5, color: Color(0xFF5D4037)),
                           ),
                         ],
@@ -1346,7 +1398,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            (lang == 'kn') ? 'ಅಮಾವಾಸ್ಯೆ' : 'Amavasya (New Moon)',
+                            (lang == 'kn')
+                                ? 'ಅಮಾವಾಸ್ಯೆ'
+                                : (lang == 'te' ? 'అమావాస్య' : 'Amavasya (New Moon)'),
                             style: const TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.bold,
@@ -1357,7 +1411,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                           Text(
                             (lang == 'kn')
                                 ? 'ಪಿತೃ ತರ್ಪಣ, ಶಾಂತಿ ಪೂಜೆ ಮತ್ತು ನವಗ್ರಹ ಪ್ರಾರ್ಥನೆಗೆ ವಿಶೇಷ ಪ್ರಶಸ್ತ ದಿನ.'
-                                : 'Dedicated day for Pitru Tarpanam, charity, and ancestral prayers.',
+                                : (lang == 'te'
+                                    ? 'పితృ తర్పణం, శాంతి పూజ మరియు నవగ్రహ ప్రార్థనకు విశేష ప్రశస్తమైన రోజు.'
+                                    : 'Dedicated day for Pitru Tarpanam, charity, and ancestral prayers.'),
                             style: const TextStyle(fontSize: 10.5, color: Color(0xFF5D4037)),
                           ),
                         ],
@@ -1500,7 +1556,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     final weekdayName = DateFormat('EEEE').format(now);
     final dayBhavishyaHeader = (lang == 'kn')
         ? 'ಇಂದಿನ ಗ್ರಹಬಲ ಭವಿಷ್ಯ ($weekdayName)'
-        : (lang == 'hi' ? 'आज का दैनिक राशिफल ($weekdayName)' : "Today's Daily Rashi Bhavishya ($weekdayName)");
+        : (lang == 'te'
+            ? 'నేటి దైనందిన రాశి ఫలాలు ($weekdayName)'
+            : (lang == 'hi' ? 'आज का दैनिक राशिफल ($weekdayName)' : "Today's Daily Rashi Bhavishya ($weekdayName)"));
 
     return Column(
       key: const ValueKey(2),
@@ -1874,9 +1932,11 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                               Text(
                                 lang == 'kn'
                                     ? 'ಇಂದಿನ ಜನ್ಮದಿನಾಂಕ & ಕವಡೆ ಅದೃಷ್ಟ ಗಣಕ'
-                                    : (lang == 'hi'
-                                        ? 'DOB व पासा द्वारा आज का भाग्य जानें'
-                                        : 'Personalized Daily Luck & Dice Oracle'),
+                                    : (lang == 'te'
+                                        ? 'DOB & గవ్వల అదృష్ట గణకం'
+                                        : (lang == 'hi'
+                                            ? 'DOB व पासा द्वारा आज का भाग्य जानें'
+                                            : 'Personalized Daily Luck & Dice Oracle')),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -1886,9 +1946,11 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                               Text(
                                 lang == 'kn'
                                     ? 'DOB ಆಯ್ಕೆಮಾಡಿ ಮತ್ತು ಕವಡೆ ಉರುಳಿಸಿ ✨'
-                                    : (lang == 'hi'
-                                        ? 'जन्मतिथि चुनें व पासा फेंकें ✨'
-                                        : 'Enter DOB & Roll Sacred Dice ✨'),
+                                    : (lang == 'te'
+                                        ? 'DOB ఎంచుకోండి & గవ్వలు వేయండి ✨'
+                                        : (lang == 'hi'
+                                            ? 'जन्मतिथि चुनें व पासा फेंकें ✨'
+                                            : 'Enter DOB & Roll Sacred Dice ✨')),
                                 style: TextStyle(
                                   fontSize: 10,
                                   color: templeTheme.accentGold,

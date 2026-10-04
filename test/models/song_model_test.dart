@@ -62,10 +62,10 @@ void main() {
       expect(category.getLocalizedName('ta'), 'Stotras'); // Fallback to en
     });
 
-    test('LanguageModel contains all 5 supported sacred languages', () {
-      expect(LanguageModel.supported.length, 5);
+    test('LanguageModel contains all 6 supported sacred languages', () {
+      expect(LanguageModel.supported.length, 6);
       final codes = LanguageModel.supported.map((l) => l.code).toList();
-      expect(codes, containsAll(['kn', 'en', 'hi', 'ta', 'ml']));
+      expect(codes, containsAll(['kn', 'te', 'en', 'hi', 'ta', 'ml']));
     });
   });
 }

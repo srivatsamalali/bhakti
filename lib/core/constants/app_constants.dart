@@ -15,6 +15,7 @@ class AppConstants {
 
   // Supported language codes
   static const String langKannada = 'kn';
+  static const String langTelugu = 'te';
   static const String langEnglish = 'en';
   static const String langHindi = 'hi';
   static const String langTamil = 'ta';
@@ -22,6 +23,7 @@ class AppConstants {
 
   static const List<String> supportedLanguages = [
     langKannada,
+    langTelugu,
     langEnglish,
     langHindi,
     langTamil,
