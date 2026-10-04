@@ -212,7 +212,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Deploy to Google Play (Internal Track)
+      - name: Deploy to Google Play (Closed Testing - Alpha Track)
         if: env.PLAY_CONFIG_JSON != ''
         uses: r0adkll/upload-google-play@v1
         env:
@@ -221,8 +221,9 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_CONFIG_JSON }}
           packageName: com.bhakti.devotional
           releaseFiles: build/app/outputs/bundle/release/app-release.aab
-          track: internal
+          track: alpha
           status: completed
           releaseName: v${{ steps.bump_version.outputs.version_name }} (Build ${{ steps.bump_version.outputs.build_number }})
           whatsNewDirectory: distribution/whatsnew
+
 
