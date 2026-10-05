@@ -208,7 +208,18 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: templeTheme.borderColor, width: 1.2),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFFDF9),
+            Color(0xFFFAF4E8),
+          ],
+        ),
+        border: Border.all(
+          color: templeTheme.borderColor,
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
             color: templeTheme.accentGold.withOpacity(0.1),

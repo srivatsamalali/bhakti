@@ -4,7 +4,7 @@ import UserNotifications
 import flutter_local_notifications
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -13,64 +13,42 @@ import flutter_local_notifications
       GeneratedPluginRegistrant.register(with: registry)
     }
 
-    GeneratedPluginRegistrant.register(with: self)
-    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
-
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self
     }
 
-    if let controller = window?.rootViewController as? FlutterViewController {
-      let channel = FlutterMethodChannel(name: "com.bhakti.devotional/notifications", binaryMessenger: controller.binaryMessenger)
-      channel.setMethodCallHandler { [weak self] (call, callResult) in
-        if call.method == "showNativeNotification" {
-          guard let args = call.arguments as? [String: Any],
-                let title = args["title"] as? String,
-                let body = args["body"] as? String else {
-            callResult(FlutterError(code: "INVALID_ARGS", message: "Missing title or body", details: nil))
-            return
-          }
-          self?.scheduleNativeNotification(title: title, body: body)
-          callResult(true)
-        } else if call.method == "requestNativePermissions" {
-          if #available(iOS 10.0, *) {
-            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-              callResult(granted)
-            }
-          } else {
-            callResult(true)
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+
+    let channel = FlutterMethodChannel(
+      name: "com.bhakti.devotional/notifications",
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
+    )
+    channel.setMethodCallHandler { [weak self] (call, callResult) in
+      if call.method == "showNativeNotification" {
+        guard let args = call.arguments as? [String: Any],
+              let title = args["title"] as? String,
+              let body = args["body"] as? String else {
+          callResult(FlutterError(code: "INVALID_ARGS", message: "Missing title or body", details: nil))
+          return
+        }
+        self?.scheduleNativeNotification(title: title, body: body)
+        callResult(true)
+      } else if call.method == "requestNativePermissions" {
+        if #available(iOS 10.0, *) {
+          UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            callResult(granted)
           }
         } else {
-          callResult(FlutterMethodNotImplemented)
-        }
-      }
-    } else if let registrar = self.registrar(forPlugin: "DevotionalNativeNotifications") {
-      let channel = FlutterMethodChannel(name: "com.bhakti.devotional/notifications", binaryMessenger: registrar.messenger())
-      channel.setMethodCallHandler { [weak self] (call, callResult) in
-        if call.method == "showNativeNotification" {
-          guard let args = call.arguments as? [String: Any],
-                let title = args["title"] as? String,
-                let body = args["body"] as? String else {
-            callResult(FlutterError(code: "INVALID_ARGS", message: "Missing title or body", details: nil))
-            return
-          }
-          self?.scheduleNativeNotification(title: title, body: body)
           callResult(true)
-        } else if call.method == "requestNativePermissions" {
-          if #available(iOS 10.0, *) {
-            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-              callResult(granted)
-            }
-          } else {
-            callResult(true)
-          }
-        } else {
-          callResult(FlutterMethodNotImplemented)
         }
+      } else {
+        callResult(FlutterMethodNotImplemented)
       }
     }
-
-    return result
   }
 
   private func scheduleNativeNotification(title: String, body: String) {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../services/notifications/devotional_reminder_service.dart';
@@ -155,66 +154,6 @@ class SmartNotificationSheet extends StatelessWidget {
                     await reminders.requestNotificationPermissions();
                     await reminders.toggleFestivalAlerts(val);
                   },
-                ),
-                const SizedBox(height: 16),
-
-                // Test Notification Button
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF8B1E28), Color(0xFF5E101A)],
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.maroonPrimary.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    ),
-                    icon: const Icon(Icons.send_rounded, color: Colors.white, size: 18),
-                    label: const Text(
-                      'Send Instant Test Notification 🔔',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.5),
-                    ),
-                    onPressed: () async {
-                      HapticFeedback.heavyImpact();
-                      final bool granted = await reminders.sendInstantTestNotification(lang);
-                      if (context.mounted) {
-                        if (granted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: AppColors.maroonPrimary,
-                              content: Text('🔔 Phone notification dispatched! Check top banner & Notification Center.'),
-                              duration: Duration(seconds: 4),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.deepOrange.shade800,
-                              content: const Text('⚠️ Notifications are disabled in iOS Settings. Please enable to receive alerts.'),
-                              action: SnackBarAction(
-                                label: 'Settings',
-                                textColor: Colors.amberAccent,
-                                onPressed: () => reminders.openNotificationSettings(),
-                              ),
-                              duration: const Duration(seconds: 6),
-                            ),
-                          );
-                        }
-                      }
-                    },
-                  ),
                 ),
                 const SizedBox(height: 18),
 
