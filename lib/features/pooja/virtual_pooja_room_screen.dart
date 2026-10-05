@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
@@ -272,43 +273,48 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
 
   Future<void> _initAudio() async {
     try {
-      final bellPath = await _extractAssetToTemp('assets/audio/pooja/temple_bell.wav');
-      final flowerPath = await _extractAssetToTemp('assets/audio/pooja/flower_shower.wav');
-      final aartiPath = await _extractAssetToTemp('assets/audio/pooja/aarti_chime.wav');
-      final omPath = await _extractAssetToTemp('assets/audio/pooja/sacred_om_drone.wav');
+      final session = await AudioSession.instance;
+      await session.configure(const AudioSessionConfiguration.music());
 
-      if (bellPath.isNotEmpty) {
-        await _bellPlayer.setFilePath(bellPath);
-      } else {
+      try {
         await _bellPlayer.setAsset('assets/audio/pooja/temple_bell.wav');
+      } catch (_) {
+        final bellPath = await _extractAssetToTemp('assets/audio/pooja/temple_bell.wav');
+        if (bellPath.isNotEmpty) await _bellPlayer.setFilePath(bellPath);
       }
 
-      if (flowerPath.isNotEmpty) {
-        await _flowerPlayer.setFilePath(flowerPath);
-      } else {
+      try {
         await _flowerPlayer.setAsset('assets/audio/pooja/flower_shower.wav');
+      } catch (_) {
+        final flowerPath = await _extractAssetToTemp('assets/audio/pooja/flower_shower.wav');
+        if (flowerPath.isNotEmpty) await _flowerPlayer.setFilePath(flowerPath);
       }
 
-      if (aartiPath.isNotEmpty) {
-        await _aartiPlayer.setFilePath(aartiPath);
-      } else {
+      try {
         await _aartiPlayer.setAsset('assets/audio/pooja/aarti_chime.wav');
+      } catch (_) {
+        final aartiPath = await _extractAssetToTemp('assets/audio/pooja/aarti_chime.wav');
+        if (aartiPath.isNotEmpty) await _aartiPlayer.setFilePath(aartiPath);
       }
 
-      if (omPath.isNotEmpty) {
-        await _bgOmPlayer.setFilePath(omPath);
-      } else {
+      try {
         await _bgOmPlayer.setAsset('assets/audio/pooja/sacred_om_drone.wav');
+      } catch (_) {
+        final omPath = await _extractAssetToTemp('assets/audio/pooja/sacred_om_drone.wav');
+        if (omPath.isNotEmpty) await _bgOmPlayer.setFilePath(omPath);
       }
 
+      await _bellPlayer.setVolume(1.0);
+      await _flowerPlayer.setVolume(0.85);
+      await _aartiPlayer.setVolume(0.9);
       await _bgOmPlayer.setLoopMode(LoopMode.all);
       await _bgOmPlayer.setVolume(0.65);
       if (_isOmPlaying) {
         await _bgOmPlayer.play();
       }
-      debugPrint('🕉️ Pooja Audio loaded & playing sacred ambience');
+      debugPrint('🕉️ Pooja Audio & AudioSession initialized successfully');
     } catch (e) {
-      debugPrint('ℹ️ Pooja audio fallback: $e');
+      debugPrint('ℹ️ Pooja audio init fallback: $e');
     }
   }
 
@@ -505,16 +511,13 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
     );
   }
 
-  void _triggerBellRing() {
+  Future<void> _triggerBellRing() async {
     HapticFeedback.heavyImpact();
     setState(() {
       _isBellRinging = true;
     });
-    try {
-      _bellPlayer.seek(Duration.zero);
-      _bellPlayer.setVolume(1.0);
-      _bellPlayer.play();
-    } catch (_) {}
+
+    // Animate bell swing immediately
     _bellSwingController.forward(from: 0.0).then((_) {
       _bellSwingController.reverse().then((_) {
         if (mounted) {
@@ -523,6 +526,31 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
       });
     });
     _incrementPoojaCount();
+
+    // Play sacred temple bell chime with speaker audio session
+    try {
+      final session = await AudioSession.instance;
+      await session.configure(const AudioSessionConfiguration.music());
+      await session.setActive(true);
+
+      if (_bellPlayer.audioSource == null) {
+        await _bellPlayer.setAsset('assets/audio/pooja/temple_bell.wav');
+      } else {
+        await _bellPlayer.seek(Duration.zero);
+      }
+      await _bellPlayer.setVolume(1.0);
+      await _bellPlayer.play();
+    } catch (e) {
+      debugPrint('Bell playback primary error: $e');
+      try {
+        final fallbackPlayer = AudioPlayer();
+        await fallbackPlayer.setAsset('assets/audio/pooja/temple_bell.wav');
+        await fallbackPlayer.setVolume(1.0);
+        await fallbackPlayer.play();
+      } catch (err) {
+        debugPrint('Bell fallback player error: $err');
+      }
+    }
   }
 
   void _toggleDiya(bool isLeft) {
@@ -899,57 +927,89 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
                 // 5. Continuous Single-Take HUD Banner
                 SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Top Flight State Indicator & Skip Action
+                        // Top Harmonized Header Bar (Back Button + Flight Status + Direct Darshan)
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.82),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: AppColors.goldLight, width: 1.2),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.goldPrimary.withOpacity(0.5),
-                                    blurRadius: 14,
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.flight_land_rounded, color: AppColors.goldLight, size: 16),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    progress < 0.40
-                                        ? 'SKY APPROACH • ${deity.locationName.toUpperCase()}'
-                                        : (progress < 0.72
-                                            ? 'ENTERING VIA CARVED TEMPLE DOORS'
-                                            : 'ARRIVING IN GARBHAGRUHA SANCTUM'),
-                                    style: const TextStyle(
-                                      fontSize: 10.5,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.goldLight,
-                                      letterSpacing: 0.8,
-                                    ),
-                                  ),
-                                ],
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              onPressed: () => Navigator.of(context).maybePop(),
+                              icon: Container(
+                                padding: const EdgeInsets.all(7),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.black.withOpacity(0.55),
+                                  border: Border.all(color: AppColors.goldPrimary.withOpacity(0.5)),
+                                ),
+                                child: const Icon(Icons.arrow_back, color: AppColors.goldLight, size: 18),
                               ),
                             ),
+                            const SizedBox(width: 8),
+
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.75),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: AppColors.goldPrimary.withOpacity(0.7), width: 1.1),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.goldPrimary.withOpacity(0.25),
+                                      blurRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.flight_land_rounded, color: AppColors.goldLight, size: 15),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        progress < 0.40
+                                            ? 'SKY APPROACH • ${deity.locationName.toUpperCase()}'
+                                            : (progress < 0.72
+                                                ? 'ENTERING VIA CARVED DOORS'
+                                                : 'ARRIVING IN GARBHAGRUHA'),
+                                        style: const TextStyle(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.goldLight,
+                                          letterSpacing: 0.6,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
                             // Direct Darshan Skip Action
                             GestureDetector(
                               onTap: _skipAerialDescent,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.65),
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF3E170A), Color(0xFF1E0904)],
+                                  ),
                                   borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(color: Colors.white38),
+                                  border: Border.all(color: AppColors.goldPrimary.withOpacity(0.6)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.goldPrimary.withOpacity(0.2),
+                                      blurRadius: 6,
+                                    ),
+                                  ],
                                 ),
                                 child: const Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -957,13 +1017,13 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
                                     Text(
                                       'Direct Darshan',
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: AppColors.goldLight,
                                         fontSize: 11,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     SizedBox(width: 4),
-                                    Icon(Icons.fast_forward_rounded, color: Colors.white, size: 14),
+                                    Icon(Icons.fast_forward_rounded, color: AppColors.goldLight, size: 13),
                                   ],
                                 ),
                               ),
@@ -971,23 +1031,29 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
                           ],
                         ),
 
-                        // Bottom Narrative & Temple Entering Banner
+                        // Bottom Narrative & Temple Entering Banner matching Sanctum aesthetics
                         Container(
-                          margin: const EdgeInsets.only(bottom: 20),
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            gradient: LinearGradient(
+                            borderRadius: BorderRadius.circular(22),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                               colors: [
-                                Colors.black.withOpacity(0.88),
-                                const Color(0xFF2C1008).withOpacity(0.92),
+                                Color(0xFF2A1007),
+                                Color(0xFF160603),
                               ],
                             ),
-                            border: Border.all(color: AppColors.goldLight, width: 1.2),
+                            border: Border.all(
+                              color: AppColors.goldPrimary.withOpacity(0.65),
+                              width: 1.2,
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.goldPrimary.withOpacity(0.5),
-                                blurRadius: 20,
+                                color: AppColors.goldPrimary.withOpacity(0.3),
+                                blurRadius: 18,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
@@ -1006,21 +1072,22 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
                                     deity.sanctumName,
                                     style: const TextStyle(
                                       fontFamily: 'serif',
-                                      fontSize: 15.5,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                       color: AppColors.goldLight,
+                                      letterSpacing: 0.4,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 5),
                               Text(
                                 deity.aerialEntryNarrative,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 11.5,
                                   color: Colors.white.withOpacity(0.9),
-                                  height: 1.3,
+                                  height: 1.35,
                                 ),
                               ),
                             ],

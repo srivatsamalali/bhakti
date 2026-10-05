@@ -341,10 +341,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                     final segmentWidth = constraints.maxWidth / 3;
                     return Stack(
                       children: [
-                        // Single Smooth Sliding Active Indicator (Zero lag & Zero residual ghost shade)
+                        // Single Smooth Sliding Active Indicator
                         AnimatedPositioned(
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOutCubic,
+                          duration: const Duration(milliseconds: 280),
+                          curve: Curves.easeInOutCubic,
                           left: _activeSegment * segmentWidth,
                           top: 0,
                           bottom: 0,
@@ -353,11 +353,20 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(11),
+                              border: Border.all(
+                                color: templeTheme.accentGold.withOpacity(0.3),
+                                width: 1.0,
+                              ),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.08),
-                                  blurRadius: 5,
+                                  blurRadius: 6,
                                   offset: const Offset(0, 2),
+                                ),
+                                BoxShadow(
+                                  color: templeTheme.primaryColor.withOpacity(0.08),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1),
                                 ),
                               ],
                             ),
@@ -382,12 +391,35 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 220),
+                duration: const Duration(milliseconds: 260),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0.0, 0.04),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+                      child: child,
+                    ),
+                  );
+                },
                 child: _activeSegment == 0
-                    ? _buildTodayTab(context, data, currentLang, templeTheme)
+                    ? KeyedSubtree(
+                        key: const ValueKey('tab_today_content'),
+                        child: _buildTodayTab(context, data, currentLang, templeTheme),
+                      )
                     : (_activeSegment == 1
-                        ? _buildCalendarTab(context, panchangaService, currentLang, templeTheme)
-                        : _buildRashiChartTab(context, panchangaService, currentLang, templeTheme)),
+                        ? KeyedSubtree(
+                            key: ValueKey('tab_calendar_${_calendarMonth.year}_${_calendarMonth.month}'),
+                            child: _buildCalendarTab(context, panchangaService, currentLang, templeTheme),
+                          )
+                        : KeyedSubtree(
+                            key: const ValueKey('tab_rashi_content'),
+                            child: _buildRashiChartTab(context, panchangaService, currentLang, templeTheme),
+                          )),
               ),
             ),
           ],
@@ -414,15 +446,22 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
           padding: const EdgeInsets.symmetric(vertical: 8),
           color: Colors.transparent,
           child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? templeTheme.primaryColor : const Color(0xFF7D6B5E),
+            child: AnimatedScale(
+              scale: isSelected ? 1.03 : 0.98,
+              duration: const Duration(milliseconds: 260),
+              curve: Curves.easeOutCubic,
+              child: AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 260),
+                curve: Curves.easeInOutCubic,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  color: isSelected ? templeTheme.primaryColor : const Color(0xFF7D6B5E),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                child: Text(label),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),

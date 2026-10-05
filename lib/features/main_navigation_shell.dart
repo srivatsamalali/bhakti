@@ -307,7 +307,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  'SACRED SAHASRANAMAS',
+                  'SACRED STOTRAMS',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,

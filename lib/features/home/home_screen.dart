@@ -506,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Featured Sahasranamas',
+                          'Featured Stotrams',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -648,7 +648,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               song.getLocalizedDeity(currentLang),
                                               style: const TextStyle(
                                                 fontSize: 12.5,
-                                                color: Color(0xFF7A685D),
+                                                fontWeight: FontWeight.w500,
+                                                color: Color(0xFF5A4438),
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -679,7 +680,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Sacred Sahasranamas',
+                              'Sacred Stotrams',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -687,14 +688,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 letterSpacing: -0.3,
                               ),
                             ),
+                            SizedBox(height: 3),
                             Text(
                               'Continuous divine chanting with high audio clarity',
                               style: TextStyle(
                                 fontSize: 12.5,
-                                color: Color(0xFF7A685D),
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF5A4438),
+                                height: 1.25,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
                             ),
                           ],
                         ),

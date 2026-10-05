@@ -280,18 +280,21 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                           // Quick Listen / Chanting Pill
                           InkWell(
                             onTap: () => _togglePlayShloka(verseText, currentLang),
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            borderRadius: BorderRadius.circular(16),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
                               decoration: BoxDecoration(
-                                color: _isPlayingAudio ? templeTheme.primaryColor : Colors.white,
-                                borderRadius: BorderRadius.circular(20),
+                                color: _isPlayingAudio ? templeTheme.primaryColor : const Color(0xFFFFF8EE),
+                                borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: _isPlayingAudio ? templeTheme.primaryColor : templeTheme.borderColor,
+                                  color: _isPlayingAudio
+                                      ? templeTheme.primaryColor
+                                      : AppColors.goldPrimary.withOpacity(0.5),
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.04),
+                                    color: (_isPlayingAudio ? templeTheme.primaryColor : Colors.black).withOpacity(0.04),
                                     blurRadius: 4,
                                     offset: const Offset(0, 1),
                                   ),
@@ -394,17 +397,17 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(color: AppColors.goldPrimary.withOpacity(0.5)),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.spa_rounded, size: 16, color: AppColors.goldDark),
-                                    SizedBox(width: 5),
+                                    Icon(Icons.spa_rounded, size: 16, color: templeTheme.primaryColor),
+                                    const SizedBox(width: 5),
                                     Text(
                                       'Pushpam',
                                       style: TextStyle(
                                         fontSize: 11.5,
                                         fontWeight: FontWeight.w700,
-                                        color: AppColors.maroonPrimary,
+                                        color: templeTheme.primaryColor,
                                       ),
                                     ),
                                   ],
@@ -435,17 +438,17 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(color: AppColors.goldPrimary.withOpacity(0.5)),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.wallpaper_rounded, size: 16, color: AppColors.saffronPrimary),
-                                    SizedBox(width: 5),
+                                    Icon(Icons.wallpaper_rounded, size: 16, color: templeTheme.primaryColor),
+                                    const SizedBox(width: 5),
                                     Text(
                                       'Wallpaper',
                                       style: TextStyle(
                                         fontSize: 11.5,
                                         fontWeight: FontWeight.w700,
-                                        color: AppColors.maroonPrimary,
+                                        color: templeTheme.primaryColor,
                                       ),
                                     ),
                                   ],
@@ -457,41 +460,43 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                           const SizedBox(width: 8),
 
                           // 3. Copy Shloka
-                          InkWell(
-                            onTap: () {
-                              Clipboard.setData(ClipboardData(text: '$verseText\n\n$meaningText\n— $deityDisplay'));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text('Wisdom verse copied to clipboard! 🙏'),
-                                  duration: const Duration(seconds: 2),
-                                  backgroundColor: templeTheme.primaryColor,
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(14),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: templeTheme.borderColor),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.copy_rounded, size: 15, color: templeTheme.primaryColor),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Copy',
-                                    style: TextStyle(
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: templeTheme.primaryColor,
-                                    ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                Clipboard.setData(ClipboardData(text: '$verseText\n\n$meaningText\n— $deityDisplay'));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text('Wisdom verse copied to clipboard! 🙏'),
+                                    duration: const Duration(seconds: 2),
+                                    backgroundColor: templeTheme.primaryColor,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   ),
-                                ],
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(14),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF8EE),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(color: AppColors.goldPrimary.withOpacity(0.5)),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.copy_rounded, size: 15, color: templeTheme.primaryColor),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      'Copy',
+                                      style: TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: templeTheme.primaryColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
