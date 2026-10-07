@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../services/premium/premium_service.dart';
 import '../../widgets/liquid_glass/glass_style.dart';
 import '../../widgets/liquid_glass/liquid_glass.dart';
+import '../../widgets/sacred_back_button.dart';
 
 class BhaktiPremiumScreen extends StatefulWidget {
   const BhaktiPremiumScreen({super.key});
@@ -36,9 +37,12 @@ class _BhaktiPremiumScreenState extends State<BhaktiPremiumScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: AppColors.goldLight),
-          onPressed: () => Navigator.pop(context),
+        automaticallyImplyLeading: false,
+        leadingWidth: 96,
+        leading: const SacredBackButton(
+          color: AppColors.goldLight,
+          backgroundColor: Color(0xFF2E1212),
+          borderColor: Color(0x66C8A050),
         ),
         actions: [
           TextButton(

@@ -114,10 +114,10 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
     return InteractiveFlowerOffering(
       key: _offeringKey,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(20),
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -144,10 +144,10 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
           ],
         ),
         child: SacredCornerFiligree(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(20),
           color: templeTheme.accentGold,
-          cornerSize: 22,
-          strokeWidth: 1.4,
+          cornerSize: 20,
+          strokeWidth: 1.2,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -158,7 +158,7 @@ class _DailyShlokaCardState extends State<DailyShlokaCard> {
                     _isExpanded = !_isExpanded;
                   });
                 },
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(20),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(

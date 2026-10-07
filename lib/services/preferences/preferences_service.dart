@@ -115,6 +115,30 @@ class PreferencesService extends ChangeNotifier {
     return success;
   }
 
+  // --- Continue Where You Left Off Session ---
+  static const String keyLastPlayedSongId = 'bhakti_last_played_song_id';
+  static const String keyLastPlayedPositionMs = 'bhakti_last_played_position_ms';
+
+  String? getLastPlayedSongId() {
+    return _prefs.getString(keyLastPlayedSongId);
+  }
+
+  int getLastPlayedPositionMs() {
+    return _prefs.getInt(keyLastPlayedPositionMs) ?? 0;
+  }
+
+  Future<void> saveLastPlayedSession(String songId, int positionMs) async {
+    await _prefs.setString(keyLastPlayedSongId, songId);
+    await _prefs.setInt(keyLastPlayedPositionMs, positionMs);
+    notifyListeners();
+  }
+
+  Future<void> clearLastPlayedSession() async {
+    await _prefs.remove(keyLastPlayedSongId);
+    await _prefs.remove(keyLastPlayedPositionMs);
+    notifyListeners();
+  }
+
   // --- Playback Speed ---
   double getPlaybackSpeed() {
     return _prefs.getDouble(AppConstants.keyPlaybackSpeed) ?? 1.0;

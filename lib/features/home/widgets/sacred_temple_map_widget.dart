@@ -54,7 +54,7 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(26),
+          borderRadius: BorderRadius.circular(20),
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -66,12 +66,12 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
           ),
           border: Border.all(
             color: AppColors.goldPrimary.withOpacity(0.55),
-            width: 1.3,
+            width: 1.2,
           ),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFFE65100).withOpacity(0.2),
-              blurRadius: 20,
+              blurRadius: 18,
               offset: const Offset(0, 6),
             ),
           ],
@@ -81,11 +81,11 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
             // Ornate Corner Filigree
             Positioned.fill(
               child: Padding(
-                padding: const EdgeInsets.all(6.0),
+                padding: const EdgeInsets.all(5.0),
                 child: CustomPaint(
                   painter: SacredCornerFiligreePainter(
                     filigreeColor: AppColors.goldPrimary.withOpacity(0.65),
-                    cornerSize: 22,
+                    cornerSize: 20,
                   ),
                 ),
               ),

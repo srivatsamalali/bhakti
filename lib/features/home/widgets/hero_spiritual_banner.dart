@@ -9,6 +9,7 @@ import '../../../repositories/song_repository.dart';
 import '../../../services/audio/audio_player_service.dart';
 import '../../../services/preferences/preferences_service.dart';
 import '../../../widgets/adaptive_button.dart';
+import '../../../widgets/sacred_filigree_border.dart';
 import '../../player/full_player_screen.dart';
 
 class HeroSpiritualBanner extends StatelessWidget {
@@ -29,10 +30,10 @@ class HeroSpiritualBanner extends StatelessWidget {
     final templeTheme = TempleTheme.fromId(prefs.getTempleThemeId());
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         gradient: templeTheme.heroGradient,
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: templeTheme.primaryColor.withOpacity(0.35),
@@ -47,13 +48,18 @@ class HeroSpiritualBanner extends StatelessWidget {
           ),
         ],
         border: Border.all(
-          color: templeTheme.accentGold.withOpacity(0.4),
-          width: 1.5,
+          color: templeTheme.accentGold.withOpacity(0.5),
+          width: 1.2,
         ),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(26),
-        child: Stack(
+      child: SacredCornerFiligree(
+        borderRadius: BorderRadius.circular(20),
+        color: templeTheme.accentGold.withOpacity(0.75),
+        cornerSize: 20,
+        strokeWidth: 1.2,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
           children: [
             // Background Ornate Motif Watermark
             Positioned(
@@ -315,6 +321,7 @@ class HeroSpiritualBanner extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

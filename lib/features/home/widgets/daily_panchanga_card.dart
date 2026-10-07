@@ -204,10 +204,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     final data = panchangaService.getTodayPanchanga(currentLang);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -234,10 +234,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
         ],
       ),
       child: SacredCornerFiligree(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         color: templeTheme.accentGold,
-        cornerSize: 22,
-        strokeWidth: 1.4,
+        cornerSize: 20,
+        strokeWidth: 1.2,
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -248,7 +248,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                     _isExpanded = !_isExpanded;
                   });
                 },
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(20),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
               child: Row(

@@ -6,6 +6,7 @@ import '../core/constants/app_typography.dart';
 import '../core/localization/app_localizations.dart';
 import '../models/language_model.dart';
 import '../services/preferences/preferences_service.dart';
+import 'sacred_back_button.dart';
 
 class DevotionalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -35,7 +36,9 @@ class DevotionalAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
 
     return AppBar(
-      automaticallyImplyLeading: showBackButton,
+      automaticallyImplyLeading: false,
+      leadingWidth: showBackButton ? 96 : null,
+      leading: showBackButton ? const SacredBackButton() : null,
       elevation: 0,
       backgroundColor: Colors.transparent,
       flexibleSpace: ClipRect(

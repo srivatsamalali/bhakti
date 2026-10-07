@@ -129,41 +129,49 @@ class DevotionalCard extends StatelessWidget {
     final currentLang = prefs.getSelectedLanguage();
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 3.5),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFFFFDF9),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFFDF9),
+            Color(0xFFFAF5EA),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isCurrentPlaying
               ? AppColors.goldPrimary
-              : const Color(0xFFEEDBCE),
-          width: isCurrentPlaying ? 1.5 : 1,
+              : const Color(0x33C8A050),
+          width: isCurrentPlaying ? 1.5 : 1.2,
         ),
         boxShadow: [
           BoxShadow(
             color: isCurrentPlaying
-                ? AppColors.goldPrimary.withOpacity(0.18)
-                : Colors.black.withOpacity(0.025),
-            blurRadius: isCurrentPlaying ? 10 : 4,
+                ? AppColors.goldPrimary.withOpacity(0.2)
+                : const Color(0xFF8B5A2B).withOpacity(0.04),
+            blurRadius: isCurrentPlaying ? 10 : 5,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: SacredCornerFiligree(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         color: isCurrentPlaying
             ? const Color(0xFFD4AF37)
             : const Color(0x60D4AF37),
-        cornerSize: 16,
+        cornerSize: 20,
         strokeWidth: 1.2,
         child: Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8.5),
               child: Row(
                 children: [
                   // Compact Thumbnail with Active Aura

@@ -7,6 +7,7 @@ import '../../models/language_model.dart';
 import '../../services/analytics/analytics_service.dart';
 import '../../services/notifications/devotional_reminder_service.dart';
 import '../../services/preferences/preferences_service.dart';
+import '../../widgets/sacred_back_button.dart';
 import '../main_navigation_shell.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
@@ -57,6 +58,9 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
       appBar: widget.isInitialLaunch
           ? null
           : AppBar(
+              automaticallyImplyLeading: false,
+              leadingWidth: 96,
+              leading: const SacredBackButton(),
               title: Text(context.tr('selectLanguage')),
               centerTitle: true,
               elevation: 0,

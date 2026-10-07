@@ -18,6 +18,7 @@ import '../../services/audio/offline_download_service.dart';
 import '../../services/notifications/devotional_reminder_service.dart';
 
 import '../../core/theme/temple_theme.dart';
+import '../../widgets/sacred_back_button.dart';
 import '../wallpaper/sacred_wallpaper_generator_dialog.dart';
 import '../widgets/devotional_widgets_sheet.dart';
 import 'widgets/smart_notification_sheet.dart';
@@ -264,9 +265,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final auth = context.watch<AuthService>();
     final currentLang = LanguageModel.fromCode(prefs.getSelectedLanguage());
 
+    final canPop = Navigator.of(context).canPop();
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leadingWidth: canPop ? 96 : null,
+        leading: canPop ? const SacredBackButton() : null,
         title: Text(context.tr('settingsTitle')),
         centerTitle: true,
       ),

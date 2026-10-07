@@ -15,6 +15,7 @@ import '../../services/preferences/preferences_service.dart';
 import '../../widgets/ambient_diya_particles.dart';
 import '../../widgets/adaptive_button.dart';
 import '../../widgets/divine_music_visualizer.dart';
+import '../../widgets/sacred_back_button.dart';
 import '../../widgets/sacred_filigree_border.dart';
 import '../player/full_player_screen.dart';
 
@@ -105,6 +106,9 @@ class _SongDetailsScreenState extends State<SongDetailsScreen> {
     return Scaffold(
       backgroundColor: AppColors.subtleBackground,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leadingWidth: 96,
+        leading: const SacredBackButton(),
         title: Text(
           widget.song.getLocalizedTitle(currentLang),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),

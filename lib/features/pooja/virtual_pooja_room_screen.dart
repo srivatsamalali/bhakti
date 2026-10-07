@@ -4,12 +4,14 @@ import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../services/preferences/preferences_service.dart';
 import '../../widgets/liquid_glass/glass_style.dart';
 import '../../widgets/liquid_glass/liquid_glass.dart';
+import '../../widgets/sacred_back_button.dart';
 import '../../widgets/sacred_filigree_border.dart';
 import 'garbhagruha/garbhagruha_scene.dart';
 import 'garbhagruha/sanctum_registry.dart';
@@ -114,6 +116,11 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
   late final AudioPlayer _flowerPlayer;
   bool _isOmPlaying = true;
 
+  String _bellFilePath = '';
+  String _flowerFilePath = '';
+  String _aartiFilePath = '';
+  String _omFilePath = '';
+
   @override
   void initState() {
     super.initState();
@@ -135,11 +142,11 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
       _startAerialDescent();
     }
 
-    // Initialize Audio Players
-    _bellPlayer = AudioPlayer();
-    _bgOmPlayer = AudioPlayer();
-    _aartiPlayer = AudioPlayer();
-    _flowerPlayer = AudioPlayer();
+    // Initialize Audio Players without competing over the system audio session
+    _bellPlayer = AudioPlayer(handleInterruptions: false, androidApplyAudioAttributes: false);
+    _bgOmPlayer = AudioPlayer(handleInterruptions: false, androidApplyAudioAttributes: false);
+    _aartiPlayer = AudioPlayer(handleInterruptions: false, androidApplyAudioAttributes: false);
+    _flowerPlayer = AudioPlayer(handleInterruptions: false, androidApplyAudioAttributes: false);
     _initAudio();
 
     // Cinematic Camera Push-In Controller: smoothly glides in and STOPS at final darshan view
@@ -271,50 +278,120 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
     }
   }
 
+  AudioSource _buildAudioSource({
+    required String id,
+    required String title,
+    required String assetPath,
+    required String filePath,
+  }) {
+    final mediaItem = MediaItem(
+      id: id,
+      title: title,
+      album: 'Virtual Pooja Room',
+      artist: 'Bhakti Sanctum',
+    );
+
+    if (filePath.isNotEmpty && File(filePath).existsSync()) {
+      return AudioSource.file(
+        filePath,
+        tag: mediaItem,
+      );
+    }
+    return AudioSource.uri(
+      Uri.parse('asset:///$assetPath'),
+      tag: mediaItem,
+    );
+  }
+
   Future<void> _initAudio() async {
     try {
       final session = await AudioSession.instance;
       await session.configure(const AudioSessionConfiguration.music());
+      await session.setActive(true);
+      debugPrint('🕉️ AudioSession configured for playback');
+    } catch (e) {
+      debugPrint('ℹ️ AudioSession configuration notice: $e');
+    }
 
-      try {
-        await _bellPlayer.setAsset('assets/audio/pooja/temple_bell.wav');
-      } catch (_) {
-        final bellPath = await _extractAssetToTemp('assets/audio/pooja/temple_bell.wav');
-        if (bellPath.isNotEmpty) await _bellPlayer.setFilePath(bellPath);
+    try {
+      _bellFilePath = await _extractAssetToTemp('assets/audio/pooja/temple_bell.m4a');
+      if (_bellFilePath.isEmpty) {
+        _bellFilePath = await _extractAssetToTemp('assets/audio/pooja/temple_bell.wav');
       }
-
-      try {
-        await _flowerPlayer.setAsset('assets/audio/pooja/flower_shower.wav');
-      } catch (_) {
-        final flowerPath = await _extractAssetToTemp('assets/audio/pooja/flower_shower.wav');
-        if (flowerPath.isNotEmpty) await _flowerPlayer.setFilePath(flowerPath);
+      _flowerFilePath = await _extractAssetToTemp('assets/audio/pooja/flower_shower.m4a');
+      if (_flowerFilePath.isEmpty) {
+        _flowerFilePath = await _extractAssetToTemp('assets/audio/pooja/flower_shower.wav');
       }
-
-      try {
-        await _aartiPlayer.setAsset('assets/audio/pooja/aarti_chime.wav');
-      } catch (_) {
-        final aartiPath = await _extractAssetToTemp('assets/audio/pooja/aarti_chime.wav');
-        if (aartiPath.isNotEmpty) await _aartiPlayer.setFilePath(aartiPath);
+      _aartiFilePath = await _extractAssetToTemp('assets/audio/pooja/aarti_chime.m4a');
+      if (_aartiFilePath.isEmpty) {
+        _aartiFilePath = await _extractAssetToTemp('assets/audio/pooja/aarti_chime.wav');
       }
-
-      try {
-        await _bgOmPlayer.setAsset('assets/audio/pooja/sacred_om_drone.wav');
-      } catch (_) {
-        final omPath = await _extractAssetToTemp('assets/audio/pooja/sacred_om_drone.wav');
-        if (omPath.isNotEmpty) await _bgOmPlayer.setFilePath(omPath);
+      _omFilePath = await _extractAssetToTemp('assets/audio/pooja/sacred_om_drone.m4a');
+      if (_omFilePath.isEmpty) {
+        _omFilePath = await _extractAssetToTemp('assets/audio/pooja/sacred_om_drone.wav');
       }
+    } catch (e) {
+      debugPrint('ℹ️ Error caching audio assets: $e');
+    }
 
+    // Bell Player
+    try {
+      final bellSource = _buildAudioSource(
+        id: 'pooja_temple_bell',
+        title: 'Temple Bell',
+        assetPath: 'assets/audio/pooja/temple_bell.m4a',
+        filePath: _bellFilePath,
+      );
+      await _bellPlayer.setAudioSource(bellSource);
       await _bellPlayer.setVolume(1.0);
+    } catch (e) {
+      debugPrint('ℹ️ Bell player load error: $e');
+    }
+
+    // Flower Player
+    try {
+      final flowerSource = _buildAudioSource(
+        id: 'pooja_flower_shower',
+        title: 'Flower Shower',
+        assetPath: 'assets/audio/pooja/flower_shower.m4a',
+        filePath: _flowerFilePath,
+      );
+      await _flowerPlayer.setAudioSource(flowerSource);
       await _flowerPlayer.setVolume(0.85);
+    } catch (e) {
+      debugPrint('ℹ️ Flower player load error: $e');
+    }
+
+    // Aarti Player
+    try {
+      final aartiSource = _buildAudioSource(
+        id: 'pooja_aarti_chime',
+        title: 'Mangalarathi Chime',
+        assetPath: 'assets/audio/pooja/aarti_chime.m4a',
+        filePath: _aartiFilePath,
+      );
+      await _aartiPlayer.setAudioSource(aartiSource);
       await _aartiPlayer.setVolume(0.9);
+    } catch (e) {
+      debugPrint('ℹ️ Aarti player load error: $e');
+    }
+
+    // Background Drone Player
+    try {
+      final omSource = _buildAudioSource(
+        id: 'pooja_sacred_om_drone',
+        title: 'Sacred Om Drone',
+        assetPath: 'assets/audio/pooja/sacred_om_drone.m4a',
+        filePath: _omFilePath,
+      );
+      await _bgOmPlayer.setAudioSource(omSource);
       await _bgOmPlayer.setLoopMode(LoopMode.all);
       await _bgOmPlayer.setVolume(0.65);
       if (_isOmPlaying) {
         await _bgOmPlayer.play();
       }
-      debugPrint('🕉️ Pooja Audio & AudioSession initialized successfully');
     } catch (e) {
-      debugPrint('ℹ️ Pooja audio init fallback: $e');
+      debugPrint('ℹ️ Drone player load error: $e');
     }
   }
 
@@ -513,6 +590,7 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
 
   Future<void> _triggerBellRing() async {
     HapticFeedback.heavyImpact();
+    SystemSound.play(SystemSoundType.alert);
     setState(() {
       _isBellRinging = true;
     });
@@ -527,28 +605,24 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
     });
     _incrementPoojaCount();
 
-    // Play sacred temple bell chime with speaker audio session
+    // Play sacred temple bell chime with MediaItem tag
     try {
-      final session = await AudioSession.instance;
-      await session.configure(const AudioSessionConfiguration.music());
-      await session.setActive(true);
-
-      if (_bellPlayer.audioSource == null) {
-        await _bellPlayer.setAsset('assets/audio/pooja/temple_bell.wav');
-      } else {
-        await _bellPlayer.seek(Duration.zero);
-      }
+      final bellSource = _buildAudioSource(
+        id: 'pooja_temple_bell_${DateTime.now().millisecondsSinceEpoch}',
+        title: 'Temple Bell',
+        assetPath: 'assets/audio/pooja/temple_bell.m4a',
+        filePath: _bellFilePath,
+      );
+      await _bellPlayer.setAudioSource(bellSource);
       await _bellPlayer.setVolume(1.0);
       await _bellPlayer.play();
     } catch (e) {
-      debugPrint('Bell playback primary error: $e');
+      debugPrint('Bell player direct audioSource error: $e');
       try {
-        final fallbackPlayer = AudioPlayer();
-        await fallbackPlayer.setAsset('assets/audio/pooja/temple_bell.wav');
-        await fallbackPlayer.setVolume(1.0);
-        await fallbackPlayer.play();
+        await _bellPlayer.seek(Duration.zero);
+        await _bellPlayer.play();
       } catch (err) {
-        debugPrint('Bell fallback player error: $err');
+        debugPrint('Bell playback seek fallback error: $err');
       }
     }
   }
@@ -573,9 +647,16 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
       _isFlowerShowering = true;
     });
     try {
-      _flowerPlayer.seek(Duration.zero);
-      _flowerPlayer.setVolume(0.85);
-      _flowerPlayer.play();
+      final flowerSource = _buildAudioSource(
+        id: 'pooja_flower_shower_${DateTime.now().millisecondsSinceEpoch}',
+        title: 'Flower Shower',
+        assetPath: 'assets/audio/pooja/flower_shower.m4a',
+        filePath: _flowerFilePath,
+      );
+      _flowerPlayer.setAudioSource(flowerSource).then((_) {
+        _flowerPlayer.setVolume(0.9);
+        _flowerPlayer.play();
+      });
     } catch (_) {}
 
     final currentEnv = allSanctumEnvironments[_selectedDeityIndex];
@@ -646,10 +727,17 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
     if (_isAartiActive) {
       _aartiOrbitController.repeat();
       try {
-        _aartiPlayer.seek(Duration.zero);
-        _aartiPlayer.setLoopMode(LoopMode.all);
-        _aartiPlayer.setVolume(0.85);
-        _aartiPlayer.play();
+        final aartiSource = _buildAudioSource(
+          id: 'pooja_aarti_chime_${DateTime.now().millisecondsSinceEpoch}',
+          title: 'Mangalarathi Chime',
+          assetPath: 'assets/audio/pooja/aarti_chime.m4a',
+          filePath: _aartiFilePath,
+        );
+        _aartiPlayer.setAudioSource(aartiSource).then((_) {
+          _aartiPlayer.setLoopMode(LoopMode.all);
+          _aartiPlayer.setVolume(1.0);
+          _aartiPlayer.play();
+        });
       } catch (_) {}
       _incrementPoojaCount();
     } else {
@@ -934,19 +1022,11 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
                         // Top Harmonized Header Bar (Back Button + Flight Status + Direct Darshan)
                         Row(
                           children: [
-                            IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
+                            SacredBackButton(
+                              color: AppColors.goldLight,
+                              backgroundColor: Colors.black.withOpacity(0.65),
+                              borderColor: AppColors.goldPrimary.withOpacity(0.6),
                               onPressed: () => Navigator.of(context).maybePop(),
-                              icon: Container(
-                                padding: const EdgeInsets.all(7),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.black.withOpacity(0.55),
-                                  border: Border.all(color: AppColors.goldPrimary.withOpacity(0.5)),
-                                ),
-                                child: const Icon(Icons.arrow_back, color: AppColors.goldLight, size: 18),
-                              ),
                             ),
                             const SizedBox(width: 8),
 
@@ -1212,19 +1292,11 @@ class _VirtualPoojaRoomScreenState extends State<VirtualPoojaRoomScreen>
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Row(
         children: [
-          IconButton(
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
+          SacredBackButton(
+            color: AppColors.goldLight,
+            backgroundColor: Colors.black.withOpacity(0.5),
+            borderColor: AppColors.goldPrimary.withOpacity(0.5),
             onPressed: () => Navigator.of(context).maybePop(),
-            icon: Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black.withOpacity(0.4),
-                border: Border.all(color: AppColors.goldPrimary.withOpacity(0.4)),
-              ),
-              child: const Icon(Icons.arrow_back, color: AppColors.goldLight, size: 18),
-            ),
           ),
           const SizedBox(width: 8),
 

@@ -106,10 +106,13 @@ class AudioPlayerService extends ChangeNotifier {
       notifyListeners();
     });
 
-    // Check A-B range loop boundary
+    // Check A-B range loop boundary and record last played session
     _player.positionStream.listen((pos) {
       if (_isRangeLoopEnabled && _loopB != null && pos >= _loopB!) {
         _player.seek(_loopA ?? Duration.zero);
+      }
+      if (_currentSong != null && pos.inSeconds > 2) {
+        _prefs.saveLastPlayedSession(_currentSong!.id, pos.inMilliseconds);
       }
     });
 
@@ -150,8 +153,8 @@ class AudioPlayerService extends ChangeNotifier {
     await playSong(targetSong, newQueue: playlist);
   }
 
-  /// Play a selected song and optionally set the playlist context
-  Future<void> playSong(SongModel song, {List<SongModel>? newQueue}) async {
+  /// Play a selected song and optionally set the playlist context and seek position
+  Future<void> playSong(SongModel song, {List<SongModel>? newQueue, Duration? initialPosition}) async {
     try {
       if (newQueue != null && newQueue.isNotEmpty) {
         _queue = List.from(newQueue);
@@ -221,6 +224,9 @@ class AudioPlayerService extends ChangeNotifier {
       }
 
       await _player.setSpeed(_playbackSpeed);
+      if (initialPosition != null && initialPosition > Duration.zero) {
+        await _player.seek(initialPosition);
+      }
       await _player.play();
       HomeWidgetService.updateCurrentPlayingSong(song, isPlaying: true);
       notifyListeners();
@@ -243,6 +249,12 @@ class AudioPlayerService extends ChangeNotifier {
     if (_currentSong != null) {
       HomeWidgetService.updateCurrentPlayingSong(_currentSong!, isPlaying: false);
     }
+    notifyListeners();
+  }
+
+  Future<void> stop() async {
+    await _player.stop();
+    _currentSong = null;
     notifyListeners();
   }
 

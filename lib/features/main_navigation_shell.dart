@@ -457,7 +457,9 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   Widget build(BuildContext context) {
     final player = context.watch<AudioPlayerService>();
     final songRepo = context.watch<SongRepository>();
-    final hasActiveTrack = player.currentSong != null;
+    final prefs = context.watch<PreferencesService>();
+    final lastPlayedId = prefs.getLastPlayedSongId();
+    final hasActiveTrack = player.currentSong != null || (lastPlayedId != null && songRepo.getSongById(lastPlayedId) != null);
 
     return LayoutBuilder(
       builder: (context, constraints) {

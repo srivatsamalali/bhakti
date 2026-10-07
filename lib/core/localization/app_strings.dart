@@ -18,8 +18,11 @@ class AppStrings {
       'navFavorites': 'Favorites',
       'navSettings': 'Settings',
       'navSearch': 'Search',
+      'back': 'Back',
       
       // Home Sections
+      'continueListening': 'Continue Where You Left Off',
+      'listenPanchanga': 'Listen',
       'recentlyPlayed': 'Recently Played',
       'popularDevotionals': 'Popular Devotionals',
       'recommended': 'Recommended for You',
@@ -175,8 +178,11 @@ class AppStrings {
       'navFavorites': 'ಮೆಚ್ಚಿನವು',
       'navSettings': 'ಸೆಟ್ಟಿಂಗ್ಸ್',
       'navSearch': 'ಹುಡುಕಿ',
+      'back': 'ಹಿಂದೆ',
       
       // Home Sections
+      'continueListening': 'ಕೇಳುವುದನ್ನು ಮುಂದುವರಿಸಿ',
+      'listenPanchanga': 'ಧ್ವನಿ ಕೇಳಿ',
       'recentlyPlayed': 'ಇತ್ತೀಚೆಗೆ ನುಡಿಸಿದವು',
       'popularDevotionals': 'ಜನಪ್ರಿಯ ಭಕ್ತಿಗೀತೆಗಳು',
       'recommended': 'ನಿಮಗಾಗಿ ಆಯ್ದವು',
@@ -332,8 +338,11 @@ class AppStrings {
       'navFavorites': 'पसंदीदा',
       'navSettings': 'सेटिंग्स',
       'navSearch': 'खोजें',
+      'back': 'पीछे',
       
       // Home Sections
+      'continueListening': 'सुनना जारी रखें',
+      'listenPanchanga': 'पंचांग सुनें',
       'recentlyPlayed': 'हाल ही में सुने गए',
       'popularDevotionals': 'लोकप्रिय भक्ति गीत',
       'recommended': 'आपके लिए अनुशंसित',
@@ -489,8 +498,11 @@ class AppStrings {
       'navFavorites': 'விருப்பங்கள்',
       'navSettings': 'அமைப்புகள்',
       'navSearch': 'தேடல்',
+      'back': 'பின்னே',
       
       // Home Sections
+      'continueListening': 'தொடர்ந்து கேட்க',
+      'listenPanchanga': 'பஞ்சாங்கம் கேட்க',
       'recentlyPlayed': 'சமீபத்தில் கேட்டவை',
       'popularDevotionals': 'பிரபலமான பக்திப் பாடல்கள்',
       'recommended': 'உங்களுக்கான பரிந்துரைகள்',
@@ -646,8 +658,11 @@ class AppStrings {
       'navFavorites': 'ഇഷ്ടങ്ങൾ',
       'navSettings': 'ക്രമീകരണങ്ങൾ',
       'navSearch': 'തിരയുക',
+      'back': 'തിരികെ',
       
       // Home Sections
+      'continueListening': 'തുടർന്ന് കേൾക്കുക',
+      'listenPanchanga': 'പഞ്ചാംഗം കേൾക്കുക',
       'recentlyPlayed': 'അടുത്തിടെ കേട്ടവ',
       'popularDevotionals': 'ജനപ്രിയ ഭക്തിഗാനങ്ങൾ',
       'recommended': 'നിങ്ങൾക്കായി തിരഞ്ഞെടുത്തവ',
@@ -803,8 +818,11 @@ class AppStrings {
       'navFavorites': 'ఇష్టమైనవి',
       'navSettings': 'సెట్టింగ్స్',
       'navSearch': 'శోధన',
+      'back': 'వెనుకకు',
       
       // Home Sections
+      'continueListening': 'వినడం కొనసాగించండి',
+      'listenPanchanga': 'పంచాంగం వినండి',
       'recentlyPlayed': 'ఇటీవల విన్నవి',
       'popularDevotionals': 'ప్రముఖ భక్తి గీతాలు',
       'recommended': 'మీ కోసం సిఫార్సు చేసినవి',

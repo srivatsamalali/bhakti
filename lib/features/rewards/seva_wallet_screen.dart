@@ -6,6 +6,7 @@ import '../../core/theme/temple_theme.dart';
 import '../../services/ads/ad_service.dart';
 import '../../services/preferences/preferences_service.dart';
 import '../../services/rewards/seva_token_service.dart';
+import '../../widgets/sacred_back_button.dart';
 import '../../widgets/sacred_filigree_border.dart';
 import '../requests/song_request_dialog.dart';
 import '../admin/admin_add_edit_song_screen.dart';
@@ -22,6 +23,9 @@ class SevaWalletScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: templeTheme.backgroundColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leadingWidth: 96,
+        leading: const SacredBackButton(),
         title: const Text('Seva Karma & Rewards 🪙'),
         backgroundColor: Colors.transparent,
         elevation: 0,

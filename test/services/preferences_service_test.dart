@@ -52,5 +52,18 @@ void main() {
       expect(prefsService.verifyAdminPassword('new_secret_pass'), true);
       expect(prefsService.verifyAdminPassword('sri'), false);
     });
+
+    test('Continue where you left off session save and clear', () async {
+      expect(prefsService.getLastPlayedSongId(), isNull);
+      expect(prefsService.getLastPlayedPositionMs(), 0);
+
+      await prefsService.saveLastPlayedSession('stotram_1', 45000);
+      expect(prefsService.getLastPlayedSongId(), 'stotram_1');
+      expect(prefsService.getLastPlayedPositionMs(), 45000);
+
+      await prefsService.clearLastPlayedSession();
+      expect(prefsService.getLastPlayedSongId(), isNull);
+      expect(prefsService.getLastPlayedPositionMs(), 0);
+    });
   });
 }
