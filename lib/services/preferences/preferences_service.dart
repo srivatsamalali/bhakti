@@ -139,6 +139,18 @@ class PreferencesService extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- Special Day Modal Tracking ---
+  static const String keyLastSpecialDayModalDate = 'bhakti_last_special_day_modal_date';
+
+  String? getLastSpecialDayModalDate() {
+    return _prefs.getString(keyLastSpecialDayModalDate);
+  }
+
+  Future<void> setLastSpecialDayModalDate(String dateStr) async {
+    await _prefs.setString(keyLastSpecialDayModalDate, dateStr);
+    notifyListeners();
+  }
+
   // --- Playback Speed ---
   double getPlaybackSpeed() {
     return _prefs.getDouble(AppConstants.keyPlaybackSpeed) ?? 1.0;

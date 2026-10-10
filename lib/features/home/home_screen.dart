@@ -22,6 +22,8 @@ import '../../core/theme/temple_theme.dart';
 import '../pooja/sacred_temple_map_screen.dart';
 import '../premium/bhakti_premium_screen.dart';
 import '../../services/premium/premium_service.dart';
+import '../../services/wisdom/special_day_intelligence_service.dart';
+import 'widgets/special_day_modal_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +33,34 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _checkedSpecialDay = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndShowSpecialDayModal();
+    });
+  }
+
+  Future<void> _checkAndShowSpecialDayModal() async {
+    if (_checkedSpecialDay || !mounted) return;
+    _checkedSpecialDay = true;
+
+    try {
+      final prefs = context.read<PreferencesService>();
+      final currentLang = prefs.getSelectedLanguage();
+
+      // Dynamically extract day's sacred significance on-device
+      final specialDay = await SpecialDayIntelligenceService.getTodaySpecialDay(currentLang);
+      if (specialDay != null && mounted) {
+        await SpecialDayModalDialog.show(context, specialDay);
+      }
+    } catch (_) {
+      // Graceful fallback: Never block app startup
+    }
+  }
+
   Widget _buildSongImage(String imageUrl, {double size = 56, double radius = 14}) {
     Widget fallback = Container(
       width: size,
@@ -243,19 +273,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                 final isPrem = premium.isPremium;
                                 return InkWell(
                                   onTap: () => BhaktiPremiumScreen.show(context),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(17),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                    margin: const EdgeInsets.only(right: 5),
+                                    height: 34,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                                    margin: const EdgeInsets.only(right: 6),
                                     decoration: BoxDecoration(
                                       gradient: isPrem
                                           ? const LinearGradient(colors: [Color(0xFF2E1500), Color(0xFF150A00)])
                                           : const LinearGradient(colors: [Color(0xFFFFF9E8), Color(0xFFFFF0D0)]),
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius: BorderRadius.circular(17),
                                       border: Border.all(color: const Color(0xFFE0B850), width: 1.2),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppColors.goldPrimary.withOpacity(0.18),
+                                          color: AppColors.goldPrimary.withOpacity(0.14),
                                           blurRadius: 4,
                                           offset: const Offset(0, 1),
                                         ),
@@ -284,24 +315,24 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                             ),
 
-
-                          // Ask Bhakti AI High-Performance Glossy Pill
+                          // Ask Bhakti AI Harmonized Pill
                           InkWell(
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(builder: (_) => const BhaktiAiScreen()),
                               );
                             },
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(17),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                              height: 34,
+                              padding: const EdgeInsets.symmetric(horizontal: 9),
                               decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: templeTheme.borderColor),
+                                color: const Color(0xFFFFFDF8),
+                                borderRadius: BorderRadius.circular(17),
+                                border: Border.all(color: const Color(0xFFE8D7B8), width: 1.0),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.03),
+                                    color: const Color(0xFFD4AF37).withOpacity(0.1),
                                     blurRadius: 4,
                                     offset: const Offset(0, 1),
                                   ),
@@ -311,8 +342,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Container(
-                                    width: 20,
-                                    height: 20,
+                                    width: 18,
+                                    height: 18,
                                     decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
                                       gradient: SweepGradient(
@@ -326,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                     child: const Center(
-                                      child: Icon(Icons.auto_awesome, color: Colors.white, size: 11),
+                                      child: Icon(Icons.auto_awesome, color: Colors.white, size: 10),
                                     ),
                                   ),
                                   if (!isCompact || isDesktop) ...[
@@ -344,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 5),
+                          const SizedBox(width: 6),
 
                           // Search Icon Button
                           InkWell(
@@ -353,25 +384,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                 MaterialPageRoute(builder: (_) => const SearchScreen()),
                               );
                             },
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(17),
                             child: Container(
-                              padding: const EdgeInsets.all(6),
+                              height: 34,
+                              width: 34,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: const Color(0xFFFFFDF8),
                                 shape: BoxShape.circle,
-                                border: Border.all(color: templeTheme.borderColor),
+                                border: Border.all(color: const Color(0xFFE8D7B8), width: 1.0),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.03),
+                                    color: const Color(0xFFD4AF37).withOpacity(0.1),
                                     blurRadius: 4,
                                     offset: const Offset(0, 1),
                                   ),
                                 ],
                               ),
-                              child: Icon(Icons.search_rounded, color: templeTheme.primaryColor, size: 17),
+                              child: Icon(Icons.search_rounded, color: templeTheme.primaryColor, size: 18),
                             ),
                           ),
-                          const SizedBox(width: 5),
+                          const SizedBox(width: 6),
 
                           // Language Switcher Pill
                           InkWell(
@@ -380,16 +412,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 MaterialPageRoute(builder: (_) => const LanguageSelectionScreen()),
                               );
                             },
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(17),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                              height: 34,
+                              padding: const EdgeInsets.symmetric(horizontal: 9),
                               decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: templeTheme.borderColor),
+                                color: const Color(0xFFFFFDF8),
+                                borderRadius: BorderRadius.circular(17),
+                                border: Border.all(color: const Color(0xFFE8D7B8), width: 1.0),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.03),
+                                    color: const Color(0xFFD4AF37).withOpacity(0.1),
                                     blurRadius: 4,
                                     offset: const Offset(0, 1),
                                   ),
@@ -398,17 +431,21 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.language_rounded, size: 14, color: templeTheme.primaryColor),
-                                  const SizedBox(width: 3),
+                                  Icon(Icons.language_rounded, size: 15, color: templeTheme.primaryColor),
+                                  const SizedBox(width: 4),
                                   Text(
                                     currentLang.toUpperCase(),
-                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: templeTheme.primaryColor),
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: templeTheme.primaryColor,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                          const SizedBox(width: 5),
+                          const SizedBox(width: 6),
 
                           // Sacred Temple Map & Yatra Button
                           Tooltip(
@@ -419,21 +456,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                   MaterialPageRoute(builder: (_) => const SacredTempleMapScreen()),
                                 );
                               },
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(17),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                height: 34,
+                                padding: const EdgeInsets.symmetric(horizontal: 9),
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFFFFF8E7),
-                                      Color(0xFFFFECD2),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: AppColors.goldPrimary.withOpacity(0.8), width: 1.2),
+                                  color: const Color(0xFFFFFDF8),
+                                  borderRadius: BorderRadius.circular(17),
+                                  border: Border.all(color: const Color(0xFFE8D7B8), width: 1.0),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.goldPrimary.withOpacity(0.12),
+                                      color: const Color(0xFFD4AF37).withOpacity(0.1),
                                       blurRadius: 4,
                                       offset: const Offset(0, 1),
                                     ),
@@ -443,14 +476,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(Icons.public_rounded, size: 15, color: templeTheme.primaryColor),
-                                    const SizedBox(width: 3),
+                                    const SizedBox(width: 4),
                                     Text(
                                       'MAP',
                                       style: TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 11.5,
                                         fontWeight: FontWeight.w800,
                                         color: templeTheme.primaryColor,
-                                        letterSpacing: 0.5,
+                                        letterSpacing: 0.3,
                                       ),
                                     ),
                                   ],
@@ -516,7 +549,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         SizedBox(
-                          height: 252,
+                          height: 278,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             physics: const BouncingScrollPhysics(),
@@ -569,12 +602,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                            // Album Cover Card
+                                            // Album Cover Card with Tanjore Soft-Edge Vignette
                                             ClipRRect(
                                               borderRadius: BorderRadius.circular(16),
                                               child: Stack(
                                                 children: [
                                                   _buildSongImage(song.imageUrl, size: 156, radius: 16),
+                                                  // Tanjore Soft-Edge Gold & Amber Vignette Overlay
+                                                  Positioned.fill(
+                                                    child: IgnorePointer(
+                                                      child: DecoratedBox(
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(16),
+                                                          border: Border.all(
+                                                            color: const Color(0xFFD4AF37).withOpacity(0.35),
+                                                            width: 1.0,
+                                                          ),
+                                                          gradient: RadialGradient(
+                                                            center: Alignment.center,
+                                                            radius: 0.95,
+                                                            colors: [
+                                                              Colors.transparent,
+                                                              const Color(0xFF4A2800).withOpacity(0.08),
+                                                              const Color(0xFF2C1300).withOpacity(0.32),
+                                                            ],
+                                                            stops: const [0.55, 0.85, 1.0],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
                                                   if (isCurrentPlaying)
                                                     Positioned(
                                                       top: 8,
@@ -633,23 +690,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                             ),
                                             const SizedBox(height: 10),
-                                            Text(
-                                              song.getLocalizedTitle(currentLang),
-                                              style: const TextStyle(
-                                                fontSize: 14.5,
-                                                fontWeight: FontWeight.bold,
-                                                color: AppColors.textDark,
+                                            // 2-Line Sacred Titles (no truncation)
+                                            SizedBox(
+                                              height: 38,
+                                              child: Text(
+                                                song.getLocalizedTitle(currentLang),
+                                                style: const TextStyle(
+                                                  fontSize: 13.5,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppColors.textDark,
+                                                  height: 1.25,
+                                                  letterSpacing: -0.2,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            const SizedBox(height: 2),
+                                            const SizedBox(height: 4),
                                             Text(
                                               song.getLocalizedDeity(currentLang),
                                               style: const TextStyle(
-                                                fontSize: 12.5,
+                                                fontSize: 12,
                                                 fontWeight: FontWeight.w500,
-                                                color: Color(0xFF5A4438),
+                                                color: Color(0xFF7A583A),
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -814,11 +877,33 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               child: Row(
                                 children: [
-                                  // Album Artwork with active aura
+                                  // Album Artwork with active aura & Tanjore gold frame
                                   Stack(
                                     alignment: Alignment.center,
                                     children: [
                                       _buildSongImage(song.imageUrl, size: 58, radius: 13),
+                                      Positioned.fill(
+                                        child: IgnorePointer(
+                                          child: DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(13),
+                                              border: Border.all(
+                                                color: const Color(0xFFD4AF37).withOpacity(0.3),
+                                                width: 0.8,
+                                              ),
+                                              gradient: RadialGradient(
+                                                center: Alignment.center,
+                                                radius: 0.95,
+                                                colors: [
+                                                  Colors.transparent,
+                                                  const Color(0xFF2C1300).withOpacity(0.18),
+                                                ],
+                                                stops: const [0.65, 1.0],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                       if (isPlaying)
                                         Positioned(
                                           bottom: 3,
