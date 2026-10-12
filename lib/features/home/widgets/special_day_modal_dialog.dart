@@ -7,6 +7,7 @@ import '../../../repositories/song_repository.dart';
 import '../../../services/audio/audio_player_service.dart';
 import '../../../services/preferences/preferences_service.dart';
 import '../../../services/wisdom/special_day_intelligence_service.dart';
+import '../../../services/notifications/devotional_reminder_service.dart';
 import '../../../widgets/sacred_filigree_border.dart';
 
 /// Breathtaking Golden Sanctum Modal for Auspicious Special Days & Festivals.
@@ -94,6 +95,30 @@ class SpecialDayModalDialog extends StatelessWidget {
       'hi': 'भाषा बदलें',
       'ml': 'ഭാഷ മാറ്റുക',
       'en': 'Change Language',
+    },
+    'remindRitualTitle': {
+      'kn': 'ಪೂಜೆ ಮತ್ತು ಆಚರಣೆಗಳ ಜ್ಞಾಪನೆ',
+      'ta': 'வழிபாடு மற்றும் சடங்கு நினைவூட்டல்',
+      'te': 'పూజా విధులను గుర్తుచేయి',
+      'hi': 'दैनिक पूजन एवं अनुष्ठान स्मरण',
+      'ml': 'പൂജയും ആചാരങ്ങളും ഓർമ്മിപ്പിക്കുക',
+      'en': 'Remind Today\'s Rituals & Chanting',
+    },
+    'remindRitualSubtitle': {
+      'kn': 'ದೇವತಾ ಪೂಜೆ, ಬಣ್ಣ ಮತ್ತು ಜಪದ ಅಧಿಸೂಚನೆ ಪಡೆಯಿರಿ',
+      'ta': 'தெய்வ வழிபாடு, நிறம் மற்றும் ஜெப அறிவிப்பைப் பெறுங்கள்',
+      'te': 'దేవత పూజ, శుభ వర్ణం మరియు జప నోటిఫికేషన్ పొందండి',
+      'hi': 'देवी पूजन, पावन रंग और जप की सूचना प्राप्त करें',
+      'ml': 'ദേവ പൂജ, ശുഭ നിറം, ജപ അറിയിപ്പ് നേടുക',
+      'en': 'Instant notification for deity worship, sacred color & mantra',
+    },
+    'ritualReminderSent': {
+      'kn': '🔔 ಇಂದಿನ ಪೂಜೆ ಮತ್ತು ಆಚರಣೆಗಳ ಅಧಿಸೂಚನೆ ಕಳುಹಿಸಲಾಗಿದೆ!',
+      'ta': '🔔 இன்றைய பூஜை மற்றும் சடங்குகளின் அறிவிப்பு அனுப்பப்பட்டது!',
+      'te': '🔔 నేటి పూజ & విశేషాల నోటిఫికేషన్ పంపబడింది!',
+      'hi': '🔔 आज के विशेष पूजन एवं अनुष्ठान की सूचना भेज दी गई है!',
+      'ml': '🔔 ഇന്നത്തെ പൂജയുടെയും ചടങ്ങുകളുടെയും അറിയിപ്പ് അയച്ചു!',
+      'en': '🔔 Special occasion & ritual notification sent!',
     },
   };
 
@@ -608,6 +633,85 @@ class SpecialDayModalDialog extends StatelessWidget {
                           },
                         ),
                       ],
+
+                      // Sacred Ritual & Deity Notification Card
+                      const SizedBox(height: 14),
+                      InkWell(
+                        onTap: () async {
+                          HapticFeedback.mediumImpact();
+                          final reminders = context.read<DevotionalReminderService>();
+                          await reminders.sendCurrentDaySpecialityNotification(currentLang);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.notifications_active_rounded, color: Colors.amber, size: 20),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        _tr('ritualReminderSent', currentLang),
+                                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: const Color(0xFF4A1010),
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF7ED),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: const Color(0xFFFDBA74), width: 1.2),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(7),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFEA580C),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.notifications_active_rounded, color: Colors.white, size: 16),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _tr('remindRitualTitle', currentLang),
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF7C2D12),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _tr('remindRitualSubtitle', currentLang),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF9A3412),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios_rounded, size: 13, color: Color(0xFFEA580C)),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

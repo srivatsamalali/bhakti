@@ -11,6 +11,7 @@ import '../../wallpaper/sacred_wallpaper_generator_dialog.dart';
 import 'sacred_luck_oracle_dialog.dart';
 import 'special_day_modal_dialog.dart';
 import '../../../../services/wisdom/special_day_intelligence_service.dart';
+import '../../../../services/notifications/devotional_reminder_service.dart';
 
 class DailyPanchangaCard extends StatefulWidget {
   const DailyPanchangaCard({super.key});
@@ -62,6 +63,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
         case 'paksha': return 'ಪಕ್ಷ';
         case 'nakshatra': return 'ನಕ್ಷತ್ರ';
         case 'live_sync': return 'ಲೈವ್ ಪಂಚಾಂಗ ಸಿಂಕ್';
+        case 'notify_me': return 'ಅಧಿಸೂಚನೆ';
+        case 'notif_sent': return '🔔 ಇಂದಿನ ವಿಶೇಷತೆ ಮತ್ತು ಪೂಜಾ ಅಧಿಸೂಚನೆ ಕಳುಹಿಸಲಾಗಿದೆ!';
+        case 'muhurta_remind_sent': return '🔔 ಶುಭ ಮುಹೂರ್ತದ ಜ್ಞಾಪನೆ ಹೊಂದಿಸಲಾಗಿದೆ!';
       }
     } else if (lang == 'hi') {
       switch (key) {
@@ -88,6 +92,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
         case 'paksha': return 'पक्ष';
         case 'nakshatra': return 'नक्षत्र';
         case 'live_sync': return 'लाइव पंचांग सिंक';
+        case 'notify_me': return 'स्मरण';
+        case 'notif_sent': return '🔔 आज की विशेषता एवं पूजन की सूचना भेज दी गई है!';
+        case 'muhurta_remind_sent': return '🔔 शुभ मुहूर्त का स्मरण सेट कर दिया गया है!';
       }
     } else if (lang == 'ta') {
       switch (key) {
@@ -114,6 +121,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
         case 'paksha': return 'பக்ஷம்';
         case 'nakshatra': return 'நட்சத்திரம்';
         case 'live_sync': return 'நேரலை பஞ்சாங்கம்';
+        case 'notify_me': return 'நினைவூட்டல்';
+        case 'notif_sent': return '🔔 இன்றைய சிறப்பு மற்றும் பூஜை அறிவிப்பு அனுப்பப்பட்டது!';
+        case 'muhurta_remind_sent': return '🔔 சுப முகூர்த்த நினைவூட்டல் அமைக்கப்பட்டது!';
       }
     } else if (lang == 'ml') {
       switch (key) {
@@ -140,6 +150,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
         case 'paksha': return 'പക്ഷം';
         case 'nakshatra': return 'നക്ഷത്രം';
         case 'live_sync': return 'തത്സമയ പഞ്ചാംഗം';
+        case 'notify_me': return 'അറിയിപ്പ്';
+        case 'notif_sent': return '🔔 ഇന്നത്തെ വിശേഷതയുടെയും പൂജയുടെയും അറിയിപ്പ് അയച്ചു!';
+        case 'muhurta_remind_sent': return '🔔 ശുഭ മുഹൂർത്ത ഓർമ്മപ്പെടുത്തൽ സജ്ജമാക്കി!';
       }
     } else if (lang == 'te') {
       switch (key) {
@@ -166,6 +179,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
         case 'paksha': return 'పక్షం';
         case 'nakshatra': return 'నక్షత్రం';
         case 'live_sync': return 'లైవ్ పంచాంగ సింక్';
+        case 'notify_me': return 'గుర్తుచేయి';
+        case 'notif_sent': return '🔔 నేటి విశిష్టత & పూజ నోటిఫికేషన్ పంపబడింది!';
+        case 'muhurta_remind_sent': return '🔔 శుభ ముహూర్త రిమైండర్ సెట్ చేయబడింది!';
       }
     }
 
@@ -193,6 +209,9 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
       case 'paksha': return 'Paksha';
       case 'nakshatra': return 'Nakshatra';
       case 'live_sync': return 'Live Vedic Sync';
+      case 'notify_me': return 'Remind';
+      case 'notif_sent': return '🔔 Today\'s speciality & ritual notification sent!';
+      case 'muhurta_remind_sent': return '🔔 Auspicious Muhurtha reminder scheduled!';
       default: return key;
     }
   }
@@ -471,7 +490,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
     );
   }
 
-  Widget _buildMuhurtaRow(String label, String time, Color textColor) {
+  Widget _buildMuhurtaRow(String label, String time, Color textColor, {VoidCallback? onRemind}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -494,6 +513,21 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
             color: textColor,
           ),
         ),
+        if (onRemind != null) ...[
+          const SizedBox(width: 8),
+          InkWell(
+            onTap: onRemind,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Icon(
+                Icons.notifications_active_outlined,
+                size: 15,
+                color: textColor.withOpacity(0.85),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -609,7 +643,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                     if (data.specialOccasion.isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF0D6),
                           borderRadius: BorderRadius.circular(8),
@@ -626,6 +660,59 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF6B1D1D),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            InkWell(
+                              onTap: () async {
+                                HapticFeedback.mediumImpact();
+                                final reminders = context.read<DevotionalReminderService>();
+                                await reminders.sendCurrentDaySpecialityNotification(lang);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Row(
+                                        children: [
+                                          const Icon(Icons.notifications_active_rounded, color: Colors.amber, size: 20),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              _getText('notif_sent', lang),
+                                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12.5),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      backgroundColor: const Color(0xFF4A1010),
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      duration: const Duration(seconds: 3),
+                                    ),
+                                  );
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(14),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF8B1E1E),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.notifications_active_rounded, color: Colors.white, size: 12),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _getText('notify_me', lang),
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -793,9 +880,79 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                 ],
               ),
               const SizedBox(height: 8),
-              _buildMuhurtaRow(_getText('brahma', lang), data.brahmaMuhurta, const Color(0xFF1B5E20)),
-              const SizedBox(height: 4),
-              _buildMuhurtaRow(_getText('abhijit', lang), data.abhijitMuhurta, const Color(0xFF1B5E20)),
+              _buildMuhurtaRow(
+                _getText('brahma', lang),
+                data.brahmaMuhurta,
+                const Color(0xFF1B5E20),
+                onRemind: () async {
+                  HapticFeedback.mediumImpact();
+                  final reminders = context.read<DevotionalReminderService>();
+                  await reminders.scheduleAuspiciousMuhurtaReminder(
+                    muhurtaName: _getText('brahma', lang),
+                    timeRange: data.brahmaMuhurta,
+                    langCode: lang,
+                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            const Icon(Icons.notifications_active_rounded, color: Colors.amber, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _getText('muhurta_remind_sent', lang),
+                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12.5),
+                              ),
+                            ),
+                          ],
+                        ),
+                        backgroundColor: const Color(0xFF1B5E20),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 6),
+              _buildMuhurtaRow(
+                _getText('abhijit', lang),
+                data.abhijitMuhurta,
+                const Color(0xFF1B5E20),
+                onRemind: () async {
+                  HapticFeedback.mediumImpact();
+                  final reminders = context.read<DevotionalReminderService>();
+                  await reminders.scheduleAuspiciousMuhurtaReminder(
+                    muhurtaName: _getText('abhijit', lang),
+                    timeRange: data.abhijitMuhurta,
+                    langCode: lang,
+                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            const Icon(Icons.notifications_active_rounded, color: Colors.amber, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _getText('muhurta_remind_sent', lang),
+                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12.5),
+                              ),
+                            ),
+                          ],
+                        ),
+                        backgroundColor: const Color(0xFF1B5E20),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                },
+              ),
             ],
           ),
         ),

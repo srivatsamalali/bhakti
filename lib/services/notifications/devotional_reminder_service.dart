@@ -9,6 +9,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:url_launcher/url_launcher.dart';
 import '../panchanga/panchanga_service.dart';
 import '../wisdom/daily_wisdom_service.dart';
+import '../wisdom/special_day_intelligence_service.dart';
 
 class DevotionalNotificationPayload {
   final String id;
@@ -411,16 +412,28 @@ class DevotionalReminderService with ChangeNotifier {
         }
 
         // 5. Special Festival / Auspicious Tithi Alert (~08:00 AM on festival days)
-        if (_festivalAlerts && (panchanga.specialOccasion.isNotEmpty || panchanga.upcomingFestivals.isNotEmpty)) {
+        final specialDay = SpecialDayIntelligenceService.evaluateForDate(targetDate, langCode);
+        if (_festivalAlerts && (specialDay != null || panchanga.specialOccasion.isNotEmpty || panchanga.upcomingFestivals.isNotEmpty)) {
           final scheduledDate = DateTime(targetDate.year, targetDate.month, targetDate.day, 8, 0);
           if (scheduledDate.isAfter(now)) {
             final tzDate = tz.TZDateTime.from(scheduledDate, tz.local);
-            final festivalName = panchanga.specialOccasion.isNotEmpty ? panchanga.specialOccasion : panchanga.upcomingFestivals.first;
+            final String title;
+            final String body;
+
+            if (specialDay != null) {
+              title = '🌸 ${specialDay.title} Today';
+              final ritualsStr = specialDay.rituals.isNotEmpty ? specialDay.rituals.take(2).join(' • ') : specialDay.significance;
+              body = '✨ ${specialDay.deity} (${specialDay.auspiciousColor})\n🙏 $ritualsStr\n॥ ${specialDay.mantra} ॥';
+            } else {
+              final festivalName = panchanga.specialOccasion.isNotEmpty ? panchanga.specialOccasion : panchanga.upcomingFestivals.first;
+              title = '✨ $festivalName Today';
+              body = 'Today is auspicious $festivalName (${panchanga.tithi}). May the Divine grace fill your home.';
+            }
 
             await _notificationsPlugin.zonedSchedule(
               500 + dayOffset,
-              '✨ $festivalName Today',
-              'Today is auspicious $festivalName (${panchanga.tithi}). May the Divine grace fill your home.',
+              title,
+              body,
               tzDate,
               platformDetails,
               androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
@@ -485,6 +498,129 @@ class DevotionalReminderService with ChangeNotifier {
       return granted;
     } catch (e) {
       debugPrint('Error sending instant test notification: $e');
+      return false;
+    }
+  }
+
+  /// Dispatches an immediate notification featuring today's special occasion, deity, color & rituals
+  Future<bool> sendCurrentDaySpecialityNotification(String langCode) async {
+    try {
+      final granted = await requestNotificationPermissions();
+      final now = DateTime.now();
+      final specialDay = SpecialDayIntelligenceService.evaluateForDate(now, langCode);
+      final panchanga = PanchangaService().getPanchangaForDate(now, langCode);
+
+      final String title;
+      final String body;
+
+      if (specialDay != null) {
+        title = '🌸 ${specialDay.title}';
+        final ritualSummary = specialDay.rituals.isNotEmpty
+            ? specialDay.rituals.take(2).join(' • ')
+            : specialDay.significance;
+        body = '✨ ${specialDay.deity} (${specialDay.auspiciousColor})\n🙏 $ritualSummary\n॥ ${specialDay.mantra} ॥';
+      } else {
+        title = '✨ ${panchanga.deityOfTheDay} • ${_getLocalizedMorningTitle(langCode)}';
+        body = 'Today: ${panchanga.tithi} (${panchanga.dayOfWeek})\nShubha Muhurta: ${panchanga.brahmaMuhurta} • Abhijit: ${panchanga.abhijitMuhurta}';
+      }
+
+      if (Platform.isIOS) {
+        try {
+          await _nativeChannel.invokeMethod('showNativeNotification', {
+            'title': title,
+            'body': body,
+          });
+          return true;
+        } catch (e) {
+          debugPrint('Native channel showNativeNotification error: $e');
+        }
+      }
+
+      const NotificationDetails platformDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'devotional_reminders_channel',
+          'Devotional Reminders & Shlokas',
+          channelDescription: 'Sacred daily prayer, tithi alerts and wisdom notifications',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+          presentBanner: true,
+          presentList: true,
+          interruptionLevel: InterruptionLevel.timeSensitive,
+        ),
+      );
+
+      await _notificationsPlugin.show(
+        888,
+        title,
+        body,
+        platformDetails,
+        payload: 'special_day_ritual_alert',
+      );
+
+      return granted;
+    } catch (e) {
+      debugPrint('Error sending current day speciality notification: $e');
+      return false;
+    }
+  }
+
+  /// Schedules or dispatches an auspicious timing reminder (e.g., Brahma Muhurta or Abhijit Muhurta)
+  Future<bool> scheduleAuspiciousMuhurtaReminder({
+    required String muhurtaName,
+    required String timeRange,
+    required String langCode,
+  }) async {
+    try {
+      final granted = await requestNotificationPermissions();
+      final title = '🕉️ $muhurtaName • Auspicious Window';
+      final body = 'Sacred timing: $timeRange. Ideal time for meditation, prayer, and invoking divine blessings.';
+
+      if (Platform.isIOS) {
+        try {
+          await _nativeChannel.invokeMethod('showNativeNotification', {
+            'title': title,
+            'body': body,
+          });
+          return true;
+        } catch (_) {}
+      }
+
+      const NotificationDetails platformDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'devotional_reminders_channel',
+          'Devotional Reminders & Shlokas',
+          channelDescription: 'Sacred daily prayer, tithi alerts and wisdom notifications',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+          presentBanner: true,
+          presentList: true,
+          interruptionLevel: InterruptionLevel.timeSensitive,
+        ),
+      );
+
+      await _notificationsPlugin.show(
+        777,
+        title,
+        body,
+        platformDetails,
+        payload: 'muhurta_reminder',
+      );
+
+      return granted;
+    } catch (e) {
+      debugPrint('Error scheduling auspicious muhurta reminder: $e');
       return false;
     }
   }
@@ -771,13 +907,19 @@ class DevotionalReminderService with ChangeNotifier {
       );
     }
 
-    if (_festivalAlerts && (panchanga.specialOccasion.isNotEmpty || panchanga.upcomingFestivals.isNotEmpty)) {
-      final title = panchanga.specialOccasion.isNotEmpty ? panchanga.specialOccasion : 'Auspicious ${panchanga.tithi}';
+    final specialDay = SpecialDayIntelligenceService.evaluateForDate(now, langCode);
+    if (_festivalAlerts && (specialDay != null || panchanga.specialOccasion.isNotEmpty || panchanga.upcomingFestivals.isNotEmpty)) {
+      final title = specialDay != null
+          ? specialDay.title
+          : (panchanga.specialOccasion.isNotEmpty ? panchanga.specialOccasion : 'Auspicious ${panchanga.tithi}');
+      final body = specialDay != null
+          ? '${specialDay.deity} (${specialDay.auspiciousColor}) • ${specialDay.rituals.isNotEmpty ? specialDay.rituals.first : specialDay.significance}'
+          : 'Today is an auspicious day for fasting, sacred chanting and temple darshan.';
       list.add(
         DevotionalNotificationPayload(
           id: 'special_tithi_alert',
-          title: '✨ $title Today',
-          body: 'Today is an auspicious day for fasting, sacred chanting and temple darshan.',
+          title: '🌸 $title Today',
+          body: body,
           time: '08:00 AM',
           icon: '🔔',
           scheduledFor: DateTime(now.year, now.month, now.day, 8, 0),
