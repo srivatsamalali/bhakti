@@ -9,6 +9,8 @@ import '../../../widgets/moon_phase_dial.dart';
 import '../../../widgets/sacred_filigree_border.dart';
 import '../../wallpaper/sacred_wallpaper_generator_dialog.dart';
 import 'sacred_luck_oracle_dialog.dart';
+import 'special_day_modal_dialog.dart';
+import '../../../../services/wisdom/special_day_intelligence_service.dart';
 
 class DailyPanchangaCard extends StatefulWidget {
   const DailyPanchangaCard({super.key});
@@ -551,43 +553,90 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
         // Deity of the Day & Special Occasion banner
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: const Color(0xFFFFF9E6),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFFFE082)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.star_rounded, color: Color(0xFFFF8F00), size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      data.deityOfTheDay,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF5D4037),
-                      ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: data.specialOccasion.isNotEmpty ? const Color(0xFFD4AF37) : const Color(0xFFFFE082),
+              width: data.specialOccasion.isNotEmpty ? 1.4 : 1.0,
+            ),
+            boxShadow: data.specialOccasion.isNotEmpty
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFFD4AF37).withOpacity(0.18),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
-                ],
-              ),
-              if (data.specialOccasion.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  data.specialOccasion,
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.bold,
-                    color: templeTheme.primaryColor,
-                  ),
+                  ]
+                : null,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: data.specialOccasion.isNotEmpty
+                  ? () async {
+                      HapticFeedback.lightImpact();
+                      final special = SpecialDayIntelligenceService.evaluateForDate(DateTime.now(), lang);
+                      if (special != null && context.mounted) {
+                        await SpecialDayModalDialog.show(context, special);
+                      }
+                    }
+                  : null,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.star_rounded, color: Color(0xFFFF8F00), size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            data.deityOfTheDay,
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF5D4037),
+                            ),
+                          ),
+                        ),
+                        if (data.specialOccasion.isNotEmpty)
+                          const Icon(Icons.chevron_right_rounded, color: Color(0xFF8B1E1E), size: 18),
+                      ],
+                    ),
+                    if (data.specialOccasion.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF0D6),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE2C482)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.auto_awesome, color: Color(0xFF8B1E1E), size: 14),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                data.specialOccasion,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF6B1D1D),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ],
-            ],
+              ),
+            ),
           ),
         ),
 

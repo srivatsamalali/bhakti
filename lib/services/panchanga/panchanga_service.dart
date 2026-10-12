@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../wisdom/special_day_intelligence_service.dart';
 
 class PanchangaData {
   final String tithi;
@@ -412,8 +413,14 @@ class PanchangaService with ChangeNotifier {
     final dayOfWeek = _getLocalizedWeekday(weekday, lang: lang);
     final deityOfTheDay = _getLocalizedDeity(weekday, isAngarkiSankashti || isSankashti, isEkadashi, isPradosha, lang: lang);
 
+    final specialDay = SpecialDayIntelligenceService.evaluateForDate(date, lang);
+
     String specialOccasion = '';
-    if (isAngarkiSankashti) {
+    if (specialDay != null) {
+      specialOccasion = specialDay.auspiciousColor != null
+          ? '🌸 ${specialDay.title} • ${specialDay.deity} (${specialDay.auspiciousColor})'
+          : '🌸 ${specialDay.title} • ${specialDay.deity}';
+    } else if (isAngarkiSankashti) {
       specialOccasion = _getLocalizedOccasion('angarki_sankashti', lang);
     } else if (isSankashti) {
       specialOccasion = _getLocalizedOccasion('sankashti', lang);
@@ -436,6 +443,21 @@ class PanchangaService with ChangeNotifier {
     final gulikaKalam = _getGulikaKalam(weekday, lang);
 
     final upcomingFestivals = _getDynamicUpcomingFestivals(date, lang);
+    if (specialDay != null) {
+      final exists = upcomingFestivals.any((f) => f.daysRemaining == 0);
+      if (!exists) {
+        upcomingFestivals.insert(
+          0,
+          SacredFestival(
+            name: specialDay.title,
+            date: DateFormat('MMM dd, yyyy').format(date),
+            daysRemaining: 0,
+            deity: specialDay.deity,
+            significance: specialDay.significance,
+          ),
+        );
+      }
+    }
 
     return PanchangaData(
       tithi: tithi,
