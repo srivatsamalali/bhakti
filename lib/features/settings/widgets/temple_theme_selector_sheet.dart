@@ -96,6 +96,11 @@ class TempleThemeSelectorSheet extends StatelessWidget {
                       ],
                     ),
                   ),
+                  IconButton(
+                    icon: Icon(Icons.close_rounded, color: activeTheme.primaryColor),
+                    onPressed: () => Navigator.pop(context),
+                    tooltip: 'Close',
+                  ),
                 ],
               ),
               const SizedBox(height: 20),

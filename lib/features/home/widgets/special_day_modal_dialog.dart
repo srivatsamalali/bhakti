@@ -210,7 +210,7 @@ class SpecialDayModalDialog extends StatelessWidget {
             children: [
               // --- Header Ribbon ---
               Container(
-                padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
@@ -222,41 +222,48 @@ class SpecialDayModalDialog extends StatelessWidget {
                 child: Row(
                   children: [
                     // Festive Day Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF8B1E1E), Color(0xFF5E1010)],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF8B1E1E).withOpacity(0.35),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF8B1E1E), Color(0xFF5E1010)],
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.wb_sunny_rounded, color: Color(0xFFFFDF7A), size: 14),
-                          const SizedBox(width: 6),
-                          Text(
-                            displayInfo.badgeText,
-                            style: const TextStyle(
-                              color: Color(0xFFFFF9EE),
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.3,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF8B1E1E).withOpacity(0.35),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.wb_sunny_rounded, color: Color(0xFFFFDF7A), size: 14),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  displayInfo.badgeText,
+                                  style: const TextStyle(
+                                    color: Color(0xFFFFF9EE),
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 8),
 
-                    // In-Modal Language Switcher Dropdown (44dp touch target)
+                    // In-Modal Language Switcher Dropdown
                     PopupMenuButton<String>(
                       tooltip: _tr('selectLanguage', currentLang),
                       onSelected: (String newLang) async {
@@ -296,8 +303,7 @@ class SpecialDayModalDialog extends StatelessWidget {
                         ),
                       ],
                       child: Container(
-                        constraints: const BoxConstraints(minHeight: 40),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                         decoration: BoxDecoration(
                           color: const Color(0xFF8B1E1E).withOpacity(0.08),
                           borderRadius: BorderRadius.circular(14),
@@ -306,24 +312,26 @@ class SpecialDayModalDialog extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.language_rounded, size: 16, color: Color(0xFF8B1E1E)),
+                            const Icon(Icons.language_rounded, size: 15, color: Color(0xFF8B1E1E)),
                             const SizedBox(width: 4),
                             Text(
                               currentLang.toUpperCase(),
                               style: const TextStyle(
-                                fontSize: 12.5,
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF5A1E14),
                               ),
                             ),
-                            const Icon(Icons.arrow_drop_down_rounded, size: 18, color: Color(0xFF5A1E14)),
+                            const Icon(Icons.arrow_drop_down_rounded, size: 16, color: Color(0xFF5A1E14)),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
 
-                    // Accessible Close 'X' Button (44dp minimum touch target)
+                    // Spacer to push Close 'X' button to the far right
+                    const Spacer(),
+
+                    // Accessible Close 'X' Button (Fixed 38x38 circular target on the right edge)
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
@@ -331,9 +339,10 @@ class SpecialDayModalDialog extends StatelessWidget {
                           HapticFeedback.lightImpact();
                           Navigator.of(context).pop();
                         },
-                        borderRadius: BorderRadius.circular(22),
+                        borderRadius: BorderRadius.circular(20),
                         child: Container(
-                          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                          width: 38,
+                          height: 38,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: const Color(0xFF8B1E1E).withOpacity(0.08),
@@ -341,7 +350,7 @@ class SpecialDayModalDialog extends StatelessWidget {
                           ),
                           child: const Icon(
                             Icons.close_rounded,
-                            size: 22,
+                            size: 20,
                             color: Color(0xFF5A1E14),
                           ),
                         ),
@@ -485,10 +494,10 @@ class SpecialDayModalDialog extends StatelessWidget {
                       // Sacred Daily Mantra Box
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFAF0DC),
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: const Color(0xFFD4AF37).withOpacity(0.8),
                             width: 1.2,
@@ -496,22 +505,22 @@ class SpecialDayModalDialog extends StatelessWidget {
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.auto_awesome, size: 16, color: Color(0xFF8B1E1E)),
-                                const SizedBox(width: 8),
+                                const Icon(Icons.auto_awesome, size: 15, color: Color(0xFF8B1E1E)),
+                                const SizedBox(width: 7),
                                 Expanded(
                                   child: Text(
                                     _tr('mantra', currentLang),
                                     style: const TextStyle(
-                                      fontSize: 13,
+                                      fontSize: 12.5,
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xFF8B1E1E),
                                     ),
                                   ),
                                 ),
-                                // Accessible 44dp Copy Button
                                 Tooltip(
                                   message: _tr('copySuccess', currentLang),
                                   child: InkWell(
@@ -526,13 +535,12 @@ class SpecialDayModalDialog extends StatelessWidget {
                                         ),
                                       );
                                     },
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Container(
-                                      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                                      alignment: Alignment.center,
-                                      child: const Icon(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(4),
+                                      child: Icon(
                                         Icons.copy_rounded,
-                                        size: 18,
+                                        size: 17,
                                         color: Color(0xFF6B3A22),
                                       ),
                                     ),
@@ -540,15 +548,15 @@ class SpecialDayModalDialog extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 4),
                             Text(
                               displayInfo.mantra,
                               style: const TextStyle(
-                                fontSize: 14.5,
+                                fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF220F07),
                                 fontStyle: FontStyle.italic,
-                                height: 1.4,
+                                height: 1.35,
                               ),
                             ),
                           ],
@@ -719,27 +727,34 @@ class SpecialDayModalDialog extends StatelessWidget {
 
               // --- Bottom Actions: Family Share & Darshan Dismiss ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
                 child: Row(
                   children: [
                     // WhatsApp / Family Blessings Share Button
-                    OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF6B1D1D),
-                        side: const BorderSide(color: Color(0xFF8B1E1E), width: 1.4),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                    Expanded(
+                      flex: 2,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF6B1D1D),
+                          side: const BorderSide(color: Color(0xFF8B1E1E), width: 1.4),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          minimumSize: const Size(0, 48),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                         ),
-                        minimumSize: const Size(48, 48),
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                      ),
-                      onPressed: () => _shareBlessings(context, displayInfo, currentLang),
-                      icon: const Icon(Icons.share_rounded, size: 18),
-                      label: Text(
-                        _tr('shareBtn', currentLang),
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.bold,
+                        onPressed: () => _shareBlessings(context, displayInfo, currentLang),
+                        icon: const Icon(Icons.share_rounded, size: 17),
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            _tr('shareBtn', currentLang),
+                            maxLines: 1,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -747,6 +762,7 @@ class SpecialDayModalDialog extends StatelessWidget {
 
                     // Primary Darshan Button (Clean FittedBox with single-line guarantee)
                     Expanded(
+                      flex: 3,
                       child: SizedBox(
                         height: 48,
                         child: ElevatedButton(
@@ -757,6 +773,8 @@ class SpecialDayModalDialog extends StatelessWidget {
                               borderRadius: BorderRadius.circular(14),
                             ),
                             elevation: 2.5,
+                            minimumSize: const Size(0, 48),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                           ),
                           onPressed: () {
                             HapticFeedback.lightImpact();
@@ -768,7 +786,7 @@ class SpecialDayModalDialog extends StatelessWidget {
                               _tr('darshanBtn', currentLang),
                               maxLines: 1,
                               style: const TextStyle(
-                                fontSize: 15,
+                                fontSize: 14.5,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.3,
                               ),

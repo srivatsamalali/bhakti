@@ -481,11 +481,17 @@ class _SacredWallpaperGeneratorDialogState extends State<SacredWallpaperGenerato
                     icon: _isProcessing
                         ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.download_rounded, size: 16),
-                    label: const Text('Save 4K', style: TextStyle(fontSize: 12.5)),
+                    label: const Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text('Save 4K', style: TextStyle(fontSize: 12.5)),
+                      ),
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: activeTheme.primaryColor,
                       side: BorderSide(color: activeTheme.primaryColor, width: 1.5),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      minimumSize: const Size(0, 46),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                     onPressed: _isProcessing ? null : _saveWallpaper,
@@ -502,11 +508,17 @@ class _SacredWallpaperGeneratorDialogState extends State<SacredWallpaperGenerato
                         icon: _isProcessing
                             ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                             : const Icon(Icons.share_rounded, size: 16),
-                        label: const Text('Share Status & Story', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                        label: const Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text('Share Status & Story', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: activeTheme.primaryColor,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          minimumSize: const Size(0, 46),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           elevation: 2,
                         ),

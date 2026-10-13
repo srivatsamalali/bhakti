@@ -251,18 +251,23 @@ class _GlassTabBarState extends State<GlassTabBar> {
                                   ],
                                 ),
                                 const SizedBox(height: 3),
-                                Text(
-                                  item.label,
-                                  style: TextStyle(
-                                    fontSize: 10.5,
-                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                                    color: isSelected
-                                        ? effectiveActiveColor
-                                        : AppColors.textDark.withOpacity(0.80),
-                                    letterSpacing: 0.1,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      item.label,
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                                        color: isSelected
+                                            ? effectiveActiveColor
+                                            : AppColors.textDark.withOpacity(0.80),
+                                        letterSpacing: 0.1,
+                                      ),
+                                      maxLines: 1,
+                                    ),
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),

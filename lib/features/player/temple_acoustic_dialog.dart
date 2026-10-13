@@ -53,9 +53,11 @@ class TempleAcousticDialog extends StatelessWidget {
         children: [
           Icon(Icons.surround_sound_rounded, color: AppColors.goldLight, size: 22),
           SizedBox(width: 10),
-          Text(
-            'Temple Acoustic Ambiance',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+          Expanded(
+            child: Text(
+              'Temple Acoustic Ambiance',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
           ),
         ],
       ),

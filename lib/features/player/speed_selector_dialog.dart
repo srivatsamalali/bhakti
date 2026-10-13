@@ -17,8 +17,9 @@ class SpeedSelectorDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Container(
-        width: 340,
+        constraints: const BoxConstraints(maxWidth: 340),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: AppColors.creamCard,
@@ -98,12 +99,14 @@ class SpeedSelectorDialog extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            '${speed}x ${speed == 1.0 ? "(Normal)" : ""}',
-                            style: TextStyle(
-                              fontSize: 14.5,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                              color: isSelected ? AppColors.maroonPrimary : AppColors.textDark,
+                          Expanded(
+                            child: Text(
+                              '${speed}x ${speed == 1.0 ? "(Normal)" : ""}',
+                              style: TextStyle(
+                                fontSize: 14.5,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                color: isSelected ? AppColors.maroonPrimary : AppColors.textDark,
+                              ),
                             ),
                           ),
                           if (isSelected)

@@ -52,64 +52,84 @@ class QueueSheet extends StatelessWidget {
 
           // Header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: AppColors.maroonPrimary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.maroonPrimary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.queue_music, color: AppColors.maroonPrimary, size: 22),
                       ),
-                      child: const Icon(Icons.queue_music, color: AppColors.maroonPrimary, size: 22),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      context.tr('queue'),
-                      style: AppTypography.titleMedium.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.maroonPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: AppColors.goldPrimary.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.goldPrimary.withOpacity(0.4)),
-                      ),
-                      child: Text(
-                        '${queue.length}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.maroonPrimary,
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          context.tr('queue'),
+                          style: AppTypography.titleMedium.copyWith(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.maroonPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.goldPrimary.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.goldPrimary.withOpacity(0.4)),
+                        ),
+                        child: Text(
+                          '${queue.length}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.maroonPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 if (queue.isNotEmpty)
                   TextButton.icon(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    ),
                     icon: const Icon(Icons.clear_all, size: 18, color: AppColors.error),
                     onPressed: () {
                       player.clearQueue();
                       Navigator.pop(context);
                     },
-                    label: Text(
-                      context.tr('clearQueue'),
-                      style: const TextStyle(
-                        color: AppColors.error,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        context.tr('clearQueue'),
+                        style: const TextStyle(
+                          color: AppColors.error,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, size: 20, color: AppColors.maroonPrimary),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () => Navigator.pop(context),
+                  tooltip: 'Close',
+                ),
               ],
             ),
           ),

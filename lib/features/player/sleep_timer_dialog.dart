@@ -24,8 +24,9 @@ class SleepTimerDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Container(
-        width: 380,
+        constraints: const BoxConstraints(maxWidth: 380),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: AppColors.creamCard,
@@ -118,12 +119,14 @@ class SleepTimerDialog extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            label,
-                            style: TextStyle(
-                              fontSize: 14.5,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                              color: isSelected ? AppColors.maroonPrimary : AppColors.textDark,
+                          Expanded(
+                            child: Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 14.5,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                color: isSelected ? AppColors.maroonPrimary : AppColors.textDark,
+                              ),
                             ),
                           ),
                           if (isSelected)

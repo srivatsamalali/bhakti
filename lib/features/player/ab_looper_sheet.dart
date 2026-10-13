@@ -44,12 +44,17 @@ class AbLooperSheet extends StatelessWidget {
             children: [
               const Icon(Icons.repeat_on_rounded, color: AppColors.goldLight, size: 22),
               const SizedBox(width: 8),
-              const Text(
-                'A-B Stanza Memorization Looper',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: const Text(
+                    'A-B Stanza Memorization Looper',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -167,9 +172,14 @@ class AbLooperSheet extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                   icon: Icon(player.isRangeLoopEnabled ? Icons.sync_rounded : Icons.sync_disabled_rounded),
-                  label: Text(
-                    player.isRangeLoopEnabled ? 'Looping Stanza Active' : 'Enable Stanza Loop',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                  label: Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        player.isRangeLoopEnabled ? 'Looping Stanza Active' : 'Enable Stanza Loop',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                      ),
+                    ),
                   ),
                   onPressed: () {
                     player.toggleRangeLoop();
@@ -188,7 +198,10 @@ class AbLooperSheet extends StatelessWidget {
                   onPressed: () {
                     player.clearRangeLoop();
                   },
-                  child: const Text('Reset', style: TextStyle(fontSize: 13)),
+                  child: const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text('Reset', style: TextStyle(fontSize: 13)),
+                  ),
                 ),
               ),
             ],

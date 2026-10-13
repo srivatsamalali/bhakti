@@ -545,15 +545,15 @@ class _SacredLuckOracleDialogState extends State<SacredLuckOracleDialog> with Si
                       ),
                       if (_selectedDob != null) ...[
                         const SizedBox(height: 10),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
                           children: [
                             _buildMiniTag('ಮೂಲಾಂಕ: $mulank', 'मूल अंक: $mulank', 'Root: $mulank', theme),
-                            const SizedBox(width: 8),
                             _buildMiniTag('ಭಾಗ್ಯಾಂಕ: $bhagyank', 'भाग्यांक: $bhagyank', 'Destiny: $bhagyank', theme),
+                            _buildMiniTag('ಗ್ರಹಾಧಿಪತಿ: ${_getPlanetForNumber(mulank, lang)}', 'ग्रह स्वामी: ${_getPlanetForNumber(mulank, lang)}', 'Ruler: ${_getPlanetForNumber(mulank, lang)}', theme),
                           ],
                         ),
-                        const SizedBox(height: 6),
-                        _buildMiniTag('ಗ್ರಹಾಧಿಪತಿ: ${_getPlanetForNumber(mulank, lang)}', 'ग्रह स्वामी: ${_getPlanetForNumber(mulank, lang)}', 'Ruler: ${_getPlanetForNumber(mulank, lang)}', theme),
                       ],
                     ],
                   ),
@@ -658,22 +658,28 @@ class _SacredLuckOracleDialogState extends State<SacredLuckOracleDialog> with Si
                       ElevatedButton.icon(
                         onPressed: isCooldownActive ? null : _rollDiceAndCalculate,
                         icon: Icon(isCooldownActive ? Icons.lock_clock_outlined : Icons.casino_outlined, size: 18),
-                        label: Text(
-                          isCooldownActive
-                              ? (lang == 'kn'
-                                  ? 'ಕಾಯುವಿಕೆ: ${_formatCooldown(_cooldownSecondsRemaining)} ⏳'
-                                  : (lang == 'hi'
-                                      ? 'प्रतीक्षा करें: ${_formatCooldown(_cooldownSecondsRemaining)} ⏳'
-                                      : 'Next Roll in ${_formatCooldown(_cooldownSecondsRemaining)} ⏳'))
-                              : (_hasCalculated
-                                  ? (lang == 'kn' ? 'ಮತ್ತೊಮ್ಮೆ ಲೆಕ್ಕ ಹಾಕಿ 🎲' : (lang == 'hi' ? 'पुनः गणना करें 🎲' : 'Recalculate Luck 🎲'))
-                                  : (lang == 'kn' ? 'ಕವಡೆ ಉರುಳಿಸಿ ಲೈವ್ ಅದೃಷ್ಟ ಪಡೆಯಿರಿ 🎲' : (lang == 'hi' ? 'पासा फेंकें व लाइव भाग्य जानें 🎲' : 'Roll Dice & Extract Live Luck 🎲'))),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        label: Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              isCooldownActive
+                                  ? (lang == 'kn'
+                                      ? 'ಕಾಯುವಿಕೆ: ${_formatCooldown(_cooldownSecondsRemaining)} ⏳'
+                                      : (lang == 'hi'
+                                          ? 'प्रतीक्षा करें: ${_formatCooldown(_cooldownSecondsRemaining)} ⏳'
+                                          : 'Next Roll in ${_formatCooldown(_cooldownSecondsRemaining)} ⏳'))
+                                  : (_hasCalculated
+                                      ? (lang == 'kn' ? 'ಮತ್ತೊಮ್ಮೆ ಲೆಕ್ಕ ಹಾಕಿ 🎲' : (lang == 'hi' ? 'पुनः गणना करें 🎲' : 'Recalculate Luck 🎲'))
+                                      : (lang == 'kn' ? 'ಕವಡೆ ಉರುಳಿಸಿ ಲೈವ್ ಅದೃಷ್ಟ ಪಡೆಯಿರಿ 🎲' : (lang == 'hi' ? 'पासा फेंकें व लाइव भाग्य जानें 🎲' : 'Roll Dice & Extract Live Luck 🎲'))),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                          ),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: isCooldownActive ? Colors.grey.shade400 : theme.primaryColor,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                          minimumSize: const Size(0, 48),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

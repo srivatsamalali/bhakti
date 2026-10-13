@@ -368,13 +368,14 @@ class _SongRequestDialogState extends State<SongRequestDialog> {
                       // Submit Button
                       SizedBox(
                         width: double.infinity,
-                        height: 50,
                         child: ElevatedButton(
                           onPressed: _isSubmitting ? null : _handleSubmit,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: templeTheme.primaryColor,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            minimumSize: const Size(0, 48),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             elevation: 2,
                           ),
                           child: _isSubmitting
@@ -385,12 +386,18 @@ class _SongRequestDialogState extends State<SongRequestDialog> {
                                 )
                               : const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(Icons.send_rounded, size: 18),
                                     SizedBox(width: 8),
-                                    Text(
-                                      'Submit Song Request',
-                                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                    Flexible(
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          'Submit Song Request',
+                                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),

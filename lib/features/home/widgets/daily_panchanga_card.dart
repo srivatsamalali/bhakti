@@ -479,9 +479,10 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                   color: isSelected ? templeTheme.primaryColor : const Color(0xFF7D6B5E),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                child: Text(label),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(label),
+                ),
               ),
             ),
           ),
@@ -704,12 +705,17 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
                                   children: [
                                     const Icon(Icons.notifications_active_rounded, color: Colors.white, size: 12),
                                     const SizedBox(width: 4),
-                                    Text(
-                                      _getText('notify_me', lang),
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                                    Flexible(
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          _getText('notify_me', lang),
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -1461,10 +1467,11 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
           side: BorderSide(color: templeTheme.borderColor, width: 1.8),
         ),
         contentPadding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Sacred Header with Theme Sun
             Row(
               children: [
@@ -1783,6 +1790,7 @@ class _DailyPanchangaCardState extends State<DailyPanchangaCard> {
             ),
           ],
         ),
+      ),
         actions: [
           Center(
             child: TextButton(

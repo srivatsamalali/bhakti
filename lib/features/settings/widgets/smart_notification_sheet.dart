@@ -74,6 +74,11 @@ class SmartNotificationSheet extends StatelessWidget {
                   ],
                 ),
               ),
+              IconButton(
+                icon: const Icon(Icons.close_rounded, color: AppColors.maroonPrimary),
+                onPressed: () => Navigator.pop(context),
+                tooltip: 'Close',
+              ),
             ],
           ),
           const SizedBox(height: 16),
