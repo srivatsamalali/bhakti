@@ -1,0 +1,2441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Primary SEO Meta Tags -->
+  <title>Bhakti – Devotional Music & Hindu Panchanga</title>
+  <meta name="title" content="Bhakti – Devotional Music & Hindu Panchanga">
+  <meta name="description" content="Discover Bhakti: your daily Android companion for sacred Hindu devotional music, stotras, and precise Vedic Panchanga with Tithi, Nakshatra, Muhurtha, and daily timings.">
+  <meta name="keywords" content="Bhakti app, Hindu Panchanga, devotional music, daily Hindu calendar, Vedic calendar, stotras, bhajans, Tithi, Nakshatra, Rahu Kalam, Brahma Muhurtha, Kannada devotional songs">
+  <meta name="author" content="Srivatsa Malali">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://srivatsamalali.github.io/bhakti/home.html">
+  <meta property="og:title" content="Bhakti – Devotional Music & Hindu Panchanga">
+  <meta property="og:description" content="Your daily companion for sacred devotional music and daily Hindu Panchanga information in one serene, beautifully crafted app.">
+  <meta property="og:image" content="assets/images/bhakti_logo.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://srivatsamalali.github.io/bhakti/home.html">
+  <meta property="twitter:title" content="Bhakti – Devotional Music & Hindu Panchanga">
+  <meta property="twitter:description" content="Your daily companion for sacred devotional music and daily Hindu Panchanga information in one serene, beautifully crafted app.">
+  <meta property="twitter:image" content="assets/images/bhakti_logo.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  <link rel="apple-touch-icon" href="assets/images/app_icon.png">
+
+  <!-- Google Fonts: Cinzel for sacred headings, Plus Jakarta Sans for clean accessible readability -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       Design System & Variables
+       Inspired by Indian Temple Architecture, Warm Gold, Sandalwood & Saffron
+       ========================================================================== */
+    :root {
+      --maroon-primary: #7A1426;
+      --maroon-dark: #520B17;
+      --maroon-light: #9E1F35;
+      --maroon-surface: #380710;
+
+      --saffron-primary: #D96B06;
+      --saffron-light: #F59E0B;
+      --saffron-dark: #B45309;
+
+      --gold-primary: #C8932C;
+      --gold-light: #DFAB48;
+      --gold-muted: #E8CA88;
+      --gold-dark: #9B6E16;
+
+      --bg-cream: #FFFDF9;
+      --bg-surface: #FAF4E8;
+      --bg-parchment: #F7F4EE;
+      --bg-card: #FFFFFF;
+
+      --border-subtle: #E8E0D2;
+      --border-gold: rgba(200, 147, 44, 0.4);
+      --border-maroon: rgba(122, 20, 38, 0.2);
+
+      --text-main: #1F1612;
+      --text-muted: #5E5047;
+      --text-light: #FFF9F2;
+      --text-light-muted: #E5D7CA;
+
+      --shadow-sm: 0 2px 8px rgba(31, 22, 18, 0.05);
+      --shadow-md: 0 6px 20px rgba(122, 20, 38, 0.07);
+      --shadow-lg: 0 12px 36px rgba(122, 20, 38, 0.12);
+      --shadow-gold: 0 8px 24px rgba(217, 107, 6, 0.18);
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+
+      --font-display: 'Cinzel', Georgia, serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Reset & Base Setup */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-cream);
+      color: var(--text-main);
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    a {
+      color: var(--maroon-primary);
+      text-decoration: none;
+      transition: color 0.2s ease, text-decoration 0.2s ease;
+    }
+
+    a:hover {
+      color: var(--saffron-primary);
+    }
+
+    a:focus-visible, button:focus-visible {
+      outline: 3px solid var(--gold-primary);
+      outline-offset: 3px;
+    }
+
+    /* Container Utility */
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Sanskrit / Sacred Motifs */
+    .sacred-shloka {
+      font-family: var(--font-display);
+      color: var(--gold-primary);
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      text-align: center;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-gold);
+      color: var(--maroon-primary);
+    }
+
+    /* ==========================================================================
+       Header & Navigation
+       ========================================================================== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 253, 249, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all 0.3s ease;
+    }
+
+    .nav-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 76px;
+    }
+
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(122, 20, 38, 0.15);
+      border: 1px solid var(--border-gold);
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--maroon-primary);
+      letter-spacing: 0.5px;
+    }
+
+    .brand-tagline {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--saffron-primary);
+      letter-spacing: 0.5px;
+      margin-top: -3px;
+    }
+
+    .desktop-nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .desktop-nav a {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-main);
+      position: relative;
+      padding: 6px 0;
+    }
+
+    .desktop-nav a:hover {
+      color: var(--maroon-primary);
+    }
+
+    .desktop-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--saffron-primary);
+      transition: width 0.25s ease;
+    }
+
+    .desktop-nav a:hover::after {
+      width: 100%;
+    }
+
+    .btn-header {
+      padding: 10px 18px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, var(--maroon-primary), var(--maroon-dark));
+      color: var(--text-light);
+      border: 1px solid var(--gold-primary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-header:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+      color: var(--text-light);
+    }
+
+    /* Mobile Hamburger */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      color: var(--maroon-primary);
+    }
+
+    .mobile-menu-btn svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    /* Mobile Drawer */
+    .mobile-nav {
+      display: none;
+      flex-direction: column;
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-subtle);
+      gap: 16px;
+    }
+
+    .mobile-nav.open {
+      display: flex;
+    }
+
+    .mobile-nav a {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      padding: 8px 0;
+    }
+
+    /* ==========================================================================
+       Hero Section
+       ========================================================================== */
+    .hero-section {
+      position: relative;
+      padding: 64px 0 80px;
+      background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.12) 0%, transparent 60%),
+                  radial-gradient(circle at bottom left, rgba(122, 20, 38, 0.08) 0%, transparent 50%),
+                  var(--bg-cream);
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: center;
+      gap: 48px;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .hero-pill {
+      margin-bottom: 18px;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 2.85rem;
+      line-height: 1.22;
+      color: var(--maroon-primary);
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .hero-title .accent-text {
+      color: var(--saffron-primary);
+      display: block;
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 32px;
+      max-width: 560px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    /* Google Play Button Styling */
+    .play-btn-wrapper {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .btn-play-store {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      background: #111827;
+      color: #FFFFFF;
+      border: 1px solid #374151;
+      font-weight: 600;
+      cursor: not-allowed;
+      position: relative;
+      box-shadow: var(--shadow-md);
+      opacity: 0.95;
+      transition: all 0.2s ease;
+    }
+
+    .btn-play-store svg {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+
+    .btn-play-store .btn-text-small {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #9CA3AF;
+    }
+
+    .btn-play-store .btn-text-large {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1.1;
+    }
+
+    .play-badge-notice {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--saffron-dark);
+      background: #FEF3C7;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      border: 1px solid rgba(217, 107, 6, 0.2);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      color: var(--maroon-primary);
+      border: 1.5px solid var(--border-gold);
+      font-weight: 600;
+      font-size: 0.98rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-surface);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Trust Highlights Row */
+    .hero-trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .trust-item svg {
+      width: 18px;
+      height: 18px;
+      color: var(--gold-primary);
+      flex-shrink: 0;
+    }
+
+    /* Hero Visual Showcase */
+    .hero-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .visual-frame {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-card);
+      border-radius: 36px;
+      padding: 16px;
+      box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-gold);
+      border: 6px solid #2B211E;
+      position: relative;
+    }
+
+    .visual-screen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 12px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .screen-status-time {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .visual-app-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 0 10px;
+    }
+
+    .visual-mini-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border-gold);
+    }
+
+    /* Mini Panchanga Card Preview */
+    .mini-panchanga-card {
+      background: linear-gradient(135deg, #FFFDF9, #FAF4E8);
+      border: 1.2px solid var(--border-gold);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(200, 147, 44, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mini-panchanga-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .mini-date-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--maroon-primary);
+      background: rgba(122, 20, 38, 0.08);
+      padding: 2px 8px;
+      border-radius: 9999px;
+    }
+
+    .mini-tithi-title {
+      font-family: var(--font-display);
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--maroon-primary);
+      margin-bottom: 2px;
+    }
+
+    .mini-nakshatra-sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .mini-timings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .mini-timing-pill {
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 4px 8px;
+      font-size: 0.7rem;
+    }
+
+    .mini-timing-pill span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.65rem;
+    }
+
+    .mini-timing-pill strong {
+      color: var(--maroon-primary);
+      font-weight: 600;
+    }
+
+    /* Mini Audio Player Card Preview */
+    .mini-player-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mini-player-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .mini-song-art {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--maroon-primary), var(--saffron-primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 8px rgba(122, 20, 38, 0.2);
+    }
+
+    .mini-song-info {
+      flex: 1;
+    }
+
+    .mini-song-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .mini-song-deity {
+      font-size: 0.74rem;
+      color: var(--saffron-dark);
+      font-weight: 600;
+    }
+
+    .mini-progress-bar {
+      height: 4px;
+      background: var(--bg-surface);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .mini-progress-fill {
+      width: 42%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--saffron-primary), var(--gold-primary));
+    }
+
+    .mini-player-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .mini-control-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--maroon-primary);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+    }
+
+    /* Floating Diya Ornament */
+    .floating-diya {
+      position: absolute;
+      top: -24px;
+      right: -20px;
+      background: #FFFFFF;
+      border: 1.5px solid var(--border-gold);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+      font-size: 1.8rem;
+      animation: floatSubtle 4s ease-in-out infinite;
+    }
+
+    @keyframes floatSubtle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* ==========================================================================
+       Section Utilities & Headers
+       ========================================================================== */
+    .section {
+      padding: 88px 0;
+      position: relative;
+    }
+
+    .section-alt {
+      background-color: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 56px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--saffron-dark);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      color: var(--maroon-primary);
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+
+    .section-description {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* ==========================================================================
+       Section B: Devotional Music Features
+       ========================================================================== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--gold-primary);
+    }
+
+    .feature-icon-wrapper {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--bg-surface), #FFF);
+      border: 1px solid var(--border-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--maroon-primary);
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    .feature-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--maroon-primary);
+      margin-bottom: 12px;
+    }
+
+    .feature-text {
+      font-size: 0.96rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+
+    .feature-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .feature-pill {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--maroon-dark);
+      background: var(--bg-parchment);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      border: 1px solid rgba(200, 147, 44, 0.25);
+    }
+
+    /* ==========================================================================
+       Section C: Hindu Panchanga (Prominent Feature)
+       ========================================================================== */
+    .panchanga-spotlight {
+      background: linear-gradient(180deg, #FFFFFF, var(--bg-surface));
+      border: 1.5px solid var(--border-gold);
+      border-radius: var(--radius-xl);
+      padding: 48px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 48px;
+    }
+
+    .panchanga-pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin: 36px 0;
+    }
+
+    .pillar-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-top: 3px solid var(--gold-primary);
+      border-radius: var(--radius-md);
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pillar-name-sanskrit {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--maroon-primary);
+      margin-bottom: 4px;
+    }
+
+    .pillar-english {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--saffron-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .pillar-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .panchanga-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .panchanga-info-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      display: flex;
+      gap: 16px;
+    }
+
+    .panchanga-info-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .panchanga-info-content h4 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--maroon-primary);
+      margin-bottom: 6px;
+    }
+
+    .panchanga-info-content p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Accuracy & Integrity Disclaimer Box */
+    .panchanga-disclaimer-box {
+      background: #FFF8E7;
+      border: 1px solid rgba(217, 107, 6, 0.3);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin-top: 32px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .disclaimer-icon {
+      font-size: 1.3rem;
+      color: var(--saffron-dark);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .disclaimer-text {
+      font-size: 0.86rem;
+      color: #78350F;
+      line-height: 1.6;
+    }
+
+    .disclaimer-text strong {
+      color: #92400E;
+    }
+
+    /* ==========================================================================
+       Section D: Why Bhakti?
+       ========================================================================== */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 28px;
+    }
+
+    .why-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .why-card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-gold);
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .why-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--maroon-primary);
+      margin-bottom: 12px;
+    }
+
+    .why-card p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       Section E: App Preview Showcase
+       ========================================================================== */
+    .preview-showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+    }
+
+    .preview-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-phone-mock {
+      background: linear-gradient(145deg, #1F1612, #2B211E);
+      border-radius: 28px;
+      padding: 12px;
+      border: 4px solid #453834;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .preview-screen-inner {
+      background: var(--bg-cream);
+      border-radius: 20px;
+      padding: 18px;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .preview-item h3 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--maroon-primary);
+      margin-bottom: 8px;
+    }
+
+    .preview-item p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .preview-label-badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--maroon-primary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-gold);
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    /* ==========================================================================
+       Section F: Supported Languages
+       ========================================================================== */
+    .languages-wrapper {
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .languages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .language-card {
+      background: var(--bg-surface);
+      border: 1.2px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px 14px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .language-card:hover {
+      border-color: var(--gold-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .language-card.active-default {
+      border-color: var(--maroon-primary);
+      background: #FFFDF9;
+      position: relative;
+    }
+
+    .lang-script {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--maroon-primary);
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .lang-native {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .lang-english {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .lang-note-box {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 20px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       Section G: About the Creator
+       ========================================================================== */
+    .creator-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--border-gold);
+      border-radius: var(--radius-xl);
+      padding: 48px;
+      box-shadow: var(--shadow-md);
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .creator-avatar-wrapper {
+      text-align: center;
+    }
+
+    .creator-avatar {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 16px;
+      border: 4px solid var(--bg-surface);
+      box-shadow: 0 4px 16px rgba(122, 20, 38, 0.15);
+      border: 2px solid var(--gold-primary);
+    }
+
+    .creator-role-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--saffron-dark);
+      background: #FEF3C7;
+      padding: 3px 12px;
+      border-radius: 9999px;
+      border: 1px solid rgba(217, 107, 6, 0.2);
+    }
+
+    .creator-bio h3 {
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      color: var(--maroon-primary);
+      margin-bottom: 8px;
+    }
+
+    .creator-bio p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .creator-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .creator-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 600;
+      border: 1px solid var(--border-gold);
+      background: var(--bg-surface);
+      color: var(--maroon-primary);
+      transition: all 0.2s ease;
+    }
+
+    .creator-link-btn:hover {
+      background: var(--maroon-primary);
+      color: #FFFFFF;
+      border-color: var(--maroon-primary);
+    }
+
+    /* ==========================================================================
+       Section H: Frequently Asked Questions (FAQ)
+       ========================================================================== */
+    .faq-container {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s ease;
+    }
+
+    .faq-item:hover {
+      border-color: var(--gold-primary);
+    }
+
+    .faq-question {
+      width: 100%;
+      text-align: left;
+      padding: 20px 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-display);
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--maroon-primary);
+    }
+
+    .faq-toggle-icon {
+      font-size: 1.4rem;
+      color: var(--gold-primary);
+      transition: transform 0.25s ease;
+    }
+
+    .faq-item.open .faq-toggle-icon {
+      transform: rotate(45deg);
+      color: var(--maroon-primary);
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 24px 22px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      border-top: 1px solid var(--bg-surface);
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    /* ==========================================================================
+       Section I: Footer
+       ========================================================================== */
+    .site-footer {
+      background: #1F1612;
+      color: var(--text-light-muted);
+      padding: 72px 0 32px;
+      border-top: 3px solid var(--gold-primary);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand h4 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: var(--gold-light);
+      margin-bottom: 12px;
+    }
+
+    .footer-brand p {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: #D1C5B6;
+      margin-bottom: 20px;
+      max-width: 380px;
+    }
+
+    .footer-heading {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: #FFFFFF;
+      margin-bottom: 18px;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      color: #D1C5B6;
+      font-size: 0.9rem;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold-light);
+    }
+
+    .footer-contact-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: #D1C5B6;
+      margin-bottom: 12px;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 32px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.84rem;
+      color: #9C8E7E;
+    }
+
+    .footer-shloka {
+      font-family: var(--font-display);
+      color: var(--gold-muted);
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+
+    /* ==========================================================================
+       Responsive Media Queries
+       ========================================================================== */
+    @media (max-width: 992px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+      }
+
+      .hero-content {
+        align-items: center;
+      }
+
+      .hero-title {
+        font-size: 2.35rem;
+      }
+
+      .hero-subtitle {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-actions {
+        justify-content: center;
+      }
+
+      .hero-trust-row {
+        justify-content: center;
+      }
+
+      .panchanga-pillars-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .creator-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .creator-links {
+        justify-content: center;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .desktop-nav {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      .hero-title {
+        font-size: 1.95rem;
+      }
+
+      .panchanga-pillars-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panchanga-spotlight {
+        padding: 28px 20px;
+      }
+
+      .section {
+        padding: 64px 0;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    /* Accessibility: Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+
+  <!-- Structured Data: JSON-LD for SoftwareApplication & FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Bhakti – Devotional Music & Hindu Panchanga",
+        "operatingSystem": "Android",
+        "applicationCategory": "LifestyleApplication",
+        "description": "Daily companion for sacred Hindu devotional music, stotras, and precise Vedic Panchanga with Tithi, Nakshatra, Muhurtha, and daily timings.",
+        "author": {
+          "@type": "Person",
+          "name": "Srivatsa Malali",
+          "url": "https://srivatsamalali.github.io/My-profile/"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Bhakti?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Bhakti is an Android application designed as a peaceful daily companion for Hindu spirituality. It combines sacred devotional music and stotras with an authentic, accurate Hindu Panchanga calendar."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I listen to devotional songs in the app?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Bhakti provides high-quality devotional songs, stotras (such as Sri Vishnu Sahasranama and Sri Lalitha Sahasranama), bhajans, and chants with background playback, offline downloads, and an A-B stanza looper for learning shlokas."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is Hindu Panchanga?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Panchanga is a traditional Vedic calendar system based on the positions of the Sun and Moon. The word 'Panchanga' refers to its five essential limbs: Tithi (lunar day), Vara (weekday), Nakshatra (lunar constellation), Yoga (solar-lunar angle), and Karana (half lunar day)."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which Panchanga details are available in the app?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Bhakti provides daily Tithi (with Shukla/Krishna Paksha), Vara, Nakshatra, Yoga, and Karana, along with Brahma Muhurtha, Abhijit Muhurtha, Rahu Kalam, Yama Gandam, Gulika Kalam, Sunrise, Sunset, Moonrise, and upcoming sacred festival dates."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which languages does Bhakti support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The app interface supports six languages: Kannada (ಕನ್ನಡ - default), Telugu (తెలుగు), English, Hindi (हिन्दी), Tamil (தமிழ்), and Malayalam (മലയാളം)."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How can I install the app?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Bhakti has been approved for publication on the Google Play Store and is currently in its planned production rollout. As soon as the public store listing is active, the download link will be available here."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where can I read the privacy policy?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The official Privacy Policy for Bhakti is publicly available at https://srivatsamalali.github.io/bhakti/."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+
+<body>
+
+  <!-- ==========================================================================
+       Header & Navigation Bar
+       ========================================================================== -->
+  <header class="site-header" id="top">
+    <div class="container nav-wrapper">
+      <a href="#top" class="brand-link" aria-label="Bhakti App Home">
+        <img src="assets/images/bhakti_logo.png" alt="Bhakti App Logo" class="brand-logo" width="44" height="44">
+        <div>
+          <span class="brand-name">Bhakti</span>
+          <span class="brand-tagline">Devotion & Panchanga</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav aria-label="Main Navigation">
+        <ul class="desktop-nav">
+          <li><a href="#music">Devotional Music</a></li>
+          <li><a href="#panchanga">Hindu Panchanga</a></li>
+          <li><a href="#why-bhakti">Why Bhakti?</a></li>
+          <li><a href="#languages">Languages</a></li>
+          <li><a href="#creator">Creator</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <!-- Action Button (Store status) -->
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <a href="#download" class="btn-header">
+          <span>📲</span>
+          <span>Google Play</span>
+        </a>
+        <button class="mobile-menu-btn" id="mobileMenuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Navigation -->
+    <div class="mobile-nav" id="mobileNavMenu">
+      <a href="#music" class="mobile-link">Devotional Music</a>
+      <a href="#panchanga" class="mobile-link">Hindu Panchanga</a>
+      <a href="#why-bhakti" class="mobile-link">Why Bhakti?</a>
+      <a href="#languages" class="mobile-link">Languages</a>
+      <a href="#creator" class="mobile-link">Creator</a>
+      <a href="#faq" class="mobile-link">FAQ</a>
+      <a href="https://srivatsamalali.github.io/bhakti/" class="mobile-link" target="_blank" rel="noopener">Privacy Policy</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==========================================================================
+         Section A: Hero Section
+         ========================================================================== -->
+    <section class="hero-section" id="hero">
+      <div class="container">
+        <div class="hero-grid">
+          
+          <!-- Hero Copy -->
+          <div class="hero-content">
+            <div class="sacred-shloka">॥ लोकाः समस्ताः सुखिनೋ ಭವಂತು ॥</div>
+            <div class="badge-pill hero-pill">
+              <span>🪔</span>
+              <span>Spirituality for Everyone, Everywhere</span>
+            </div>
+
+            <h1 class="hero-title">
+              Your Daily Companion for 
+              <span class="accent-text">Devotion & Hindu Panchanga</span>
+            </h1>
+
+            <p class="hero-subtitle">
+              Listen to devotional music and explore Hindu Panchanga information in one place. Crafted for peaceful daily prayers, meditation, and temple tradition.
+            </p>
+
+            <!-- Download Button (Honest status: Approved, Rollout in progress) -->
+            <div class="hero-actions" id="download">
+              <div class="play-btn-wrapper">
+                <button class="btn-play-store" title="Google Play approval received. Public rollout in progress." aria-disabled="true">
+                  <svg viewBox="0 0 512 512" fill="none">
+                    <path d="M48.7 15.6C44.7 19.9 42.5 26.2 42.5 34.6v442.8c0 8.4 2.2 14.7 6.2 19l2.2 2.1 247.9-247.9v-5.8L50.9 13.5l-2.2 2.1z" fill="#00C1A6"/>
+                    <path d="M381.9 324.4l-83.1-83.2v-5.8l83.1-83.2 2 1.2 98.4 55.9c28.1 16 28.1 42.1 0 58.1l-98.4 55.9-2 1.1z" fill="#FFD400"/>
+                    <path d="M300.8 322.4l-52-52L48.7 496.4c9.3 9.9 24.6 11.1 42 1.2l210.1-119.2" fill="#FF3333"/>
+                    <path d="M300.8 189.6L90.7 70.4C73.3 60.5 58 61.7 48.7 71.6l200.1 226 52-52v-44z" fill="#00E676"/>
+                  </svg>
+                  <div>
+                    <span class="btn-text-small">Available on</span>
+                    <span class="btn-text-large">Google Play</span>
+                  </div>
+                </button>
+                <div class="play-badge-notice">
+                  <span>⏳</span>
+                  <span>Approved by Google • Production Rollout in Progress</span>
+                </div>
+              </div>
+
+              <a href="#panchanga" class="btn-secondary">
+                <span>Explore Panchanga</span>
+                <span>→</span>
+              </a>
+            </div>
+
+            <!-- Trust Highlights -->
+            <div class="hero-trust-row">
+              <div class="trust-item">
+                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                <span>No Sign-In Required</span>
+              </div>
+              <div class="trust-item">
+                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                <span>Offline Listening</span>
+              </div>
+              <div class="trust-item">
+                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                <span>Elder-Friendly Interface</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Hero Visual: Authentic UI Representation -->
+          <div class="hero-visual">
+            <div class="visual-frame">
+              <div class="floating-diya" title="Deepam: Sacred Light of Wisdom">🪔</div>
+              
+              <!-- Phone Status Header -->
+              <div class="visual-screen-header">
+                <span class="screen-status-time">06:08 AM</span>
+                <span style="font-size: 0.72rem; color: var(--gold-dark); font-weight: 600;">Bhakti Sanctum</span>
+              </div>
+
+              <!-- In-App Header -->
+              <div class="visual-app-header">
+                <img src="assets/images/bhakti_logo.png" alt="Bhakti App Icon" class="visual-mini-logo">
+                <div>
+                  <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.94rem; color: var(--maroon-primary);">Bhakti</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">Daily Spiritual Companion</div>
+                </div>
+              </div>
+
+              <!-- Daily Panchanga Card Representation -->
+              <div class="mini-panchanga-card">
+                <div class="mini-panchanga-header">
+                  <span class="mini-date-badge">TODAY'S VEDIC TITHI</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--saffron-dark);">Shukla Paksha</span>
+                </div>
+                <div class="mini-tithi-title">Navami (ನವಮಿ)</div>
+                <div class="mini-nakshatra-sub">Nakshatra: Pushya • Deity: Sri Rama</div>
+
+                <div class="mini-timings-grid">
+                  <div class="mini-timing-pill">
+                    <span>BRAHMA MUHURTHA</span>
+                    <strong>04:42 AM - 05:30 AM</strong>
+                  </div>
+                  <div class="mini-timing-pill">
+                    <span>ABHIJIT MUHURTHA</span>
+                    <strong>11:48 AM - 12:36 PM</strong>
+                  </div>
+                  <div class="mini-timing-pill">
+                    <span>RAHU KALAM</span>
+                    <strong>01:30 PM - 03:00 PM</strong>
+                  </div>
+                  <div class="mini-timing-pill">
+                    <span>SUNRISE / SUNSET</span>
+                    <strong>06:08 AM / 06:12 PM</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Devotional Audio Player Card Representation -->
+              <div class="mini-player-card">
+                <div class="mini-player-top">
+                  <div class="mini-song-art">🕉️</div>
+                  <div class="mini-song-info">
+                    <div class="mini-song-title">Sri Vishnu Sahasranamam</div>
+                    <div class="mini-song-deity">Deity: Mahavishnu • Stotra</div>
+                  </div>
+                </div>
+                <div class="mini-progress-bar">
+                  <div class="mini-progress-fill"></div>
+                </div>
+                <div class="mini-player-controls">
+                  <span>14:32</span>
+                  <button class="mini-control-btn" aria-label="Play sample">▶</button>
+                  <span>29:45</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         Section B: Devotional Music Features
+         ========================================================================== -->
+    <section class="section section-alt" id="music">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Devotional Music</span>
+          <h2 class="section-title">Sacred Chants & Soulful Devotion</h2>
+          <p class="section-description">
+            Experience serene stotras, mantras, and bhajans with pure audio quality, distraction-free playback, and dedicated study tools designed for chanting.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          
+          <!-- Card 1: Stotras and Chants -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🌸</div>
+            <h3 class="feature-title">Devotional Songs & Stotras</h3>
+            <p class="feature-text">
+              Curated collection of traditional stotras such as Sri Vishnu Sahasranama, Sri Lalitha Sahasranama, daily kavachas, and sacred chants categorized by deity and tradition.
+            </p>
+            <div class="feature-tags">
+              <span class="feature-pill">Sahasranama</span>
+              <span class="feature-pill">Sacred Mantras</span>
+              <span class="feature-pill">Bhajans</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Audio Controls & Background Playback -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🎵</div>
+            <h3 class="feature-title">Seamless Background Playback</h3>
+            <p class="feature-text">
+              Listen peacefully while performing morning pooja or commuting. Powered by native Android audio services with full lock-screen media controls, seek scrubbing, and queue control.
+            </p>
+            <div class="feature-tags">
+              <span class="feature-pill">Lock-Screen Controls</span>
+              <span class="feature-pill">Speed Control</span>
+              <span class="feature-pill">Shuffle & Loop</span>
+            </div>
+          </div>
+
+          <!-- Card 3: A-B Stanza Repeat (Looper) -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🔁</div>
+            <h3 class="feature-title">A-B Stanza Looper for Chanting</h3>
+            <p class="feature-text">
+              Memorize sacred verses and master Sanskrit or Kannada shloka pronunciations. Set custom Start (A) and End (B) timestamps to repeat any specific verse continuously.
+            </p>
+            <div class="feature-tags">
+              <span class="feature-pill">Verse Repetition</span>
+              <span class="feature-pill">Pronunciation Learning</span>
+              <span class="feature-pill">Japa Assistant</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Offline Download Service -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">📥</div>
+            <h3 class="feature-title">Offline Download Service</h3>
+            <p class="feature-text">
+              Download your beloved devotional tracks directly into your local storage. Enjoy uninterrupted divine music in temples, remote pilgrimages, or during offline meditation without data usage.
+            </p>
+            <div class="feature-tags">
+              <span class="feature-pill">Zero Data Mode</span>
+              <span class="feature-pill">Direct Storage</span>
+              <span class="feature-pill">Pilgrimage Ready</span>
+            </div>
+          </div>
+
+          <!-- Card 5: Sleep Timer -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🌙</div>
+            <h3 class="feature-title">Gentle Sleep Timer</h3>
+            <p class="feature-text">
+              End your day with tranquil chants. Configure automatic sleep timers for 15, 30, 45, or 60 minutes, or stop at the end of the current stotra for peaceful night rest.
+            </p>
+            <div class="feature-tags">
+              <span class="feature-pill">15 to 60 Mins</span>
+              <span class="feature-pill">End-of-Track Stop</span>
+              <span class="feature-pill">Battery Safe</span>
+            </div>
+          </div>
+
+          <!-- Card 6: Multi-Lingual Lyrics & Titles -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">📜</div>
+            <h3 class="feature-title">Multi-Lingual Titles & Sacred Lyrics</h3>
+            <p class="feature-text">
+              Read and chant along with localized titles, deities, and sacred lyrics rendered dynamically according to your chosen language script.
+            </p>
+            <div class="feature-tags">
+              <span class="feature-pill">Kannada Script</span>
+              <span class="feature-pill">Devanagari</span>
+              <span class="feature-pill">English Transliteration</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         Section C: Hindu Panchanga (Prominent Feature)
+         ========================================================================== -->
+    <section class="section" id="panchanga">
+      <div class="container">
+        
+        <div class="section-header">
+          <span class="section-tag">Authentic Vedic Calendar</span>
+          <h2 class="section-title">The Five Limbs of Hindu Panchanga</h2>
+          <p class="section-description">
+            Panchanga literally means "Five Limbs" (Pancha-Anga) of time. The Bhakti app includes a built-in mathematical Vedic ephemeris engine that calculates your daily calendar details without relying on third-party tracking.
+          </p>
+        </div>
+
+        <!-- The 5 Limbs Spotlight -->
+        <div class="panchanga-spotlight">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <span class="sacred-shloka">॥ ತಿಥಿರ್ವಾರಶ್ಚ ನಕ್ಷತ್ರಂ ಯೋಗಃ ಕರಣಮೇವ ಚ ॥</span>
+            <p style="font-size: 0.95rem; color: var(--text-muted); max-width: 620px; margin: 8px auto 0;">
+              Traditional Hindu wisdom suggests understanding these five elements to harmonize daily spiritual practices, fasting, and prayers.
+            </p>
+          </div>
+
+          <div class="panchanga-pillars-grid">
+            
+            <div class="pillar-card">
+              <div class="pillar-name-sanskrit">Tithi (ತಿಥಿ)</div>
+              <div class="pillar-english">Lunar Day</div>
+              <p class="pillar-desc">
+                Calculates the exact lunar phase from Pratipada to Purnima/Amavasya, indicating Shukla (waxing) or Krishna (waning) Paksha.
+              </p>
+            </div>
+
+            <div class="pillar-card">
+              <div class="pillar-name-sanskrit">Vara (ವಾರ)</div>
+              <div class="pillar-english">Weekday</div>
+              <p class="pillar-desc">
+                The solar day of the week, connecting each day to its governing planetary influence and dedicated presiding deity (Deity of the Day).
+              </p>
+            </div>
+
+            <div class="pillar-card">
+              <div class="pillar-name-sanskrit">Nakshatra (ನಕ್ಷತ್ರ)</div>
+              <div class="pillar-english">Lunar Mansion</div>
+              <p class="pillar-desc">
+                The Moon's position across the 27 Vedic constellations (from Ashwini to Revati) based on Chitrapaksha (Lahiri) Ayanamsha.
+              </p>
+            </div>
+
+            <div class="pillar-card">
+              <div class="pillar-name-sanskrit">Yoga (ಯೋಗ)</div>
+              <div class="pillar-english">Luni-Solar Angle</div>
+              <p class="pillar-desc">
+                The 27 mathematical angular relationships between the Sun and Moon, signifying auspicious energetic periods.
+              </p>
+            </div>
+
+            <div class="pillar-card">
+              <div class="pillar-name-sanskrit">Karana (ಕರಣ)</div>
+              <div class="pillar-english">Half Lunar Day</div>
+              <p class="pillar-desc">
+                Half of a Tithi (6 degrees of lunar separation), indicating favorable moments for initiating specific sacred activities.
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Extended Panchanga Capabilities Grid -->
+          <div class="panchanga-details-grid">
+            
+            <div class="panchanga-info-box">
+              <div class="panchanga-info-icon">☀️</div>
+              <div class="panchanga-info-content">
+                <h4>Auspicious Muhurthas</h4>
+                <p>Displays daily <strong>Brahma Muhurtha</strong> (ideal for meditation and mantra chanting before dawn) and <strong>Abhijit Muhurtha</strong> (the auspicious midday window).</p>
+              </div>
+            </div>
+
+            <div class="panchanga-info-box">
+              <div class="panchanga-info-icon">⏱️</div>
+              <div class="panchanga-info-content">
+                <h4>Inauspicious Kala Timings</h4>
+                <p>Daily awareness timings for <strong>Rahu Kalam</strong>, <strong>Yama Gandam</strong>, and <strong>Gulika Kalam</strong> so you can schedule auspicious beginnings with clarity.</p>
+              </div>
+            </div>
+
+            <div class="panchanga-info-box">
+              <div class="panchanga-info-icon">🌅</div>
+              <div class="panchanga-info-content">
+                <h4>Celestial Timings</h4>
+                <p>Calculates daily <strong>Sunrise</strong>, <strong>Sunset</strong>, and <strong>Moonrise</strong> times, essential for daily Sandhyavandana, fasting breaks, and evening arati.</p>
+              </div>
+            </div>
+
+            <div class="panchanga-info-box">
+              <div class="panchanga-info-icon">🪔</div>
+              <div class="panchanga-info-content">
+                <h4>Sacred Festival Countdown</h4>
+                <p>Tracks upcoming Hindu festivals and vrathas (such as Ekadashi, Pradosha, Sankashti Chaturthi, Shivaratri, Navaratri, and Deepavali) with days remaining.</p>
+              </div>
+            </div>
+
+            <div class="panchanga-info-box">
+              <div class="panchanga-info-icon">📅</div>
+              <div class="panchanga-info-content">
+                <h4>Monthly Vedic Calendar Tab</h4>
+                <p>Explore full calendar month views highlighting Amavasya (New Moon), Hunnime / Purnima (Full Moon), and special auspicious festival dates.</p>
+              </div>
+            </div>
+
+            <div class="panchanga-info-box">
+              <div class="panchanga-info-icon">♈</div>
+              <div class="panchanga-info-content">
+                <h4>Rashi Chart & Guidance</h4>
+                <p>Includes an informative Rashi tab detailing all 12 zodiac signs (Mesha to Meena), ruling planets, and spiritual insights for the day.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Factual Integrity Disclaimer -->
+          <div class="panchanga-disclaimer-box">
+            <span class="disclaimer-icon">ℹ️</span>
+            <div class="disclaimer-text">
+              <strong>Astronomical Calculation Note:</strong> Panchanga calculations in Bhakti are computed using established mathematical algorithms based on the Lahiri Chitrapaksha Ayanamsha system. These calculations serve as an informative daily reference for spiritual reflection. Bhakti does not claim to replace the customized advice of a traditional family priest (Purohita) or guarantee auspicious outcomes.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         Section D: Why Bhakti?
+         ========================================================================== -->
+    <section class="section section-alt" id="why-bhakti">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Thoughtful Simplicity</span>
+          <h2 class="section-title">Why Choose Bhakti?</h2>
+          <p class="section-description">
+            Most devotees switch between cluttered audio apps and complicated astrological tools. Bhakti brings devotion and Vedic timing together in one tranquil, respectful application.
+          </p>
+        </div>
+
+        <div class="why-grid">
+          
+          <div class="why-card">
+            <div class="why-card-icon">🕉️</div>
+            <h3>Harmony of Music & Calendar</h3>
+            <p>
+              Start your morning by checking today’s Tithi and Muhurtha, then tap play on your morning Stotras — all within the same peaceful sanctuary.
+            </p>
+          </div>
+
+          <div class="why-card">
+            <div class="why-card-icon">👓</div>
+            <h3>Crafted for Elders & Families</h3>
+            <p>
+              High-contrast typography, large readable fonts, warm parchment color schemes, and no confusing sub-menus make it effortless for parents and elders.
+            </p>
+          </div>
+
+          <div class="why-card">
+            <div class="why-card-icon">🛡️</div>
+            <h3>Zero Sign-In, Complete Privacy</h3>
+            <p>
+              No mandatory account creation, no mobile number verification, and no personal data harvesting. Your favorites and downloads remain strictly on your phone.
+            </p>
+          </div>
+
+          <div class="why-card">
+            <div class="why-card-icon">🏛️</div>
+            <h3>Temple Architecture Aesthetic</h3>
+            <p>
+              Designed with reverence: deep sanctum maroon, auspicious temple gold filigree, sacred diya animations, and soothing sandalwood themes.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         Section E: App Preview Showcase
+         ========================================================================== -->
+    <section class="section" id="preview">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Authentic Interface</span>
+          <h2 class="section-title">Designed for Serene Daily Living</h2>
+          <p class="section-description">
+            A look into Bhakti's clean interfaces: crafted with Flutter to deliver fluid 60fps responsiveness across modern Android phones and tablets.
+          </p>
+        </div>
+
+        <div class="preview-showcase-grid">
+          
+          <!-- Preview 1: Daily Panchanga Card -->
+          <div class="preview-item">
+            <span class="preview-label-badge">Interface Preview</span>
+            <div class="preview-phone-mock">
+              <div class="preview-screen-inner">
+                <div>
+                  <div style="font-size: 0.72rem; color: var(--gold-dark); font-weight: 700; text-transform: uppercase;">VEDIC CALENDAR</div>
+                  <h4 style="font-family: var(--font-display); font-size: 1.15rem; color: var(--maroon-primary); margin: 4px 0 12px;">Daily Panchanga Card</h4>
+                  
+                  <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 12px; margin-bottom: 8px;">
+                    <div style="font-size: 0.7rem; color: var(--saffron-dark); font-weight: 700;">TODAY'S TITHI</div>
+                    <div style="font-size: 0.95rem; font-weight: 700; color: var(--maroon-primary);">Shukla Dashami • ಪುಷ್ಯ</div>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px;">
+                    <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 8px; font-size: 0.68rem;">
+                      <span style="color: var(--text-muted); display: block;">BRAHMA MUHURTHA</span>
+                      <strong style="color: var(--maroon-primary);">04:42 - 05:30 AM</strong>
+                    </div>
+                    <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 8px; font-size: 0.68rem;">
+                      <span style="color: var(--text-muted); display: block;">RAHU KALAM</span>
+                      <strong style="color: #B91C1C;">01:30 - 03:00 PM</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="background: #FEF3C7; border: 1px solid rgba(217,107,6,0.3); border-radius: 8px; padding: 8px; font-size: 0.72rem; color: #92400E;">
+                  🌟 <strong>Upcoming Festival:</strong> Sri Rama Navami in 4 days
+                </div>
+              </div>
+            </div>
+            <h3>Daily Panchanga View</h3>
+            <p>One-touch morning summary of the day's tithi, ruling deity, sunrise/sunset, and auspicious timings.</p>
+          </div>
+
+          <!-- Preview 2: Sacred Music Player -->
+          <div class="preview-item">
+            <span class="preview-label-badge">Interface Preview</span>
+            <div class="preview-phone-mock">
+              <div class="preview-screen-inner">
+                <div style="text-align: center; padding-top: 10px;">
+                  <div style="font-size: 0.72rem; color: var(--gold-dark); font-weight: 700;">NOW CHANTING</div>
+                  <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, var(--maroon-primary), var(--saffron-primary)); margin: 16px auto; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: #FFF; box-shadow: 0 8px 16px rgba(122,20,38,0.25);">
+                    🪔
+                  </div>
+                  <h4 style="font-family: var(--font-display); font-size: 1.05rem; color: var(--maroon-primary); margin-bottom: 2px;">Lalitha Sahasranamam</h4>
+                  <div style="font-size: 0.75rem; color: var(--saffron-dark); font-weight: 600;">Stotra • 32:10 mins</div>
+                </div>
+
+                <div>
+                  <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; font-size: 0.72rem; text-align: center;">
+                    <span style="color: var(--maroon-primary); font-weight: 600;">A-B Looper:</span> Verse 12 - 16 (Repeating)
+                  </div>
+                  <div class="mini-progress-bar">
+                    <div class="mini-progress-fill" style="width: 58%;"></div>
+                  </div>
+                  <div style="display: flex; justify-content: space-around; align-items: center; padding-top: 6px;">
+                    <span style="font-size: 0.9rem;">⏮️</span>
+                    <span style="font-size: 1.4rem; color: var(--maroon-primary);">⏸️</span>
+                    <span style="font-size: 0.9rem;">⏭️</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <h3>Sacred Audio Player</h3>
+            <p>Rich playback interface equipped with verse looper, sleep timer, background audio, and offline caching.</p>
+          </div>
+
+          <!-- Preview 3: Monthly Vedic Calendar & Rashis -->
+          <div class="preview-item">
+            <span class="preview-label-badge">Interface Preview</span>
+            <div class="preview-phone-mock">
+              <div class="preview-screen-inner">
+                <div>
+                  <div style="font-size: 0.72rem; color: var(--gold-dark); font-weight: 700; text-transform: uppercase;">CALENDAR OVERVIEW</div>
+                  <h4 style="font-family: var(--font-display); font-size: 1.15rem; color: var(--maroon-primary); margin: 4px 0 12px;">Monthly Vedic Grid</h4>
+                  
+                  <!-- Miniature Calendar Grid -->
+                  <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; font-size: 0.65rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">
+                    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; font-size: 0.7rem;">
+                    <span style="color:#CCC;">28</span><span style="color:#CCC;">29</span><span style="color:#CCC;">30</span><span>1</span><span>2</span><span>3</span><span style="background: #FEF3C7; border-radius: 4px; font-weight: 700; color: var(--maroon-primary);">4</span>
+                    <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span style="background: #FEE2E2; border-radius: 4px; font-weight: 700; color: #991B1B;">11</span>
+                    <span>12</span><span>13</span><span>14</span><span style="background: var(--maroon-primary); color: #FFF; border-radius: 4px; font-weight: 700;">15</span><span>16</span><span>17</span><span>18</span>
+                  </div>
+                </div>
+
+                <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); border-radius: 10px; padding: 10px; font-size: 0.72rem;">
+                  <strong style="color: var(--maroon-primary); display: block;">15th: Hunnime (Purnima)</strong>
+                  <span style="color: var(--text-muted);">Auspicious Full Moon for Satyanarayana Pooja</span>
+                </div>
+              </div>
+            </div>
+            <h3>Monthly Calendar & Rashis</h3>
+            <p>Visual monthly Vedic calendar with clear highlights for Purnima, Amavasya, Ekadashi, and Rashi charts.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         Section F: Supported Languages
+         ========================================================================== -->
+    <section class="section section-alt" id="languages">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Inclusive Localization</span>
+          <h2 class="section-title">Experience Devotion in Your Mother Tongue</h2>
+          <p class="section-description">
+            Bhakti is crafted from the ground up to support regional Indian languages. The application interface is currently localized in six verified languages:
+          </p>
+        </div>
+
+        <div class="languages-wrapper">
+          <div class="languages-grid">
+            
+            <div class="language-card active-default">
+              <div class="lang-script">ಕ</div>
+              <div class="lang-native">ಕನ್ನಡ</div>
+              <div class="lang-english">Kannada (Default)</div>
+            </div>
+
+            <div class="language-card">
+              <div class="lang-script">తె</div>
+              <div class="lang-native">తెలుగు</div>
+              <div class="lang-english">Telugu</div>
+            </div>
+
+            <div class="language-card">
+              <div class="lang-script">A</div>
+              <div class="lang-native">English</div>
+              <div class="lang-english">English</div>
+            </div>
+
+            <div class="language-card">
+              <div class="lang-script">अ</div>
+              <div class="lang-native">हिन्दी</div>
+              <div class="lang-english">Hindi</div>
+            </div>
+
+            <div class="language-card">
+              <div class="lang-script">அ</div>
+              <div class="lang-native">தமிழ்</div>
+              <div class="lang-english">Tamil</div>
+            </div>
+
+            <div class="language-card">
+              <div class="lang-script">അ</div>
+              <div class="lang-native">മലയാളം</div>
+              <div class="lang-english">Malayalam</div>
+            </div>
+
+          </div>
+
+          <div class="lang-note-box">
+            <strong>Language Scope Note:</strong> All 6 languages listed above are fully supported for the app interface, menus, settings, and Panchanga field labels. Devotional audio catalog availability and localized song lyrics may vary by regional tradition, with extensive stotra coverage initially in Kannada, Sanskrit, and English.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         Section G: About the Creator
+         ========================================================================== -->
+    <section class="section" id="creator">
+      <div class="container">
+        
+        <div class="creator-card">
+          <div class="creator-avatar-wrapper">
+            <img src="assets/images/developer_avatar.png" alt="Srivatsa Malali - Creator of Bhakti" class="creator-avatar" width="180" height="180" loading="lazy">
+            <span class="creator-role-tag">Creator & Developer</span>
+          </div>
+
+          <div class="creator-bio">
+            <div class="sacred-shloka" style="text-align: left; margin-bottom: 4px;">॥ ಕರ್ಮಣ್ಯೇವಾಧಿಕಾರಸ್ತೇ ॥</div>
+            <h3>Srivatsa Malali</h3>
+            <p>
+              Srivatsa Malali is a software engineer and the creator of <strong>Bhakti – Devotional Music & Hindu Panchanga</strong>. Driven by a deep appreciation for Vedic heritage and modern mobile craft, he built Bhakti to provide devotees, elders, and spiritual seekers with a clean, dignified, and advertisement-respectful sanctuary for daily prayers.
+            </p>
+
+            <div class="creator-links">
+              <a href="https://srivatsamalali.github.io/My-profile/" class="creator-link-btn" target="_blank" rel="noopener">
+                <span>🌐</span>
+                <span>Personal Portfolio Website</span>
+              </a>
+              <a href="https://www.linkedin.com/in/srivatsamalali" class="creator-link-btn" target="_blank" rel="noopener">
+                <span>💼</span>
+                <span>LinkedIn Profile</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         Section H: Frequently Asked Questions (FAQ)
+         ========================================================================== -->
+    <section class="section section-alt" id="faq">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Got Questions?</span>
+          <h2 class="section-title">Frequently Asked Questions</h2>
+          <p class="section-description">
+            Transparent and verified answers about the Bhakti app, audio features, Panchanga calculation, and privacy.
+          </p>
+        </div>
+
+        <div class="faq-container">
+          
+          <!-- Q1 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>What is Bhakti?</span>
+              <span class="faq-toggle-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Bhakti is an Android application designed as an all-in-one daily companion for Hindu spiritual living. It brings together high-quality devotional music, sacred stotras, and an authentic Vedic Panchanga calendar in a simple, elder-friendly, and distraction-free design.</p>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Can I listen to devotional songs in the app?</span>
+              <span class="faq-toggle-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Yes. The app features curated sacred chants and stotras (including Sri Vishnu Sahasranamam and Sri Lalitha Sahasranamam), bhajans, and mantras. It supports continuous background playback with notification controls, an A-B stanza looper for learning shlokas, sleep timers, and offline downloading.</p>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>What is Hindu Panchanga?</span>
+              <span class="faq-toggle-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>The Hindu Panchanga is a traditional Vedic lunisolar calendar that marks time based on astronomical movements of the Sun and Moon. "Panchanga" refers to its five fundamental limbs: Tithi (lunar phase), Vara (weekday), Nakshatra (constellation), Yoga (luni-solar relationship), and Karana (half-tithi).</p>
+            </div>
+          </div>
+
+          <!-- Q4 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Which Panchanga details are available?</span>
+              <span class="faq-toggle-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Bhakti provides daily Tithi (Shukla/Krishna Paksha), Vara (Day of the Week & Deity of the Day), Nakshatra, Yoga, and Karana. It also displays auspicious timings (Brahma Muhurtha and Abhijit Muhurtha), inauspicious intervals (Rahu Kalam, Yama Gandam, and Gulika Kalam), astronomical Sunrise, Sunset, Moonrise times, upcoming festival countdowns, and an overview monthly Vedic calendar.</p>
+            </div>
+          </div>
+
+          <!-- Q5 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Which languages does Bhakti support?</span>
+              <span class="faq-toggle-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>The application interface and menus support 6 languages: Kannada (ಕನ್ನಡ), Telugu (తెలుగు), English, Hindi (हिन्दी), Tamil (தமிழ்), and Malayalam (മലയാളം). You can change your preferred language at any time from the in-app settings.</p>
+            </div>
+          </div>
+
+          <!-- Q6 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>How can I install the app?</span>
+              <span class="faq-toggle-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>The Bhakti app has been reviewed and officially approved for release on the Google Play Store (Submission 31). It is currently rolling out to users across India, the United States, and Germany. As soon as Google completes the worldwide index propagation, the live direct download link will be enabled on this page.</p>
+            </div>
+          </div>
+
+          <!-- Q7 -->
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Where can I read the privacy policy?</span>
+              <span class="faq-toggle-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>You can read the complete, official Privacy Policy directly at <a href="https://srivatsamalali.github.io/bhakti/" target="_blank" rel="noopener">https://srivatsamalali.github.io/bhakti/</a> (or <a href="privacy-policy.html">privacy-policy.html</a>). Bhakti does not require account registration, does not collect personal identity information, and respects user privacy.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       Section I: Footer
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      
+      <div class="footer-grid">
+        
+        <!-- Brand Summary -->
+        <div class="footer-brand">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+            <img src="assets/images/bhakti_logo.png" alt="Bhakti App Logo" width="36" height="36" style="border-radius: 8px;">
+            <h4 style="margin: 0;">Bhakti</h4>
+          </div>
+          <p>
+            Your Daily Companion for Devotion & Hindu Panchanga. Built with reverence to preserve traditional Indian spiritual heritage through modern, accessible mobile technology.
+          </p>
+          <div class="footer-shloka">॥ लोकाः समस्ताः सुखिनೋ ಭವಂತು ॥</div>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h5 class="footer-heading">Navigation</h5>
+          <ul class="footer-links">
+            <li><a href="#music">Devotional Music</a></li>
+            <li><a href="#panchanga">Hindu Panchanga</a></li>
+            <li><a href="#why-bhakti">Why Bhakti?</a></li>
+            <li><a href="#languages">Supported Languages</a></li>
+            <li><a href="#creator">About Srivatsa Malali</a></li>
+            <li><a href="#faq">Frequently Asked Questions</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal & Verified Links -->
+        <div>
+          <h5 class="footer-heading">Trust & Contact</h5>
+          <ul class="footer-links" style="margin-bottom: 16px;">
+            <li>
+              <a href="https://srivatsamalali.github.io/bhakti/" target="_blank" rel="noopener">
+                🛡️ Privacy Policy (Official)
+              </a>
+            </li>
+            <li>
+              <a href="https://srivatsamalali.github.io/My-profile/" target="_blank" rel="noopener">
+                🌐 Srivatsa's Personal Website
+              </a>
+            </li>
+            <li>
+              <a href="https://www.linkedin.com/in/srivatsamalali" target="_blank" rel="noopener">
+                💼 LinkedIn: Srivatsa Malali
+              </a>
+            </li>
+          </ul>
+
+          <div class="footer-contact-item">
+            <span>✉️</span>
+            <a href="mailto:srivatsa.a.malali@gmail.com">srivatsa.a.malali@gmail.com</a>
+          </div>
+
+          <div style="font-size: 0.8rem; color: #9C8E7E; margin-top: 14px;">
+            <span>🤖 Google Play: </span>
+            <span style="color: var(--gold-light);">Approved • Rollout in Progress</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="footer-bottom">
+        <div>
+          &copy; 2026 Bhakti – Devotional Music & Hindu Panchanga. Created by Srivatsa Malali.
+        </div>
+        <div>
+          Hosted on GitHub Pages • All rights reserved.
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Interactive JavaScript for FAQ Accordion & Mobile Navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Mobile Drawer Toggle
+      const mobileToggle = document.getElementById('mobileMenuToggle');
+      const mobileMenu = document.getElementById('mobileNavMenu');
+
+      if (mobileToggle && mobileMenu) {
+        mobileToggle.addEventListener('click', function () {
+          const isOpen = mobileMenu.classList.toggle('open');
+          mobileToggle.setAttribute('aria-expanded', isOpen);
+        });
+
+        // Close mobile drawer when clicking any link
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        mobileLinks.forEach(function (link) {
+          link.addEventListener('click', function () {
+            mobileMenu.classList.remove('open');
+            mobileToggle.setAttribute('aria-expanded', 'false');
+          });
+        });
+      }
+
+      // FAQ Accordion Interaction
+      const faqItems = document.querySelectorAll('.faq-item');
+      faqItems.forEach(function (item) {
+        const questionBtn = item.querySelector('.faq-question');
+        if (questionBtn) {
+          questionBtn.addEventListener('click', function () {
+            const isCurrentlyOpen = item.classList.contains('open');
+
+            // Optional: Close all other FAQ items for a neat accordion experience
+            faqItems.forEach(function (otherItem) {
+              otherItem.classList.remove('open');
+              const otherBtn = otherItem.querySelector('.faq-question');
+              if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+            });
+
+            if (!isCurrentlyOpen) {
+              item.classList.add('open');
+              questionBtn.setAttribute('aria-expanded', 'true');
+            } else {
+              item.classList.remove('open');
+              questionBtn.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
