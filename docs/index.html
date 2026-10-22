@@ -240,7 +240,7 @@
 
     <h2>4. Advertising Status &amp; SDK Disclosure</h2>
     <p>
-      <strong>Current Status — Free &amp; Ad-Free:</strong> Bhakti is currently completely free to use and ad-free. Users do not need a subscription, paid plan, or payment to access existing features.
+      <strong>Current Status — Free &amp; Ad-Free:</strong> Bhakti is currently completely free to use and ad-free. Users do not need a subscription, paid plan, or payment to access any existing features.
     </p>
     <p>
       <strong>Google Mobile Ads (AdMob) Integration:</strong> The Google Mobile Ads SDK is present within the application codebase for planned future monetization after an initial ad-free period. In the current release:
@@ -251,18 +251,22 @@
       <li>No ad requests are transmitted to Google AdMob servers during this initial ad-free period.</li>
       <li>There is no automated or remote date-trigger that will activate advertisements without an intentional update.</li>
     </ul>
+    <div class="highlight-box">
+      <strong>Note on Google Play "Contains Ads" Store Badge:</strong> Google Play developer policy mandates declaring that an app contains ads if an advertising SDK library is compiled into the release package (AAB/APK), even if ad serving is programmatically suppressed at runtime. Because the AdMob SDK is included in the application build for planned future monetization, Google Play displays the "Contains ads" badge on the store listing. However, in the released app, all advertising requests remain inactive.
+    </div>
     <p>
       If and when advertisements are introduced in a future release, they will be strictly family-friendly and contextual, and this Privacy Policy will be updated to describe the active ad request behavior and consent mechanisms before ads are served.
     </p>
 
-    <h2>5. Third-Party Service Providers and SDKs</h2>
-    <p>The application interacts with the following trusted third-party services:</p>
+    <h2>5. Third-Party Service Providers &amp; Google Play Data Safety Alignment</h2>
+    <p>The application interacts with the following trusted third-party services. The table below details their role, privacy documentation, and classification under Google Play's Data Safety taxonomy:</p>
 
     <table>
       <thead>
         <tr>
           <th>Service Provider</th>
           <th>Role &amp; Function</th>
+          <th>Google Play Data Safety Classification</th>
           <th>Privacy Documentation</th>
         </tr>
       </thead>
@@ -270,21 +274,25 @@
         <tr>
           <td><strong>Google Play Services</strong></td>
           <td>Essential application runtime support, secure app delivery, and platform updates.</td>
+          <td><strong>Exempt:</strong> Core OS runtime services; not classified as independent user data collection.</td>
           <td><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></td>
         </tr>
         <tr>
           <td><strong>Google Firebase</strong><br>(Firestore &amp; Cloud Storage)</td>
           <td>Cloud infrastructure used to host and deliver devotional audio tracks, track metadata, high-resolution sacred artwork, and stotra lyrics.</td>
+          <td><strong>Neither Collected nor Shared:</strong> Content delivery network streaming data to device. No personal user data stored.</td>
           <td><a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy &amp; Security</a></td>
         </tr>
         <tr>
           <td><strong>Google Firebase Analytics</strong></td>
           <td>Collects anonymous, aggregate usage statistics and performance diagnostics to improve application stability.</td>
+          <td><strong>Data Collected (Not Shared):</strong><br>• <em>App interactions</em> (song views, audio starts/completions, language selection)<br>• <em>In-app search query</em> (voluntary search terms)<br>• <em>Device IDs</em> (pseudonymous Firebase App Instance ID)<br><em>Purpose: Analytics. Encrypted in transit via HTTPS/TLS.</em></td>
           <td><a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Analytics Policy</a></td>
         </tr>
         <tr>
           <td><strong>Google Mobile Ads (AdMob)</strong></td>
           <td>Integrated SDK for planned future monetization; currently inactive with zero ad requests made during the initial ad-free period.</td>
+          <td><strong>Neither Collected nor Shared (Currently Inactive):</strong> SDK initialization is suppressed; zero ad requests transmitted; no advertising identifiers (GAID) collected during initial period.</td>
           <td><a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Google Ads Privacy</a></td>
         </tr>
       </tbody>
