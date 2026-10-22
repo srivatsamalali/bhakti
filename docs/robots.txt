@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://srivatsamalali.github.io/bhakti/sitemap.xml
