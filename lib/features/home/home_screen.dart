@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Dynamically extract day's sacred significance on-device
       final specialDay = await SpecialDayIntelligenceService.getTodaySpecialDay(currentLang);
-      if (specialDay != null && mounted) {
+      if (mounted) {
         await SpecialDayModalDialog.show(context, specialDay);
       }
     } catch (_) {

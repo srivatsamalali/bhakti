@@ -5,6 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '../models/song_model.dart';
 import '../services/firebase/firestore_service.dart';
 import '../services/preferences/preferences_service.dart';
+import '../services/translation/song_translation_service.dart';
 import '../services/widgets/home_widget_service.dart';
 
 class SongRepository extends ChangeNotifier {
@@ -23,6 +24,7 @@ class SongRepository extends ChangeNotifier {
   SongRepository(this._firestoreService, this._prefs) {
     _loadFromLocalCache();
     _prefs.addListener(_onPrefsChanged);
+    SongTranslationService.instance.addListener(_onTranslationChanged);
     _initSongStream();
   }
 
@@ -85,6 +87,7 @@ class SongRepository extends ChangeNotifier {
         _saveToLocalCache(songs);
         _precacheAudioFiles(songs);
         HomeWidgetService.syncSongsWithWidget(songs);
+        SongTranslationService.instance.prefetchSongTitles(songs, _prefs.getSelectedLanguage());
         notifyListeners();
       },
       onError: (err) {
@@ -96,6 +99,11 @@ class SongRepository extends ChangeNotifier {
   }
 
   void _onPrefsChanged() {
+    SongTranslationService.instance.prefetchSongTitles(_allSongs, _prefs.getSelectedLanguage());
+    notifyListeners();
+  }
+
+  void _onTranslationChanged() {
     notifyListeners();
   }
 
@@ -103,6 +111,7 @@ class SongRepository extends ChangeNotifier {
   void dispose() {
     _songsSubscription?.cancel();
     _prefs.removeListener(_onPrefsChanged);
+    SongTranslationService.instance.removeListener(_onTranslationChanged);
     super.dispose();
   }
 

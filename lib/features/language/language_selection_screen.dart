@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_typography.dart';
-import '../../core/localization/app_localizations.dart';
+import '../../core/localization/app_strings.dart';
 import '../../models/language_model.dart';
 import '../../services/analytics/analytics_service.dart';
 import '../../services/notifications/devotional_reminder_service.dart';
@@ -51,8 +51,18 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
     }
   }
 
+  String _trSelected(String key) {
+    return AppStrings.localizedValues[_selectedCode]?[key] ??
+        AppStrings.localizedValues['en']?[key] ??
+        key;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final titleText = _trSelected('selectLanguage');
+    final subtitleText = _trSelected('selectLanguageSubtitle');
+    final continueBtnText = _trSelected('continueButton');
+
     return Scaffold(
       backgroundColor: AppColors.creamBackground,
       appBar: widget.isInitialLaunch
@@ -61,7 +71,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
               automaticallyImplyLeading: false,
               leadingWidth: 96,
               leading: const SacredBackButton(),
-              title: Text(context.tr('selectLanguage')),
+              title: Text(titleText),
               centerTitle: true,
               elevation: 0,
             ),
@@ -86,7 +96,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  context.tr('selectLanguage'),
+                  titleText,
                   style: AppTypography.displayLarge.copyWith(
                     fontSize: 26,
                     color: AppColors.maroonPrimary,
@@ -96,7 +106,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  context.tr('selectLanguageSubtitle'),
+                  subtitleText,
                   style: AppTypography.bodyMedium.copyWith(
                     fontSize: 14,
                     color: AppColors.textMuted,
@@ -236,7 +246,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                   ),
                 ),
                 child: Text(
-                  context.tr('continueButton'),
+                  continueBtnText,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

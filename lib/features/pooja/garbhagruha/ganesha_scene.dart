@@ -34,4 +34,13 @@ final GarbhagruhaEnvironment ganeshaEnvironment = GarbhagruhaEnvironment(
   templeStyleDescription: 'Sacred open forest sanctum in Western Ghats with hundreds of brass bells swaying in mountain breeze',
   aerialEntryNarrative: 'Drone gliding across the lush Western Ghats forest canopy, descending towards the temple gateway, entering the sacred open shrine...',
   mapPosition: const Offset(0.24, 0.48), // West / Dakshina Kannada Western Ghats
+  latitude: 12.8335,
+  longitude: 75.3621,
+  fullAddress: 'Sri Kshetra Southadka Maha Ganapathi Temple, Kokkada, Belthangady Taluk, Dakshina Kannada, Karnataka 574198',
+  district: 'Dakshina Kannada District',
+  pincode: '574198',
+  googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Southadka+Maha+Ganapathi+Temple+Dakshina+Kannada',
+  templeTimings: '6:00 AM – 1:00 PM, 4:00 PM – 8:00 PM',
+  elevation: '128 m MSL',
+  sacredGeography: 'Open forest Vana Kshetra in Western Ghats, flanked by Netravati river tributaries',
 );

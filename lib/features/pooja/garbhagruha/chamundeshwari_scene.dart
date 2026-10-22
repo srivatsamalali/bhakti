@@ -34,4 +34,13 @@ final GarbhagruhaEnvironment chamundeshwariEnvironment = GarbhagruhaEnvironment(
   templeStyleDescription: 'Royal Mysore Dravidian granite sanctum with crimson velvet aura and Kumkuma radiance',
   aerialEntryNarrative: 'Drone descending down the winding road of Chamundi Hills, diving towards the ancient Rajagopuram, entering through the temple doors into the sanctum...',
   mapPosition: const Offset(0.44, 0.68), // South / Mysore Kaveri basin
+  latitude: 12.2725,
+  longitude: 76.6713,
+  fullAddress: 'Sri Chamundeshwari Temple, Chamundi Hill Road, Mysuru, Karnataka 570010',
+  district: 'Mysuru District',
+  pincode: '570010',
+  googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Chamundeshwari+Temple+Chamundi+Hills+Mysuru',
+  templeTimings: '7:30 AM – 2:00 PM, 3:30 PM – 6:00 PM, 7:30 PM – 9:00 PM',
+  elevation: '1,060 m (3,480 ft) MSL',
+  sacredGeography: 'Chamundi Betta Hilltop overlooking Mysore Palace, Kaveri River Basin',
 );

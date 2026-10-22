@@ -162,6 +162,17 @@ class AppStrings {
       'cancel': 'Cancel',
       'confirm': 'Confirm',
       'save': 'Save',
+
+      // Maps & Sacred Kshetra Location
+      'openGoogleMaps': 'Open in Google Maps',
+      'locationDetails': 'Sacred Location Details',
+      'gpsCoordinates': 'GPS Coordinates',
+      'darshanTimings': 'Darshan Timings',
+      'elevation': 'Elevation',
+      'sacredGeography': 'Sacred Geography',
+      'copyCoordinates': 'Coordinates copied',
+      'asthotara': 'Asthotara',
+      'stuti': 'Stuti',
     },
 
     'kn': {
@@ -322,6 +333,17 @@ class AppStrings {
       'cancel': 'ರದ್ದು',
       'confirm': 'ಖಚಿತಪಡಿಸಿ',
       'save': 'ಉಳಿಸಿ',
+
+      // Maps & Sacred Kshetra Location
+      'openGoogleMaps': 'ಗೂಗಲ್ ಮ್ಯಾಪ್ಸ್‌ನಲ್ಲಿ ವೀಕ್ಷಿಸಿ',
+      'locationDetails': 'ಪವಿತ್ರ ಕ್ಷೇತ್ರದ ಸ್ಥಳ ಮತ್ತು ವಿಳಾಸ',
+      'gpsCoordinates': 'ಜಿಪಿಎಸ್ ಸ್ಥಾನ (Coordinates)',
+      'darshanTimings': 'ದರ್ಶನ ಸಮಯ',
+      'elevation': 'ಸಮುದ್ರ ಮಟ್ಟದಿಂದ ಎತ್ತರ',
+      'sacredGeography': 'ಕ್ಷೇತ್ರ ಭೂಗೋಳ ಮತ್ತು ಪರಿಸರ',
+      'copyCoordinates': 'ಸ್ಥಳದ ಕೋಆರ್ಡಿನೇಟ್ಸ್ ನಕಲಿಸಲಾಗಿದೆ',
+      'asthotara': 'ಅಷ್ಟೋತ್ತರ',
+      'stuti': 'ಸ್ತುತಿ',
     },
 
     'hi': {
@@ -482,6 +504,17 @@ class AppStrings {
       'cancel': 'रद्द करें',
       'confirm': 'पुष्टि करें',
       'save': 'सहेजें',
+
+      // Maps & Sacred Kshetra Location
+      'openGoogleMaps': 'गूगल मैप्स में देखें',
+      'locationDetails': 'तीर्थ क्षेत्र का स्थान एवं पता',
+      'gpsCoordinates': 'जीपीएस निर्देशांक (GPS)',
+      'darshanTimings': 'दर्शन समय',
+      'elevation': 'ऊंचाई',
+      'sacredGeography': 'पवित्र भूगोल एवं प्रकृति',
+      'copyCoordinates': 'निर्देशांक कॉपी किए गए',
+      'asthotara': 'अष्टोत्तर',
+      'stuti': 'स्तुति',
     },
 
     'ta': {
@@ -642,6 +675,17 @@ class AppStrings {
       'cancel': 'ரத்து',
       'confirm': 'உறுதி செய்',
       'save': 'சேமி',
+
+      // Maps & Sacred Kshetra Location
+      'openGoogleMaps': 'கூகிள் மேப்ஸில் பார்க்கவும்',
+      'locationDetails': 'புண்ணிய ஸ்தல அமைவிடம் & முகவரி',
+      'gpsCoordinates': 'ஜிபிஎஸ் அமைவிடம் (GPS)',
+      'darshanTimings': 'தரிசன நேரம்',
+      'elevation': 'உயரம்',
+      'sacredGeography': 'புனித பூகோளம் & சூழல்',
+      'copyCoordinates': 'அமைவிடம் நகலெடுக்கப்பட்டது',
+      'asthotara': 'அஷ்டோத்திரம்',
+      'stuti': 'ஸ்துதி',
     },
 
     'ml': {
@@ -802,6 +846,17 @@ class AppStrings {
       'cancel': 'റദ്ദാക്കുക',
       'confirm': 'സ്ഥിരീകരിക്കുക',
       'save': 'സംരക്ഷിക്കുക',
+
+      // Maps & Sacred Kshetra Location
+      'openGoogleMaps': 'ഗൂഗിൾ മാപ്പിൽ കാണുക',
+      'locationDetails': 'പുണ്യക്ഷേത്ര സ്ഥാനവും വിലാസവും',
+      'gpsCoordinates': 'ജിപിഎസ് സ്ഥാനം (GPS)',
+      'darshanTimings': 'ദർശന സമയം',
+      'elevation': 'ഉയരം',
+      'sacredGeography': 'ഭൂമിശാസ്ത്രവും പശ്ചാത്തലവും',
+      'copyCoordinates': 'സ്ഥാനം പകർത്തി',
+      'asthotara': 'അഷ്ടോത്തരം',
+      'stuti': 'സ്തുതി',
     },
 
     'te': {
@@ -962,6 +1017,17 @@ class AppStrings {
       'cancel': 'రద్దు చేయండి',
       'confirm': 'నిర్ధారించండి',
       'save': 'సేవ్ చేయండి',
+
+      // Maps & Sacred Kshetra Location
+      'openGoogleMaps': 'గూగుల్ మ్యాప్స్‌లో చూడండి',
+      'locationDetails': 'పుణ్యక్షేత్ర స్థల వివరాలు & చిరునామా',
+      'gpsCoordinates': 'జీపీఎస్ స్థానం (GPS)',
+      'darshanTimings': 'దర్శన సమయాలు',
+      'elevation': 'సముద్ర మట్టం నుండి ఎత్తు',
+      'sacredGeography': 'క్షేత్ర భౌగోళిక విశిష్టత',
+      'copyCoordinates': 'కోఆర్డినేట్స్ కాపీ చేయబడింది',
+      'asthotara': 'అష్టోత్తర',
+      'stuti': 'స్తుతి',
     },
   };
 }

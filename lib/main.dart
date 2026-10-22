@@ -28,6 +28,7 @@ import 'services/premium/premium_service.dart';
 import 'services/rewards/seva_token_service.dart';
 import 'services/firebase/song_request_service.dart';
 import 'services/widgets/home_widget_service.dart';
+import 'services/translation/song_translation_service.dart';
 
 
 void main() async {
@@ -51,6 +52,13 @@ void main() async {
     await HomeWidgetService.initialize();
   } catch (e) {
     debugPrint('HomeWidget initialization notice: $e');
+  }
+
+  // Initialize On-Device Song Translation Service
+  try {
+    await SongTranslationService.instance.init();
+  } catch (e) {
+    debugPrint('SongTranslationService init notice: $e');
   }
 
   // 3. Initialize Firebase (safely wrapped)

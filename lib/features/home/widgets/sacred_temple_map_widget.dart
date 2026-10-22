@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../services/preferences/preferences_service.dart';
 import '../../pooja/garbhagruha/garbhagruha_scene.dart';
 import '../../pooja/garbhagruha/sanctum_registry.dart';
 import '../../pooja/virtual_pooja_room_screen.dart';
@@ -46,9 +49,45 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
     );
   }
 
+  Future<void> _openGoogleMaps(GarbhagruhaEnvironment site) async {
+    HapticFeedback.mediumImpact();
+    final mapQuery = Uri.encodeComponent('${site.sanctumName}, ${site.locationName}');
+    final nativeAppUri = Uri.parse('google.navigation:q=${site.latitude},${site.longitude}&mode=d');
+    final geoUri = Uri.parse('geo:${site.latitude},${site.longitude}?q=${site.latitude},${site.longitude}($mapQuery)');
+    final webMapsUri = Uri.parse('https://www.google.com/maps/search/?api=1&query=${site.latitude},${site.longitude}');
+
+    try {
+      if (await canLaunchUrl(nativeAppUri)) {
+        await launchUrl(nativeAppUri);
+      } else if (await canLaunchUrl(geoUri)) {
+        await launchUrl(geoUri);
+      } else if (await canLaunchUrl(webMapsUri)) {
+        await launchUrl(webMapsUri, mode: LaunchMode.externalApplication);
+      } else {
+        final fallbackUri = Uri.parse(site.googleMapsUrl);
+        await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
+      }
+    } catch (_) {
+      try {
+        final fallbackUri = Uri.parse(site.googleMapsUrl);
+        await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
+      } catch (err) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Could not open map: $err'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedSite = allSanctumEnvironments[_selectedSiteIndex];
+    final lang = context.watch<PreferencesService>().getSelectedLanguage();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -651,6 +690,297 @@ class _SacredTempleMapWidgetState extends State<SacredTempleMapWidget>
                           ),
                         );
                       },
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Exact Temple Location Details & Google Maps Navigation Card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(13),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF230C06),
+                          Color(0xFF130402),
+                        ],
+                      ),
+                      border: Border.all(
+                        color: AppColors.goldLight.withOpacity(0.55),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.5),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Location Header with District & State
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(0xFFE65100).withOpacity(0.25),
+                                border: Border.all(color: AppColors.goldLight, width: 1.0),
+                              ),
+                              child: const Icon(
+                                Icons.location_on_rounded,
+                                color: Color(0xFFFFD54F),
+                                size: 16,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          selectedSite.locationName,
+                                          style: const TextStyle(
+                                            fontSize: 13.5,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.goldLight,
+                                            letterSpacing: 0.2,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.goldPrimary.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          selectedSite.stateName,
+                                          style: const TextStyle(
+                                            fontSize: 9.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.goldLight,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    selectedSite.district,
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      color: Colors.white.withOpacity(0.75),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // Exact Full Street Address
+                        Text(
+                          selectedSite.fullAddress,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            height: 1.35,
+                            color: Colors.white.withOpacity(0.92),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Badges Row: GPS Coordinates, Elevation, Darshan Timings
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            // GPS Coordinates Badge (Tap to copy)
+                            InkWell(
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                Clipboard.setData(ClipboardData(
+                                  text: '${selectedSite.latitude}, ${selectedSite.longitude}',
+                                ));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('${selectedSite.locationName}: ${selectedSite.latitude}° N, ${selectedSite.longitude}° E copied'),
+                                    duration: const Duration(seconds: 2),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2C1207),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.4)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.gps_fixed_rounded, size: 11, color: AppColors.goldLight),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${selectedSite.latitude.toStringAsFixed(4)}° N, ${selectedSite.longitude.toStringAsFixed(4)}° E',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.goldLight,
+                                        letterSpacing: 0.2,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 3),
+                                    const Icon(Icons.copy_rounded, size: 10, color: Colors.white60),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // Elevation Badge
+                            if (selectedSite.elevation.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2C1207),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.4)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.terrain_rounded, size: 11, color: Color(0xFFFFB300)),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      selectedSite.elevation,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white.withOpacity(0.8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                            // Temple Darshan Timings Badge
+                            if (selectedSite.templeTimings.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2C1207),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.4)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.access_time_rounded, size: 11, color: Color(0xFFFFB300)),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      selectedSite.templeTimings,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white.withOpacity(0.8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Prominent Clickable Google Maps Navigation Link Button
+                        InkWell(
+                          onTap: () => _openGoogleMaps(selectedSite),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFFD97706),
+                                  Color(0xFFB45309),
+                                  Color(0xFF7C1D1D),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.goldLight, width: 1.2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFD97706).withOpacity(0.4),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.directions_rounded,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    lang == 'kn'
+                                        ? 'ಗೂಗಲ್ ಮ್ಯಾಪ್ಸ್‌ನಲ್ಲಿ ವೀಕ್ಷಿಸಿ • Google Maps'
+                                        : lang == 'te'
+                                            ? 'గూగుల్ మ్యాప్స్‌లో చూడండి • Google Maps'
+                                            : lang == 'hi'
+                                                ? 'गूगल मैप्स में देखें • Google Maps'
+                                                : lang == 'ta'
+                                                    ? 'கூகிள் மேப்ஸில் பார்க்கவும் • Google Maps'
+                                                    : lang == 'ml'
+                                                        ? 'ഗൂഗിൾ മാപ്പിൽ കാണുക • Google Maps'
+                                                        : 'Open in Google Maps • Navigate Here',
+                                    style: const TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: 0.3,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                const Icon(
+                                  Icons.open_in_new_rounded,
+                                  color: AppColors.goldLight,
+                                  size: 14,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

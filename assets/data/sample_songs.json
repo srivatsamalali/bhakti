@@ -286,5 +286,67 @@
     "duration": 310,
     "published": true,
     "order": 16
+  },
+  {
+    "id": "shiva_ashtottara",
+    "title": "Sri Shiva Ashtottara Shatanamavali",
+    "titleLocalized": {
+      "kn": "ಶ್ರೀ ಶಿವ ಅಷ್ಟೋತ್ತರ ಶತನಾಮಾವಳಿ",
+      "te": "శ్రీ శివ అష్టోత్తర శతనామావళి",
+      "hi": "श्री शिव अष्टोत्तर शतनामावली",
+      "ta": "ஸ்ரீ சிவ அஷ்டோத்தர சதநாமாவளி",
+      "ml": "ശ്രീ ശിവ അഷ്ടോത്തര ശതനാമാവലി",
+      "en": "Sri Shiva Ashtottara Shatanamavali"
+    },
+    "language": "kn",
+    "categoryId": "asthotara",
+    "categoryName": "Asthotara",
+    "deity": "Lord Shiva",
+    "deityLocalized": {
+      "kn": "ಶಿವ",
+      "te": "శివుడు",
+      "hi": "शिव",
+      "ta": "சிவன்",
+      "ml": "ശിവൻ",
+      "en": "Lord Shiva"
+    },
+    "artist": "Vedic Chanting",
+    "description": "108 Divine Names of Lord Shiva with Sacred Namavali",
+    "imageUrl": "assets/images/logo.png",
+    "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
+    "duration": 480,
+    "published": true,
+    "order": 17
+  },
+  {
+    "id": "shri_rama_stuti",
+    "title": "Sri Ramachandra Kripalu Bhajamana Stuti",
+    "titleLocalized": {
+      "kn": "ಶ್ರೀ ರಾಮಚಂದ್ರ ಕೃಪಾಳು ಭಜಮನ ಸ್ತುತಿ",
+      "te": "శ్రీ రామచంద్ర కృపాళు భజమన స్తుతి",
+      "hi": "श्री रामचंद्र कृपालु भजु मन स्तुति",
+      "ta": "ஸ்ரீ ராமச்சந்திர கிருபாலு பஜமன ஸ்துதி",
+      "ml": "ശ്രീ രാമചന്ദ്ര കൃപാളു ഭജമന സ്തുതി",
+      "en": "Sri Ramachandra Kripalu Bhajamana Stuti"
+    },
+    "language": "hi",
+    "categoryId": "stuti",
+    "categoryName": "Stuti",
+    "deity": "Lord Rama",
+    "deityLocalized": {
+      "kn": "ರಾಮ",
+      "te": "రాముడు",
+      "hi": "राम",
+      "ta": "ராமர்",
+      "ml": "രാമൻ",
+      "en": "Lord Rama"
+    },
+    "artist": "Goswami Tulsidas",
+    "description": "Sacred Divine Stuti of Maryada Purushottama Sri Rama",
+    "imageUrl": "assets/images/logo.png",
+    "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3",
+    "duration": 345,
+    "published": true,
+    "order": 18
   }
 ]

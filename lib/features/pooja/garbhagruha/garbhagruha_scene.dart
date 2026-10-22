@@ -26,6 +26,15 @@ class GarbhagruhaEnvironment {
   final String templeStyleDescription;
   final String aerialEntryNarrative;
   final Offset mapPosition; // Normalized 0..1 on sacred map
+  final double latitude;
+  final double longitude;
+  final String fullAddress;
+  final String district;
+  final String pincode;
+  final String googleMapsUrl;
+  final String templeTimings;
+  final String elevation;
+  final String sacredGeography;
 
   const GarbhagruhaEnvironment({
     required this.deityId,
@@ -51,6 +60,15 @@ class GarbhagruhaEnvironment {
     required this.templeStyleDescription,
     required this.aerialEntryNarrative,
     required this.mapPosition,
+    this.latitude = 12.9716,
+    this.longitude = 77.5946,
+    this.fullAddress = '',
+    this.district = '',
+    this.pincode = '',
+    this.googleMapsUrl = '',
+    this.templeTimings = '6:00 AM – 8:30 PM',
+    this.elevation = '',
+    this.sacredGeography = '',
   });
 }
 

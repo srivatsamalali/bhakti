@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/translation/song_translation_service.dart';
 
 /// Devotional Song Model
 class SongModel {
@@ -51,10 +52,22 @@ class SongModel {
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
-  /// Resolves the title dynamically based on active locale code (kn, en, hi, ta, ml)
+  /// Resolves the title dynamically based on active locale code (kn, en, hi, ta, ml, te)
   String getLocalizedTitle(String langCode) {
-    if (titleLocalized != null && titleLocalized!.containsKey(langCode)) {
+    if (titleLocalized != null &&
+        titleLocalized!.containsKey(langCode) &&
+        titleLocalized![langCode] != null &&
+        titleLocalized![langCode]!.trim().isNotEmpty) {
       return titleLocalized![langCode]!;
+    }
+    // Check dynamic on-device translation cache
+    final translated = SongTranslationService.instance.getCachedTranslation(title, langCode);
+    if (translated != null && translated.trim().isNotEmpty) {
+      return translated;
+    }
+    // Automatically trigger on-device background translation over internet if on non-English
+    if (langCode != 'en') {
+      SongTranslationService.instance.requestTranslation(title, langCode);
     }
     return title;
   }

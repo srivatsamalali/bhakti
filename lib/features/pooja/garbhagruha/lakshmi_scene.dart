@@ -34,4 +34,13 @@ final GarbhagruhaEnvironment lakshmiEnvironment = GarbhagruhaEnvironment(
   templeStyleDescription: 'Ancient Hemadpanthi carved stone temple with towering deepastambhas and celestial golden kalasha spires',
   aerialEntryNarrative: 'Drone swooping across ancient Hemadpanthi stone spires and tall Deepastambhas, flying straight through the temple doors into the sanctum...',
   mapPosition: const Offset(0.18, 0.22), // North-West / Kolhapur Deccan
+  latitude: 16.6946,
+  longitude: 74.2238,
+  fullAddress: 'Shri Ambabai Mahalakshmi Temple, Mahadwar Road, B Ward, Kolhapur, Maharashtra 416002',
+  district: 'Kolhapur District',
+  pincode: '416002',
+  googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Shri+Ambabai+Mahalakshmi+Temple+Kolhapur',
+  templeTimings: '5:00 AM – 10:00 PM (Karanji & Mahapuja)',
+  elevation: '569 m MSL',
+  sacredGeography: 'Ancient Karveer Kshetra on the banks of Panchaganga River, Deccan Plateau',
 );

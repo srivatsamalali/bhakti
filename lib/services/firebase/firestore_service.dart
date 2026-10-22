@@ -144,10 +144,15 @@ class FirestoreService {
           .orderBy('order')
           .snapshots()
           .map((snapshot) {
-        if (snapshot.docs.isEmpty && _fallbackCategories.isNotEmpty) {
-          return _fallbackCategories;
+        final fetched = snapshot.docs.map((doc) => CategoryModel.fromFirestore(doc)).toList();
+        final fetchedIds = fetched.map((c) => c.id).toSet();
+        for (final fallback in _fallbackCategories) {
+          if (!fetchedIds.contains(fallback.id)) {
+            fetched.add(fallback);
+          }
         }
-        return snapshot.docs.map((doc) => CategoryModel.fromFirestore(doc)).toList();
+        fetched.sort((a, b) => a.order.compareTo(b.order));
+        return fetched.isNotEmpty ? fetched : _fallbackCategories;
       }).handleError((_) => _fallbackCategories);
     } catch (_) {
       return Stream.value(_fallbackCategories);
@@ -165,7 +170,15 @@ class FirestoreService {
             .get()
             .timeout(const Duration(seconds: 4));
         if (snapshot.docs.isNotEmpty) {
-          return snapshot.docs.map((doc) => CategoryModel.fromFirestore(doc)).toList();
+          final fetched = snapshot.docs.map((doc) => CategoryModel.fromFirestore(doc)).toList();
+          final fetchedIds = fetched.map((c) => c.id).toSet();
+          for (final fallback in _fallbackCategories) {
+            if (!fetchedIds.contains(fallback.id)) {
+              fetched.add(fallback);
+            }
+          }
+          fetched.sort((a, b) => a.order.compareTo(b.order));
+          return fetched;
         }
       }
     } catch (e) {

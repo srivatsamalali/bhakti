@@ -35,4 +35,13 @@ final GarbhagruhaEnvironment venkateshwaraEnvironment = GarbhagruhaEnvironment(
   templeStyleDescription: 'Ancient Vijayanagara black granite sanctum with golden Vimana glow and sacred Tulsi ambience',
   aerialEntryNarrative: 'Drone swooping across Seshachalam Hills, diving through the golden Ananda Nilayam Gopuram, flying through the carved temple doors into the Garbhagruha...',
   mapPosition: const Offset(0.66, 0.42), // East / Andhra Seshachalam
+  latitude: 13.6833,
+  longitude: 79.3472,
+  fullAddress: 'Sri Venkateswara Swamy Vaari Temple, S Mada St, Tirumala, Tirupati, Andhra Pradesh 517504',
+  district: 'Tirupati District',
+  pincode: '517504',
+  googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sri+Venkateswara+Swamy+Temple+Tirumala+Tirupati',
+  templeTimings: 'Suprabhatam 3:00 AM – Sarva Darshanam till 11:30 PM',
+  elevation: '853 m (2,799 ft) MSL',
+  sacredGeography: 'Seshachalam Hills (Venkatadri Peak), Eastern Ghats Range',
 );
