@@ -13,6 +13,12 @@ class AppConstants {
   static const String subscriptionFeatureFlag = 'N';
   static bool get isSubscriptionEnabled => subscriptionFeatureFlag.trim().toUpperCase() == 'Y';
 
+  // --- Advertising & Monetization Feature Flag ---
+  // Bhakti is 100% free and ad-free during its initial period.
+  // Set to 'Y' only when advertisements are explicitly approved to be enabled.
+  static const String adsFeatureFlag = 'N';
+  static bool get isAdsEnabled => adsFeatureFlag.trim().toUpperCase() == 'Y';
+
   // Supported language codes
   static const String langKannada = 'kn';
   static const String langTelugu = 'te';

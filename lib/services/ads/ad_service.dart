@@ -28,7 +28,10 @@ class AdService {
 
   /// Initialize Google Mobile Ads SDK with Test Device support
   Future<void> initialize({List<String>? testDeviceIds}) async {
-    if (kIsWeb) return;
+    if (kIsWeb || !AppConstants.isAdsEnabled) {
+      debugPrint('AdService: Advertising is currently disabled (initial ad-free period). No ad requests will occur.');
+      return;
+    }
     try {
       if (Platform.isAndroid || Platform.isIOS) {
         await MobileAds.instance.initialize();
@@ -75,7 +78,7 @@ class AdService {
 
   // --- Interstitial Ads Loading ---
   void loadInterstitialAd() {
-    if (!_isInitialized || kIsWeb || _isLoadingInterstitial || _frequencyManager.isPremiumUser) return;
+    if (!AppConstants.isAdsEnabled || !_isInitialized || kIsWeb || _isLoadingInterstitial || _frequencyManager.isPremiumUser) return;
     if (_interstitialAd != null) return; // Already cached and ready
 
     _isLoadingInterstitial = true;

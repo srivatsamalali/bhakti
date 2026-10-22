@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
+import '../core/constants/app_constants.dart';
 import '../services/ads/ad_service.dart';
 import '../services/premium/premium_service.dart';
 
@@ -19,13 +20,13 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   void initState() {
     super.initState();
-    if (!AdService.instance.frequencyManager.isPremiumUser) {
+    if (AppConstants.isAdsEnabled && !AdService.instance.frequencyManager.isPremiumUser) {
       _loadBanner();
     }
   }
 
   void _loadBanner() {
-    if (kIsWeb || !AdService.instance.isInitialized || AdService.instance.frequencyManager.isPremiumUser) return;
+    if (!AppConstants.isAdsEnabled || kIsWeb || !AdService.instance.isInitialized || AdService.instance.frequencyManager.isPremiumUser) return;
 
     _bannerAd = BannerAd(
       adUnitId: AdService.instance.bannerAdUnitId,
