@@ -92,7 +92,7 @@ on:
 
 | Item | Current Status | Action Required Once Live |
 |---|---|---|
-| **Google Play Public URL** | Approved (Submission 31), Rollout in progress | Once Google completes search indexing, update the download button in `docs/home.html` with your live store link (`https://play.google.com/store/apps/details?id=com.bhakti.bhakti`). |
+| **Google Play Public URL** | ✅ Live on Store | Linked directly in header, hero button, FAQ, and footer (`https://play.google.com/store/apps/details?id=com.bhakti.devotional`). |
 | **Physical App Screenshots** | High-fidelity UI cards rendered via CSS/HTML | For marketing app store showcases, you can place 2–3 PNG screenshots of the app running on your iPhone or Android device inside `docs/assets/images/screenshots/` and link them in the App Preview section. |
 | **Canonical URL** | Commented in `<head>` | Once custom domain or preferred URL routing is finalized, enable `<link rel="canonical" href="...">`. |
 

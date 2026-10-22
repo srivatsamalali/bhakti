@@ -378,11 +378,19 @@
       color: #FFFFFF;
       border: 1px solid #374151;
       font-weight: 600;
-      cursor: not-allowed;
+      cursor: pointer;
       position: relative;
       box-shadow: var(--shadow-md);
-      opacity: 0.95;
+      text-decoration: none;
       transition: all 0.2s ease;
+    }
+
+    .btn-play-store:hover {
+      background: #000000;
+      border-color: var(--gold-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      color: #FFFFFF;
     }
 
     .btn-play-store svg {
@@ -415,11 +423,11 @@
       margin-top: 8px;
       font-size: 0.78rem;
       font-weight: 600;
-      color: var(--saffron-dark);
-      background: #FEF3C7;
+      color: #065F46;
+      background: #D1FAE5;
       padding: 3px 10px;
       border-radius: 9999px;
-      border: 1px solid rgba(217, 107, 6, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
     .btn-secondary {
@@ -1432,6 +1440,8 @@
         "name": "Bhakti – Devotional Music & Hindu Panchanga",
         "operatingSystem": "Android",
         "applicationCategory": "LifestyleApplication",
+        "downloadUrl": "https://play.google.com/store/apps/details?id=com.bhakti.devotional",
+        "installUrl": "https://play.google.com/store/apps/details?id=com.bhakti.devotional",
         "description": "Daily companion for sacred Hindu devotional music, stotras, and precise Vedic Panchanga with Tithi, Nakshatra, Muhurtha, and daily timings.",
         "author": {
           "@type": "Person",
@@ -1492,7 +1502,7 @@
             "name": "How can I install the app?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Bhakti has been approved for publication on the Google Play Store and is currently in its planned production rollout. As soon as the public store listing is active, the download link will be available here."
+              "text": "Bhakti is officially live on the Google Play Store! You can download and install it directly from: https://play.google.com/store/apps/details?id=com.bhakti.devotional."
             }
           },
           {
@@ -1539,9 +1549,9 @@
 
       <!-- Action Button (Store status) -->
       <div style="display: flex; align-items: center; gap: 12px;">
-        <a href="#download" class="btn-header">
+        <a href="https://play.google.com/store/apps/details?id=com.bhakti.devotional" target="_blank" rel="noopener noreferrer" class="btn-header">
           <span>📲</span>
-          <span>Google Play</span>
+          <span>Get on Google Play</span>
         </a>
         <button class="mobile-menu-btn" id="mobileMenuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1588,10 +1598,10 @@
               Listen to devotional music and explore Hindu Panchanga information in one place. Crafted for peaceful daily prayers, meditation, and temple tradition.
             </p>
 
-            <!-- Download Button (Honest status: Approved, Rollout in progress) -->
+            <!-- Download Button (Active Google Play Store Link) -->
             <div class="hero-actions" id="download">
               <div class="play-btn-wrapper">
-                <button class="btn-play-store" title="Google Play approval received. Public rollout in progress." aria-disabled="true">
+                <a href="https://play.google.com/store/apps/details?id=com.bhakti.devotional" target="_blank" rel="noopener noreferrer" class="btn-play-store" title="Download Bhakti – Devotional Music & Hindu Panchanga on Google Play Store">
                   <svg viewBox="0 0 512 512" fill="none">
                     <path d="M48.7 15.6C44.7 19.9 42.5 26.2 42.5 34.6v442.8c0 8.4 2.2 14.7 6.2 19l2.2 2.1 247.9-247.9v-5.8L50.9 13.5l-2.2 2.1z" fill="#00C1A6"/>
                     <path d="M381.9 324.4l-83.1-83.2v-5.8l83.1-83.2 2 1.2 98.4 55.9c28.1 16 28.1 42.1 0 58.1l-98.4 55.9-2 1.1z" fill="#FFD400"/>
@@ -1599,13 +1609,13 @@
                     <path d="M300.8 189.6L90.7 70.4C73.3 60.5 58 61.7 48.7 71.6l200.1 226 52-52v-44z" fill="#00E676"/>
                   </svg>
                   <div>
-                    <span class="btn-text-small">Available on</span>
+                    <span class="btn-text-small">GET IT ON</span>
                     <span class="btn-text-large">Google Play</span>
                   </div>
-                </button>
+                </a>
                 <div class="play-badge-notice">
-                  <span>⏳</span>
-                  <span>Approved by Google • Production Rollout in Progress</span>
+                  <span>🟢</span>
+                  <span>Now Live on Google Play Store • Free Download</span>
                 </div>
               </div>
 
@@ -2285,7 +2295,7 @@
               <span class="faq-toggle-icon">+</span>
             </button>
             <div class="faq-answer">
-              <p>The Bhakti app has been reviewed and officially approved for release on the Google Play Store (Submission 31). It is currently rolling out to users across India, the United States, and Germany. As soon as Google completes the worldwide index propagation, the live direct download link will be enabled on this page.</p>
+              <p>Bhakti is officially live on the Google Play Store! You can download and install it directly on your Android phone or tablet from Google Play: <a href="https://play.google.com/store/apps/details?id=com.bhakti.devotional" target="_blank" rel="noopener noreferrer"><strong>Download Bhakti on Google Play</strong></a>.</p>
             </div>
           </div>
 
@@ -2365,9 +2375,11 @@
             <a href="mailto:srivatsa.a.malali@gmail.com">srivatsa.a.malali@gmail.com</a>
           </div>
 
-          <div style="font-size: 0.8rem; color: #9C8E7E; margin-top: 14px;">
+          <div style="font-size: 0.88rem; margin-top: 14px;">
             <span>🤖 Google Play: </span>
-            <span style="color: var(--gold-light);">Approved • Rollout in Progress</span>
+            <a href="https://play.google.com/store/apps/details?id=com.bhakti.devotional" target="_blank" rel="noopener noreferrer" style="color: var(--gold-light); font-weight: 700; text-decoration: underline;">
+              Download on Google Play Store →
+            </a>
           </div>
         </div>
 
