@@ -189,7 +189,7 @@
         <strong>Application:</strong> Bhakti - Devotional Music &amp; Hindu Panchanga (Application ID: <code>com.bhakti.devotional</code>)<br>
         <strong>Developer:</strong> Srivatsa Malali<br>
         <strong>Hosting Location:</strong> <a href="https://srivatsamalali.github.io/bhakti/">https://srivatsamalali.github.io/bhakti/</a><br>
-        <strong>Effective Date:</strong> October 22, 2026
+        <strong>Effective Date:</strong> October 28, 2026
       </div>
     </header>
 
@@ -232,7 +232,7 @@
     <ul>
       <li>Aggregate interaction events (such as songs started, songs completed, language selected, and search queries within the app).</li>
       <li>Basic technical and diagnostic information (such as operating system version, device model, and general geographic region at country/city level).</li>
-      <li>Pseudonymous identifiers (such as the Firebase App Instance ID generated upon installation).</li>
+      <li>Pseudonymous identifiers (such as the Firebase App Instance ID and App Set ID generated upon installation).</li>
     </ul>
     <p>
       All analytics telemetry is processed in aggregate and is not linked to personal identifying information. Firebase Crashlytics is not currently integrated into the application.
@@ -252,7 +252,7 @@
       <li>There is no automated or remote date-trigger that will activate advertisements without an intentional update.</li>
     </ul>
     <div class="highlight-box">
-      <strong>Note on Google Play "Contains Ads" Store Badge:</strong> Google Play developer policy mandates declaring that an app contains ads if an advertising SDK library is compiled into the release package (AAB/APK), even if ad serving is programmatically suppressed at runtime. Because the AdMob SDK is included in the application build for planned future monetization, Google Play displays the "Contains ads" badge on the store listing. However, in the released app, all advertising requests remain inactive.
+      <strong>Note on Google Play "Contains Ads" Store Badge &amp; Data Safety:</strong> Google Play developer policy mandates declaring that an app contains ads if an advertising SDK library is compiled into the release package (AAB/APK), even if ad serving is programmatically suppressed at runtime. Because the AdMob SDK is included in the application build, Google Play displays the "Contains ads" badge, and the associated Device IDs (Advertising ID) are disclosed in the Google Play Data Safety form for full regulatory and policy compliance.
     </div>
     <p>
       If and when advertisements are introduced in a future release, they will be strictly family-friendly and contextual, and this Privacy Policy will be updated to describe the active ad request behavior and consent mechanisms before ads are served.
@@ -272,9 +272,9 @@
       </thead>
       <tbody>
         <tr>
-          <td><strong>Google Play Services</strong></td>
-          <td>Essential application runtime support, secure app delivery, and platform updates.</td>
-          <td><strong>Exempt:</strong> Core OS runtime services; not classified as independent user data collection.</td>
+          <td><strong>Google Play Services &amp; In-App Updates</strong></td>
+          <td>Essential application runtime support, secure app delivery, and automated in-app updates.</td>
+          <td><strong>App Functionality:</strong> Core OS runtime services; allows devotees to update the app directly with one tap.</td>
           <td><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></td>
         </tr>
         <tr>
@@ -286,13 +286,13 @@
         <tr>
           <td><strong>Google Firebase Analytics</strong></td>
           <td>Collects anonymous, aggregate usage statistics and performance diagnostics to improve application stability.</td>
-          <td><strong>Data Collected (Not Shared):</strong><br>• <em>App interactions</em> (song views, audio starts/completions, language selection)<br>• <em>In-app search query</em> (voluntary search terms)<br>• <em>Device IDs</em> (pseudonymous Firebase App Instance ID)<br><em>Purpose: Analytics. Encrypted in transit via HTTPS/TLS.</em></td>
+          <td><strong>Data Collected (Not Shared):</strong><br>• <em>App interactions</em> (song views, audio starts/completions, language selection)<br>• <em>In-app search query</em> (voluntary search terms)<br>• <em>Device or other IDs</em> (pseudonymous Firebase App Instance ID, App Set ID)<br><em>Purpose: Analytics, App functionality. Encrypted in transit via HTTPS/TLS.</em></td>
           <td><a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Analytics Policy</a></td>
         </tr>
         <tr>
           <td><strong>Google Mobile Ads (AdMob)</strong></td>
           <td>Integrated SDK for planned future monetization; currently inactive with zero ad requests made during the initial ad-free period.</td>
-          <td><strong>Neither Collected nor Shared (Currently Inactive):</strong> SDK initialization is suppressed; zero ad requests transmitted; no advertising identifiers (GAID) collected during initial period.</td>
+          <td><strong>Data Declared in Google Play Data Safety:</strong><br>• <em>Device or other IDs</em> (Google Advertising ID - AAID)<br><em>SDK is compiled in the application build package and declared in Data Safety for Advertising &amp; Marketing compliance under Google Play policy.</em></td>
           <td><a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Google Ads Privacy</a></td>
         </tr>
       </tbody>
